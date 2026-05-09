@@ -18,7 +18,7 @@
 
 |------|--------|---------|-----------|
 
-| 2415053122213 | \[TÊN BẠN] | Nhóm trưởng / Integration | Thiết kế DB, ERD, Tổng hợp tài liệu |
+| 2415053122213 | \[TÊN HẢI] | Nhóm trưởng / Integration | Thiết kế DB, ERD, Tổng hợp tài liệu |
 
 | 2415053122208 | \[TÊN DUY] | Thành viên | Giao diện Admin, Giao diện Nhân viên |
 
@@ -146,7 +146,7 @@ QuanLyThueXe/
 
 
 
-\- 📄 \[Báo cáo Google Docs] https://docs.google.com/document/d/1t3y4F3mz7IRLiuNVkHeHpkU\_BsD48VAT5FWPjmF8ZC4/edit?usp=sharing
+\- 📄 \[Báo cáo Google Docs] https://docs.google.com/document/d/1t3y4F3mz7IRLiuNVkHeHpkU_BsD48VAT5FWPjmF8ZC4/edit?usp=sharing
 
 \- 🎨 \[Figma — Giao diện] https://www.figma.com/design/iJJsyOlmU2e2YX6h9Aqvva/Qu%E1%BA%A3n-l%C3%AD-thu%C3%AA-xe-%C3%B4-t%C3%B4?node-id=0-1\&p=f\&t=SxVVMuKCD3DrIzUT-0
 
