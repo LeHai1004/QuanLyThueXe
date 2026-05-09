@@ -20,46 +20,51 @@ USE QuanLyThueXe;
 GO
 
 -- ============================================================
--- BANG 1: VAITRO (danh muc vai tro)
+-- BANG 1: VAITRO
 -- ============================================================
 CREATE TABLE VaiTro (
-    MaVaiTro    INT             PRIMARY KEY IDENTITY(1,1),
-    TenVaiTro   NVARCHAR(50)    NOT NULL UNIQUE,  -- 'Admin', 'NhanVien', 'KhachHang'
-    MoTa        NVARCHAR(200)   NULL
+    MaVaiTro INT PRIMARY KEY IDENTITY(1,1),
+    TenVaiTro NVARCHAR(50) NOT NULL UNIQUE,
+    MoTa NVARCHAR(200) NULL
 );
 GO
 
 -- ============================================================
--- BANG 2: TAIKHOAN (thong tin dang nhap)
+-- BANG 2: TAIKHOAN
 -- ============================================================
 CREATE TABLE TaiKhoan (
-    MaTaiKhoan      INT             PRIMARY KEY IDENTITY(1,1),
-    MaVaiTro        INT             NOT NULL,
-    Email           NVARCHAR(150)   NOT NULL UNIQUE,
-    MatKhauHash     NVARCHAR(255)   NOT NULL,
-    IsActive        BIT             NOT NULL DEFAULT 1,
-    NgayTao         DATETIME        NOT NULL DEFAULT GETDATE(),
-    NgayCapNhat     DATETIME        NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (MaVaiTro)
-        REFERENCES VaiTro(MaVaiTro)
+    MaTaiKhoan INT PRIMARY KEY IDENTITY(1,1),
+    MaVaiTro INT NOT NULL,
+    Email NVARCHAR(150) NOT NULL UNIQUE,
+    MatKhauHash NVARCHAR(255) NOT NULL,
+    IsActive BIT NOT NULL DEFAULT 1,
+    NgayTao DATETIME NOT NULL DEFAULT GETDATE(),
+    NgayCapNhat DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (MaVaiTro) REFERENCES VaiTro(MaVaiTro)
 );
 GO
 
 -- ============================================================
--- BANG 3: NGUOIDUNG (thong tin ca nhan chung)
+-- BANG 3: NGUOIDUNG (ĐÃ SỬA ĐỊA CHỈ)
 -- ============================================================
 CREATE TABLE NguoiDung (
-    MaNguoiDung     INT             PRIMARY KEY IDENTITY(1,1),
-    MaTaiKhoan      INT             NOT NULL UNIQUE,
-    HoTen           NVARCHAR(150)   NOT NULL,
-    SoDienThoai     NVARCHAR(15)    NULL,
-    GioiTinh        NVARCHAR(10)    NULL,   -- 'Nam', 'Nu', 'Khac'
-    NgaySinh        DATE            NULL,
-    DiaChi          NVARCHAR(300)   NULL,
-    AvatarUrl       NVARCHAR(300)   NULL,
-    NgayTao         DATETIME        NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_NguoiDung_TaiKhoan FOREIGN KEY (MaTaiKhoan)
-        REFERENCES TaiKhoan(MaTaiKhoan)
+    MaNguoiDung INT PRIMARY KEY IDENTITY(1,1),
+    MaTaiKhoan INT NOT NULL UNIQUE,
+    HoTen NVARCHAR(150) NOT NULL,
+    SoDienThoai NVARCHAR(15) NULL,
+    GioiTinh NVARCHAR(10) NULL,
+    NgaySinh DATE NULL,
+    
+    -- ĐỊA CHỈ ĐÃ TÁCH THEO 1NF
+    SoNha_Duong NVARCHAR(200) NULL,
+    Phuong_Xa NVARCHAR(100) NULL,
+    Quan_Huyen NVARCHAR(100) NULL,
+    Tinh_ThanhPho NVARCHAR(100) NULL,
+    
+    AvatarUrl NVARCHAR(300) NULL,
+    NgayTao DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_NguoiDung_TaiKhoan FOREIGN KEY (MaTaiKhoan) REFERENCES TaiKhoan(MaTaiKhoan)
 );
 GO
 
@@ -67,20 +72,19 @@ GO
 -- BANG 4: KHACHHANG (mo rong tu NguoiDung)
 -- ============================================================
 CREATE TABLE KhachHang (
-    MaKH            INT             PRIMARY KEY IDENTITY(1,1),
-    MaNguoiDung     INT             NOT NULL UNIQUE,
-    SoCCCD          NVARCHAR(20)    NULL,
-    AnhCCCDTruoc    NVARCHAR(300)   NULL,
-    AnhCCCDSau      NVARCHAR(300)   NULL,
-    SoBangLai       NVARCHAR(20)    NULL,
-    HangBangLai     NVARCHAR(10)    NULL,   -- 'B1', 'B2', 'C'
-    NgayCapBL       DATE            NULL,
-    NgayHetHanBL    DATE            NULL,
-    TongChiTieu     DECIMAL(18,2)   NOT NULL DEFAULT 0,
-    TongLanThue     INT             NOT NULL DEFAULT 0,
-    NgayTao         DATETIME        NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_KhachHang_NguoiDung FOREIGN KEY (MaNguoiDung)
-        REFERENCES NguoiDung(MaNguoiDung)
+    MaKH INT PRIMARY KEY IDENTITY(1,1),
+    MaNguoiDung INT NOT NULL UNIQUE,
+    SoCCCD NVARCHAR(20) NULL,
+    AnhCCCDTruoc NVARCHAR(300) NULL,
+    AnhCCCDSau NVARCHAR(300) NULL,
+    SoBangLai NVARCHAR(20) NULL,
+    HangBangLai NVARCHAR(10) NULL,
+    NgayCapBL DATE NULL,
+    NgayHetHanBL DATE NULL,
+    TongChiTieu DECIMAL(18,2) NOT NULL DEFAULT 0,
+    TongLanThue INT NOT NULL DEFAULT 0,
+    NgayTao DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_KhachHang_NguoiDung FOREIGN KEY (MaNguoiDung) REFERENCES NguoiDung(MaNguoiDung)
 );
 GO
 
@@ -434,14 +438,27 @@ INSERT INTO TaiKhoan (MaVaiTro, Email, MatKhauHash) VALUES
 (3, N'khach003@gmail.com', N'$2a$10$hashedpassword_kh003');
 GO
 
--- NguoiDung
-INSERT INTO NguoiDung (MaTaiKhoan, HoTen, SoDienThoai, GioiTinh, NgaySinh, DiaChi) VALUES
-(1, N'Nguyen Van Admin',   N'0901000001', N'Nam', '1985-03-10', N'1 Hung Vuong, Da Nang'),
-(2, N'Tran Thi Lan',       N'0901000002', N'Nu',  '1995-07-22', N'12 Le Duan, Da Nang'),
-(3, N'Le Minh Duc',        N'0901000003', N'Nam', '1993-11-05', N'45 Tran Phu, Da Nang'),
-(4, N'Pham Thi Hoa',       N'0912345678', N'Nu',  '1998-04-15', N'78 Nguyen Van Linh, Da Nang'),
-(5, N'Vo Quoc Bao',        N'0923456789', N'Nam', '1990-08-30', N'23 Bach Dang, Da Nang'),
-(6, N'Nguyen Thi Mai',     N'0934567890', N'Nu',  '2000-12-01', N'56 Hoang Dieu, Da Nang');
+-- NguoiDung - Dữ liệu mẫu đã tách địa chỉ
+INSERT INTO NguoiDung (MaTaiKhoan, HoTen, SoDienThoai, GioiTinh, NgaySinh, 
+                       SoNha_Duong, Phuong_Xa, Quan_Huyen, Tinh_ThanhPho) 
+VALUES
+(1, N'Nguyen Van Admin', N'0901000001', N'Nam', '1985-03-10', 
+    N'1 Hùng Vương', N'Phường Hải Châu 1', N'Quận Hải Châu', N'TP. Đà Nẵng'),
+
+(2, N'Tran Thi Lan', N'0901000002', N'Nu', '1995-07-22', 
+    N'12 Lê Duẩn', N'Phường Thạch Thang', N'Quận Hải Châu', N'TP. Đà Nẵng'),
+
+(3, N'Le Minh Duc', N'0901000003', N'Nam', '1993-11-05', 
+    N'45 Trần Phú', N'Phường Thạch Thang', N'Quận Hải Châu', N'TP. Đà Nẵng'),
+
+(4, N'Pham Thi Hoa', N'0912345678', N'Nu', '1998-04-15', 
+    N'78 Nguyễn Văn Linh', N'Phường Hòa Hiệp Nam', N'Quận Liên Chiểu', N'TP. Đà Nẵng'),
+
+(5, N'Vo Quoc Bao', N'0923456789', N'Nam', '1990-08-30', 
+    N'23 Bạch Đằng', N'Phường Hải Châu 2', N'Quận Hải Châu', N'TP. Đà Nẵng'),
+
+(6, N'Nguyen Thi Mai', N'0934567890', N'Nu', '2000-12-01', 
+    N'56 Hoàng Diệu', N'Phường Nam Dương', N'Quận Hải Châu', N'TP. Đà Nẵng');
 GO
 
 -- NhanVien
@@ -565,7 +582,11 @@ SELECT
     nd.HoTen,
     tk.Email,
     nd.SoDienThoai,
-    nd.DiaChi,
+    -- Địa chỉ mới
+    nd.SoNha_Duong,
+    nd.Phuong_Xa,
+    nd.Quan_Huyen,
+    nd.Tinh_ThanhPho,
     kh.SoCCCD,
     kh.SoBangLai,
     kh.HangBangLai,
@@ -573,8 +594,8 @@ SELECT
     kh.TongChiTieu,
     kh.NgayTao
 FROM KhachHang kh
-JOIN NguoiDung  nd ON kh.MaNguoiDung = nd.MaNguoiDung
-JOIN TaiKhoan   tk ON nd.MaTaiKhoan  = tk.MaTaiKhoan;
+JOIN NguoiDung nd ON kh.MaNguoiDung = nd.MaNguoiDung
+JOIN TaiKhoan tk ON nd.MaTaiKhoan = tk.MaTaiKhoan;
 GO
 
 -- View: Danh sach don dat xe day du
