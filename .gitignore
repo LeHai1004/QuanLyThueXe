@@ -1,0 +1,25 @@
+## .gitignore cho project ASP.NET MVC C#
+
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# NuGet
+packages/
+
+# Windows junk
+Thumbs.db
+Desktop.ini
+
+# Database files
+*.mdf
+*.ldf
+
+# Config có mật khẩu - KHÔNG push lên!
+Web.config
+appsettings.json
