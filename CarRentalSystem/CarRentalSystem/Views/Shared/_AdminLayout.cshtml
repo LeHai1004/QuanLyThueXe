@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RoyalCar Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+        darkMode: "class",
+        theme: {
+        extend: {
+        colors: {
+        primary: "#00236f",
+        secondary: "#316bf3",
+        background: "#F8FAFC",
+        "sidebar-bg": "#1E293B",
+        "on-surface": "#1a1b21",
+        "on-surface-variant": "#444651",
+        outline: "#757682",
+        "outline-variant": "#c5c5d3",
+        },
+        borderRadius: {
+        DEFAULT: "0.25rem",
+        lg: "0.5rem",
+        xl: "0.75rem",
+        "2xl": "1rem",
+        full: "9999px",
+        },
+        spacing: {
+        "sidebar-width": "280px",
+        "container-padding": "40px",
+        },
+        fontFamily: {
+        body: ["Inter", "sans-serif"],
+        },
+        fontSize: {
+        h1: ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "600" }],
+        h2: ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+        "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "500" }],
+        "status-pill": ["12px", { lineHeight: "16px", fontWeight: "600" }],
+        },
+        },
+        },
+        };
+    </script>
+    <style>
+        body {
+        font-family: "Inter", sans-serif;
+        }
+
+        .sidebar-active-tab {
+        background-color: #316bf3;
+        color: #ffffff;
+        }
+
+        .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        }
+
+        .active-link .material-symbols-outlined {
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+        display: none;
+        }
+
+        .custom-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="flex min-h-screen bg-[#F8FAFC]">
+    <aside class="fixed left-0 top-0 h-screen w-sidebar-width bg-[#1E293B] shadow-2xl flex flex-col z-50 overflow-hidden">
+        <div class="h-16 flex items-center px-6 mt-2">
+            <span class="text-white text-h1 font-extrabold tracking-tight">RoyalCar Admin</span>
+        </div>
+        <div class="px-5 mb-4">
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                <img alt="Admin Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-secondary" src="https://ui-avatars.com/api/?name=Admin&background=316bf3&color=fff" />
+                <div class="flex flex-col overflow-hidden">
+                    <span class="text-white font-semibold text-body-md truncate">
+                        @(Context.Session.GetString("FullName") ?? "Quản trị viên")
+                    </span>
+                    <span class="text-slate-400 text-[11px]">Quản trị viên</span>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto px-4 space-y-0.5 custom-scrollbar">
+            @{
+                var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+                string NavClass(string controller, string action = "Index")
+                {
+                    bool isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+                                 && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+                    return isActive
+                        ? "sidebar-active-tab active-link flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg shadow-secondary/20 transition-all duration-200"
+                        : "flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all duration-200";
+                }
+            }
+            <a class="@NavClass("Dashboard", "Index")" asp-controller="Dashboard" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                <span class="font-body-md">Dashboard Admin</span>
+            </a>
+            <a class="@NavClass("Dashboard", "Report")" asp-controller="Dashboard" asp-action="Report">
+                <span class="material-symbols-outlined text-[20px]">analytics</span>
+                <span class="font-body-md">Báo cáo thống kê</span>
+            </a>
+            <a class="@NavClass("ImportReceipt", "Index")" asp-controller="ImportReceipt" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">fact_check</span>
+                <span class="font-body-md">Duyệt phiếu nhập xe</span>
+            </a>
+            <a class="@NavClass("Booking", "Index")" asp-controller="Booking" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">directions_car</span>
+                <span class="font-body-md">Quản lý Đặt xe</span>
+            </a>
+            <a class="@NavClass("Vehicle", "Index")" asp-controller="Vehicle" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">minor_crash</span>
+                <span class="font-body-md">Quản lý Xe</span>
+            </a>
+            <a class="@NavClass("VehicleCategory", "Index")" asp-controller="VehicleCategory" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">category</span>
+                <span class="font-body-md font-medium">Quản lý Loại xe</span>
+            </a>
+            <a class="@NavClass("Customer", "Index")" asp-controller="Customer" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">person</span>
+                <span class="font-body-md">Khách hàng</span>
+            </a>
+            <a class="@NavClass("Staff", "Index")" asp-controller="Staff" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">badge</span>
+                <span class="font-body-md">Nhân viên</span>
+            </a>
+            <a class="@NavClass("Supplier", "Index")" asp-controller="Supplier" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">inventory</span>
+                <span class="font-body-md">Nhà cung cấp</span>
+            </a>
+            <a class="@NavClass("Invoice", "Index")" asp-controller="Invoice" asp-action="Index">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                <span class="font-body-md">Hóa đơn</span>
+            </a>
+        </nav>
+        <div class="mt-auto border-t border-white/5 py-4 px-4 space-y-0.5">
+            <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all duration-200" asp-controller="Account" asp-action="Settings">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                <span class="font-body-md">Cài đặt</span>
+            </a>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-red-400 transition-all duration-200 text-left">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                    <span class="font-body-md">Đăng xuất</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+    <main class="flex-1 ml-sidebar-width flex flex-col min-h-screen relative bg-[#F8FAFC]">
+        <header class="w-full h-20 flex justify-between items-center px-container-padding sticky top-0 z-40 bg-[#F8FAFC]/80 backdrop-blur-md border-b border-slate-100/60">
+            <h1 class="text-h1 text-[#1E293B] font-bold">@ViewData["Title"]</h1>
+            <div class="flex items-center gap-6">
+                @await RenderSectionAsync("HeaderSearch", required: false)
+                <div class="flex items-center gap-2">
+                    <button class="p-2.5 text-slate-500 hover:bg-white hover:shadow-sm rounded-full transition-all">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                    <button class="p-2.5 text-slate-500 hover:bg-white hover:shadow-sm rounded-full transition-all">
+                        <span class="material-symbols-outlined">help</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <div class="px-container-padding pb-container-padding flex-1 flex flex-col">
+            @RenderBody()
+        </div>
+        <footer class="px-container-padding pt-8 pb-6 border-t border-slate-200/60 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-label-md text-slate-400 font-medium tracking-wide">
+                © 2024 RoyalCar Admin. Tất cả quyền được bảo lưu.
+            </div>
+            <div class="flex gap-8">
+                <a class="text-label-md text-slate-400 hover:text-secondary font-medium transition-colors" href="#">Điều khoản dịch vụ</a>
+                <a class="text-label-md text-slate-400 hover:text-secondary font-medium transition-colors" href="#">Chính sách bảo mật</a>
+                <a class="text-label-md text-slate-400 hover:text-secondary font-medium transition-colors" href="#">Trung tâm hỗ trợ</a>
+            </div>
+        </footer>
+    </main>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
