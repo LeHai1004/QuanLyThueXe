@@ -4,99 +4,94 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Car Rental System</title>
-    
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    
     <script id="tailwind-config">
         tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        background: "#f8f9ff",
-                        surface: "#f8f9ff",
-                        primary: "#00236f",
-                        secondary: "#0058be",
-                        "outline-variant": "#c5c5d3",
-                        error: "#ba1a1a",
-                        "on-surface": "#0b1c30",
-                        "on-surface-variant": "#444651",
-                        "surface-container": "#e5eeff",
-                        "surface-container-lowest": "#ffffff"
-                    },
-                    fontFamily: {
-                        sans: ["Inter", "sans-serif"],
-                    }
-                }
-            }
+        darkMode: "class",
+        theme: {
+        extend: {
+        colors: {
+        background: "#f8f9ff",
+        surface: "#f8f9ff",
+        primary: "#00236f",
+        secondary: "#0058be",
+        "outline-variant": "#c5c5d3",
+        error: "#ba1a1a",
+        "on-surface": "#0b1c30",
+        "on-surface-variant": "#444651",
+        "surface-container": "#e5eeff",
+        "surface-container-lowest": "#ffffff"
+        },
+        fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        }
+        }
+        }
         };
     </script>
     <style>
-        body { font-family: "Inter", sans-serif; background-color: #f8f9ff; }
-        .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+        body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8f9ff;
+        }
+
+        .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        }
     </style>
-    
     @await RenderSectionAsync("Styles", required: false)
 </head>
-
 <body class="text-on-surface flex flex-col min-h-screen">
-
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-outline-variant shadow-sm">
         <div class="max-w-[1280px] mx-auto px-4 md:px-12 py-4 flex items-center justify-between">
-            
             <div class="flex items-center gap-2">
                 <div class="w-10 h-10 bg-[#00236f] rounded-lg flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">directions_car</span>
                 </div>
-                <a href="~/" class="text-[18px] font-bold text-[#00236f] tracking-tight uppercase">
+                <a asp-controller="Home" asp-action="Index" class="text-[18px] font-bold text-[#00236f] tracking-tight uppercase">
                     CAR <span class="text-[#0058be]">RENTAL SYSTEM</span>
                 </a>
             </div>
-
             <nav class="hidden lg:flex items-center space-x-8">
-                <a href="~/" class="text-sm font-semibold text-[#00236f] hover:text-[#0058be] transition-colors">Trang chủ</a>
-                <a href="~/Booking" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Đặt xe</a>
-                <a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Dịch vụ</a>
+                <a asp-controller="Home" asp-action="Index" class="text-sm font-semibold text-[#00236f] hover:text-[#0058be] transition-colors">Trang chủ</a>
+                <a asp-controller="Booking" asp-action="Create" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Đặt xe</a>
+                <a asp-controller="Vehicle" asp-action="CustomerIndex" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Dịch vụ</a>
 <a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Về chúng tôi</a>
                 <a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Liên hệ</a>
             </nav>
-
             <div class="flex items-center gap-4">
                 <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
                     <span class="material-symbols-outlined">search</span>
                 </button>
-
-                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                @if (Context.Session.GetString("AccountId") != null)
                 {
                     <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
                         <span class="material-symbols-outlined">notifications</span>
                         <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
                     </button>
                     <div class="h-8 w-[1px] bg-outline-variant mx-2 hidden sm:block"></div>
-                    
                     <div class="relative">
                         <button id="userMenuBtn" class="flex items-center gap-3 p-1 hover:bg-surface-container rounded-full md:rounded-lg transition-colors">
                             <div class="w-9 h-9 bg-secondary text-white rounded-full flex items-center justify-center font-bold">
-                                @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                                @(Context.Session.GetString("FullName")?.Substring(0, 1).ToUpper() ?? "U")
                             </div>
                             <div class="hidden md:block text-left">
-                                <p class="text-sm font-bold text-on-surface">@User.Identity.Name</p>
-                                <p class="text-xs text-on-surface-variant leading-none">Thành viên</p>
+                                <p class="text-sm font-bold text-on-surface">@Context.Session.GetString("FullName")</p>
+                                <p class="text-xs text-on-surface-variant leading-none">@Context.Session.GetString("RoleName")</p>
                             </div>
                             <span class="material-symbols-outlined text-outline hidden md:block">expand_more</span>
                         </button>
-                        
                         <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-[100]">
                             <div class="py-2">
-                                <a href="~/Profile" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
+                                <a asp-controller="Customer" asp-action="Profile" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
                                     <span class="material-symbols-outlined text-outline">person</span> Hồ sơ cá nhân
                                 </a>
-                                <a href="~/Booking/History" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
+                                <a asp-controller="Booking" asp-action="MyBookings" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
                                     <span class="material-symbols-outlined text-outline">history</span> Lịch sử thuê xe
-                                </a>
-<div class="border-t border-outline-variant my-1"></div>
+</a>
+                                <div class="border-t border-outline-variant my-1"></div>
                                 <form asp-controller="Account" asp-action="Logout" method="post">
                                     <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-red-50 transition-colors font-semibold">
                                         <span class="material-symbols-outlined">logout</span> Đăng xuất
@@ -109,17 +104,15 @@
                 else
                 {
                     <div class="h-8 w-[1px] bg-outline-variant mx-2 hidden sm:block"></div>
-                    <a href="~/Account/Login" class="text-[#00236f] font-bold text-sm hover:underline">Đăng nhập</a>
-                    <a href="~/Account/Register" class="bg-[#00236f] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-900 transition-colors shadow-md">Đăng ký</a>
+                    <a asp-controller="Account" asp-action="Login" class="text-[#00236f] font-bold text-sm hover:underline">Đăng nhập</a>
+                    <a asp-controller="Account" asp-action="Register" class="bg-[#00236f] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-900 transition-colors shadow-md">Đăng ký</a>
                 }
             </div>
         </div>
     </header>
-
     <main class="flex-grow pt-4">
         @RenderBody()
     </main>
-
     <footer class="bg-[#0b1c30] text-white py-16 mt-auto">
         <div class="max-w-[1280px] mx-auto px-4 md:px-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-left">
@@ -132,7 +125,6 @@
                     </div>
                     <p class="text-sm text-gray-400 leading-relaxed">Cung cấp dịch vụ thuê xe uy tín, nhanh chóng và tiện lợi cho mọi hành trình của bạn.</p>
                 </div>
-                
                 <div>
                     <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-white">Về chúng tôi</h4>
                     <ul class="space-y-4 text-sm">
@@ -141,7 +133,6 @@
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tuyển dụng</a></li>
                     </ul>
                 </div>
-                
                 <div>
                     <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-white">Dịch vụ & Khám phá</h4>
                     <ul class="space-y-4 text-sm">
@@ -150,12 +141,11 @@
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Địa điểm thuê xe</a></li>
                     </ul>
                 </div>
-                
                 <div>
                     <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-white">Liên hệ</h4>
                     <ul class="space-y-4 text-sm mb-8 text-gray-400">
                         <li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#0058be]">call</span> 0123 456 789</li>
-                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#0058be]">mail</span> contact@@thuexe.vn</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#0058be]">mail</span> contact@thuexe.vn</li>
                         <li class="flex items-start gap-3"><span class="material-symbols-outlined text-[#0058be]">location_on</span> 123 Đường Láng, Hà Nội</li>
                     </ul>
                 </div>
@@ -165,26 +155,21 @@
             </div>
         </div>
     </footer>
-
     <script>
-        // Script điều khiển Dropdown Menu của User
         const userMenuBtn = document.getElementById("userMenuBtn");
         const userDropdown = document.getElementById("userDropdown");
-
         if (userMenuBtn && userDropdown) {
-            userMenuBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                userDropdown.classList.toggle("hidden");
-            });
-
-            document.addEventListener("click", (e) => {
-                if (!userDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
-                    userDropdown.classList.add("hidden");
-                }
-            });
+        userMenuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle("hidden");
+        });
+        document.addEventListener("click", (e) => {
+        if (!userDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+        userDropdown.classList.add("hidden");
+        }
+        });
         }
     </script>
-    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
