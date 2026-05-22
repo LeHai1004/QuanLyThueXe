@@ -56,9 +56,9 @@
             </div>
             <nav class="hidden lg:flex items-center space-x-8">
                 <a asp-controller="Home" asp-action="Index" class="text-sm font-semibold text-[#00236f] hover:text-[#0058be] transition-colors">Trang chủ</a>
-                <a asp-controller="Booking" asp-action="Create" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Đặt xe</a>
+                <a asp-controller="Vehicle" asp-action="CustomerList" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Đặt xe</a>
                 <a asp-controller="Vehicle" asp-action="CustomerIndex" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Dịch vụ</a>
-<a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Về chúng tôi</a>
+                <a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Về chúng tôi</a>
                 <a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Liên hệ</a>
             </nav>
             <div class="flex items-center gap-4">
@@ -90,7 +90,7 @@
                                 </a>
                                 <a asp-controller="Booking" asp-action="MyBookings" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
                                     <span class="material-symbols-outlined text-outline">history</span> Lịch sử thuê xe
-</a>
+                                </a>
                                 <div class="border-t border-outline-variant my-1"></div>
                                 <form asp-controller="Account" asp-action="Logout" method="post">
                                     <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-red-50 transition-colors font-semibold">
@@ -136,7 +136,7 @@
                 <div>
                     <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-white">Dịch vụ & Khám phá</h4>
                     <ul class="space-y-4 text-sm">
-<li><a href="#" class="text-gray-400 hover:text-white transition-colors">Bảng giá thuê xe</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Bảng giá thuê xe</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Quy trình thuê xe</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Địa điểm thuê xe</a></li>
                     </ul>
