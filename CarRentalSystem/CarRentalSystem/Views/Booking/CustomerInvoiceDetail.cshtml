@@ -1,0 +1,148 @@
+﻿@model CarRentalSystem.Models.Invoice
+@{
+    ViewData["Title"] = "Chi tiết Hóa đơn " + Model.InvoiceNumber;
+    Layout = "_Layout";
+
+    int days = 1;
+    if (Model.Booking != null)
+    {
+        days = (int)Math.Ceiling((Model.Booking.ReturnDateTime - Model.Booking.PickupDateTime).TotalDays);
+        if (days <= 0) days = 1;
+    }
+
+    decimal deposit = Model.SubTotal * 0.1m;
+}
+
+<main class="flex-grow py-16 px-4 md:px-10 max-w-[1280px] mx-auto w-full mt-4">
+    <div class="max-w-[800px] mx-auto bg-white rounded-xl shadow-[0_8px_30px_rgba(30,58,138,0.12)] border border-[#c5c5d3]/30 overflow-hidden">
+        <div class="bg-[#e5eeff] p-8 md:p-10 border-b border-[#c5c5d3]/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-[36px] font-bold text-[#00236f] mb-2 tracking-tight">
+                    Hóa đơn #@Model.InvoiceNumber
+                </h1>
+                <p class="text-[16px] text-[#444651]">
+                    Ngày xuất: @Model.IssueDate.ToString("dd/MM/yyyy")
+                </p>
+            </div>
+            @if (Model.Status == "Da thanh toan" || Model.Status == "Đã thanh toán")
+            {
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-[#dcfce7] text-[#166534] rounded-full border border-[#16a34a]/20 font-semibold text-[14px]">
+                    <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                    <span>Đã thanh toán</span>
+                </div>
+            }
+            else
+            {
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-[#ffdad6] text-[#93000a] rounded-full border border-[#ba1a1a]/20 font-semibold text-[14px]">
+                    <span class="material-symbols-outlined text-[18px]">error</span>
+                    <span>Chưa thanh toán</span>
+                </div>
+            }
+        </div>
+
+        <div class="p-8 md:p-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+                <div>
+                    <h2 class="text-[24px] font-bold text-[#0b1c30] border-b border-[#c5c5d3]/30 pb-3 mb-4">
+                        Thông tin khách hàng
+                    </h2>
+                    <ul class="space-y-3 text-[16px] text-[#444651]">
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Họ tên:</strong>
+                            @(Model.Customer?.UserProfile?.FullName ?? "N/A")
+                        </li>
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Số điện thoại:</strong>
+                            @(Model.Customer?.UserProfile?.PhoneNumber ?? "N/A")
+                        </li>
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Email:</strong>
+                            @(Context.Session.GetString("Email") ?? "N/A")
+                        </li>
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Địa chỉ:</strong>
+                            Chưa cập nhật
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-[24px] font-bold text-[#0b1c30] border-b border-[#c5c5d3]/30 pb-3 mb-4">
+                        Thông tin thuê xe
+                    </h2>
+                    <ul class="space-y-3 text-[16px] text-[#444651]">
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Loại xe:</strong>
+                            @(Model.Booking?.Vehicle?.VehicleName ?? "N/A")
+                        </li>
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Biển số:</strong>
+                            @(Model.Booking?.Vehicle?.LicensePlate ?? "N/A")
+                        </li>
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Thời gian thuê:</strong>
+                            @(Model.Booking?.PickupDateTime.ToString("dd/MM/yyyy")) - @(Model.Booking?.ReturnDateTime.ToString("dd/MM/yyyy"))
+                        </li>
+                        <li>
+                            <strong class="text-[#0b1c30] font-semibold">Phương thức thanh toán:</strong>
+                            Trực tuyến
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h2 class="text-[24px] font-bold text-[#0b1c30] mb-4">
+                    Chi tiết thanh toán
+                </h2>
+                <div class="border border-[#c5c5d3]/30 rounded-lg overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-[#eff4ff] text-[14px] font-semibold text-[#0b1c30] border-b border-[#c5c5d3]/30">
+                            <tr>
+                                <th class="py-4 px-6">Mô tả</th>
+                                <th class="py-4 px-6 text-right">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-[16px] text-[#444651] divide-y divide-[#c5c5d3]/20">
+                            <tr class="hover:bg-[#f8f9ff] transition-colors">
+                                <td class="py-4 px-6">Tiền thuê xe (@days ngày x @((Model.Booking?.Vehicle?.PricePerDay ?? 0).ToString("N0"))đ)</td>
+                                <td class="py-4 px-6 text-right text-[#0b1c30] font-medium">@Model.SubTotal.ToString("N0")đ</td>
+                            </tr>
+                            <tr class="hover:bg-[#f8f9ff] transition-colors">
+                                <td class="py-4 px-6">Tiền cọc (10%)</td>
+                                <td class="py-4 px-6 text-right text-[#0b1c30] font-medium">@deposit.ToString("N0")đ</td>
+                            </tr>
+                            <tr class="hover:bg-[#f8f9ff] transition-colors">
+                                <td class="py-4 px-6">Phụ thu (nếu có)</td>
+                                <td class="py-4 px-6 text-right text-[#0b1c30] font-medium">0đ</td>
+                            </tr>
+                            <tr class="hover:bg-[#f8f9ff] transition-colors text-[#ba1a1a]">
+                                <td class="py-4 px-6">Giảm giá</td>
+                                <td class="py-4 px-6 text-right font-medium">-@Model.DiscountAmount.ToString("N0")đ</td>
+                            </tr>
+                            <tr class="bg-[#eff4ff] border-t-2 border-[#c5c5d3]/40">
+                                <td class="py-5 px-6 text-[24px] font-bold text-[#00236f] text-right">Tổng cộng:</td>
+                                <td class="py-5 px-6 text-[24px] font-bold text-[#00236f] text-right">@Model.GrandTotal.ToString("N0")đ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-[#c5c5d3]/20 gap-4">
+                <a class="text-[14px] text-[#0058be] hover:text-[#00236f] font-semibold transition-colors flex items-center gap-2 hover:underline" href="#">
+                    <span class="material-symbols-outlined">support_agent</span>
+                    Liên hệ hỗ trợ
+                </a>
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <a href="/Booking/MyInvoices" class="px-6 py-3 border-2 border-[#00236f] text-[#00236f] text-[14px] font-semibold rounded-lg hover:bg-[#eff4ff] transition-colors w-full sm:w-auto text-center block">
+                        Quay lại danh sách
+                    </a>
+                    <button class="px-6 py-3 bg-[#00236f] text-white text-[14px] font-semibold rounded-lg hover:bg-[#1e3a8a] transition-colors shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <span class="material-symbols-outlined">download</span>
+                        Tải hóa đơn PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
