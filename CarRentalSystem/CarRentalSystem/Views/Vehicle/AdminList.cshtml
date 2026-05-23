@@ -1,0 +1,54 @@
+﻿@model IEnumerable<CarRentalSystem.Models.Vehicle>
+@{
+    ViewData["Title"] = "Quản lý Danh mục Xe";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-slate-900">Quản lý Danh mục Xe</h2>
+        <a href="/Vehicle/Create" class="bg-primary text-white px-6 py-2 rounded-xl font-semibold hover:bg-slate-800 transition-all">
+            + Thêm xe mới
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-8 py-4 text-[12px] font-bold text-slate-500 uppercase">Hình ảnh</th>
+                    <th class="px-8 py-4 text-[12px] font-bold text-slate-500 uppercase">Tên xe</th>
+                    <th class="px-8 py-4 text-[12px] font-bold text-slate-500 uppercase">Loại xe</th>
+                    <th class="px-8 py-4 text-[12px] font-bold text-slate-500 uppercase text-right">Giá thuê</th>
+                    <th class="px-8 py-4 text-[12px] font-bold text-slate-500 uppercase text-center">Trạng thái</th>
+                    <th class="px-8 py-4 text-[12px] font-bold text-slate-500 uppercase text-center">Hành động</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-8 py-4">
+                            <img src="@item.HinhAnh" class="w-16 h-12 object-cover rounded-lg" alt="Car" />
+                        </td>
+                        <td class="px-8 py-4 font-semibold text-slate-900">@item.VehicleName</td>
+                        <td class="px-8 py-4 text-slate-600">@(item.Category?.CategoryName ?? "N/A")</td>
+                        <td class="px-8 py-4 text-right font-bold text-slate-900">@item.PricePerDay.ToString("N0")đ</td>
+                        <td class="px-8 py-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-[12px] font-bold @(item.Status == "San sang" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td class="px-8 py-4 text-center">
+                            <div class="flex justify-center gap-3">
+                                <a href="/Vehicle/Edit/@item.VehicleId" class="text-blue-600 hover:text-blue-800">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

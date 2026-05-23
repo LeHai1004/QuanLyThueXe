@@ -1,0 +1,134 @@
+﻿@model IEnumerable<CarRentalSystem.Models.Customer>
+@{
+    ViewData["Title"] = "Quản lý Khách hàng";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8">
+    <div class="flex justify-between items-end mb-8 mt-4">
+        <div>
+            <h2 class="font-h1 text-2xl font-bold text-[#1E293B] mb-1">
+                Danh sách Khách hàng hệ thống
+            </h2>
+            <p class="font-body-md text-sm text-slate-500">
+                Quản lý thông tin chi tiết và lịch sử giao dịch của khách hàng.
+            </p>
+        </div>
+        <div class="flex gap-3">
+            <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Hạng thành viên</label>
+                <select class="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-secondary/20 min-w-[140px] appearance-none cursor-pointer outline-none">
+                    <option>Tất cả</option>
+                    <option>VIP Gold</option>
+                    <option>VIP Silver</option>
+                    <option>Thường</option>
+                </select>
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Trạng thái</label>
+                <select class="bg-white border border-slate-200 text-sm rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-secondary/20 min-w-[140px] appearance-none cursor-pointer outline-none">
+                    <option>Hoạt động</option>
+                    <option>Bị khóa</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100">
+                        <th class="px-6 py-5 text-[12px] text-slate-500 uppercase font-bold tracking-widest">Mã KH</th>
+                        <th class="px-6 py-5 text-[12px] text-slate-500 uppercase font-bold tracking-widest">Khách hàng</th>
+                        <th class="px-6 py-5 text-[12px] text-slate-500 uppercase font-bold tracking-widest">Liên hệ</th>
+                        <th class="px-6 py-5 text-[12px] text-slate-500 uppercase font-bold tracking-widest">Số Giấy phép lái xe</th>
+                        <th class="px-6 py-5 text-[12px] text-slate-500 uppercase font-bold tracking-widest text-center">Hạng thẻ</th>
+                        <th class="px-6 py-5 text-[12px] text-slate-500 uppercase font-bold tracking-widest text-right">Tổng chi tiêu</th>
+                        <th class="px-6 py-5 text-[12px] text-slate-500 uppercase font-bold tracking-widest text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model)
+                    {
+                        // Tính tổng tiền từ các đơn hàng Đã hoàn thành
+                        decimal totalSpent = item.Bookings?.Where(b => b.Status == "Hoan thanh" || b.Status == "Đã hoàn thành").Sum(b => (decimal?)b.TotalAmount) ?? 0;
+
+                        // Phân loại hạng thẻ
+                        string tier = "Member";
+                        string tierClass = "bg-slate-100 text-slate-600";
+                        if (totalSpent >= 50000000)
+                        {
+                            tier = "VIP Gold";
+                            tierClass = "bg-amber-100 text-amber-800 border border-amber-200";
+                        }
+                        else if (totalSpent >= 20000000)
+                        {
+                            tier = "VIP Silver";
+                            tierClass = "bg-slate-200 text-slate-800 border border-slate-300";
+                        }
+                        else if (totalSpent >= 5000000)
+                        {
+                            tier = "VIP Bronze";
+                            tierClass = "bg-orange-100 text-orange-800 border border-orange-200";
+                        }
+
+                        <tr class="hover:bg-slate-50 transition-colors group">
+                            <td class="px-6 py-5 font-bold text-[#316bf3]">
+                                KH-@item.CustomerId.ToString("D4")
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-slate-200">
+                                        <img src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(item.UserProfile?.FullName ?? "KH"))&background=f8fafc&color=316bf3" class="w-full h-full object-cover" alt="Avatar" />
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-[#1E293B]">@(item.UserProfile?.FullName ?? "Khách ẩn danh")</span>
+                                        <span class="text-[12px] text-slate-500 font-medium">Tham gia: @(item.UserProfile?.CreatedAt.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold text-[#1E293B]">@(item.UserProfile?.Account?.Email ?? "N/A")</span>
+                                    <span class="text-sm text-slate-500">@(item.UserProfile?.PhoneNumber ?? "N/A")</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-sm font-medium text-slate-700">
+                                @(item.LicenseNumber ?? "Chưa cập nhật")
+                            </td>
+                            <td class="px-6 py-5 text-center">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold @tierClass whitespace-nowrap">
+                                    @tier
+                                </span>
+                            </td>
+                            <td class="px-6 py-5 text-right font-bold text-[#1E293B] text-[15px]">
+                                @totalSpent.ToString("N0") <span class="text-[11px] text-slate-400 font-normal">VNĐ</span>
+                            </td>
+                            <td class="px-6 py-5 text-center">
+                                <button class="p-2 rounded-lg hover:bg-blue-50 text-[#316bf3] transition-colors" title="Xem chi tiết">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="px-6 py-5 bg-white flex items-center justify-between border-t border-slate-100">
+            <span class="text-sm font-medium text-slate-500">Hiển thị danh sách khách hàng tự động</span>
+            <div class="flex items-center gap-2">
+                <button class="flex items-center gap-1 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50 text-slate-600 transition-colors">
+                    Trước
+                </button>
+                <button class="w-9 h-9 flex items-center justify-center rounded-xl bg-[#316bf3] text-white font-bold shadow-md shadow-blue-500/20">
+                    1
+                </button>
+                <button class="flex items-center gap-1 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50 text-slate-600 transition-colors">
+                    Tiếp
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
