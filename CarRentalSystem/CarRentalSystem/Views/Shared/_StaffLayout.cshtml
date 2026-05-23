@@ -137,13 +137,13 @@
                 <span class="material-symbols-outlined">directions_car</span>
                 <span class="font-body-md">Quản lý Xe</span>
             </a>
-            <a class="@NavClass("ImportReceipt", "Create")" asp-controller="ImportReceipt" asp-action="Create">
+            <a class="@NavClass("ImportReceipt", "Index")" asp-controller="ImportReceipt" asp-action="Index">
                 <span class="material-symbols-outlined">description</span>
                 <span class="font-body-md">Lập phiếu nhập</span>
             </a>
-            <a class="@NavClass("Dashboard", "Report")" asp-controller="Dashboard" asp-action="Report">
-                <span class="material-symbols-outlined">analytics</span>
-                <span class="font-body-md">Báo cáo</span>
+            <a class="@NavClass("Maintenance", "Index")" asp-controller="Maintenance" asp-action="Index">
+                <span class="material-symbols-outlined">build</span>
+                <span class="font-body-md">Bảo dưỡng xe</span>
             </a>
         </nav>
         <div class="px-4 py-4 space-y-1 border-t border-white/10 mt-auto">
@@ -178,7 +178,30 @@
                 </button>
             </div>
         </header>
-        <div class="p-container-padding flex-1">
+        <div class="p-container-padding flex-1 relative">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div id="toast-success" class="absolute top-4 right-8 flex items-center w-full max-w-xs p-4 mb-4 text-on-surface bg-white rounded-xl shadow-xl border-l-4 border-emerald-500 z-50 transition-all duration-500" role="alert">
+                    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-600 bg-emerald-100 rounded-lg">
+                        <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                    </div>
+                    <div class="ml-3 text-sm font-semibold text-slate-700">@TempData["SuccessMessage"]</div>
+                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-slate-400 hover:text-slate-900 rounded-lg p-1.5 hover:bg-slate-100 inline-flex items-center justify-center h-8 w-8" onclick="document.getElementById('toast-success').remove()">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+                <script>
+                    setTimeout(function() {
+                    var toast = document.getElementById('toast-success');
+                    if (toast) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500);
+                    }
+                    }, 4000);
+                </script>
+            }
+
             @RenderBody()
         </div>
     </main>

@@ -87,9 +87,9 @@
                 <img alt="Admin Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-secondary" src="https://ui-avatars.com/api/?name=Admin&background=316bf3&color=fff" />
                 <div class="flex flex-col overflow-hidden">
                     <span class="text-white font-semibold text-body-md truncate">
-                        @(Context.Session.GetString("FullName") ?? "Quản trị viên")
+                        @(Context.Session.GetString("FullName") ?? "Lê Hoàng Hải")
                     </span>
-                    <span class="text-slate-400 text-[11px]">Quản trị viên</span>
+                    <span class="text-slate-400 text-[11px]">2415053122213</span>
                 </div>
             </div>
         </div>
@@ -97,7 +97,6 @@
             @{
                 var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
                 var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
-
                 string NavClass(string controller, string action = "Index")
                 {
                     bool isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
@@ -109,7 +108,7 @@
             }
             <a class="@NavClass("Dashboard", "Index")" asp-controller="Dashboard" asp-action="Index">
                 <span class="material-symbols-outlined text-[20px]">dashboard</span>
-                <span class="font-body-md">Dashboard Admin</span>
+                <span class="font-body-md">Dashboard</span>
             </a>
             <a class="@NavClass("Dashboard", "Report")" asp-controller="Dashboard" asp-action="Report">
                 <span class="material-symbols-outlined text-[20px]">analytics</span>
@@ -117,19 +116,19 @@
             </a>
             <a class="@NavClass("ImportReceipt", "Index")" asp-controller="ImportReceipt" asp-action="Index">
                 <span class="material-symbols-outlined text-[20px]">fact_check</span>
-                <span class="font-body-md">Duyệt phiếu nhập xe</span>
+                <span class="font-body-md">Phê duyệt phiếu nhập</span>
             </a>
             <a class="@NavClass("Booking", "Index")" asp-controller="Booking" asp-action="Index">
-                <span class="material-symbols-outlined text-[20px]">directions_car</span>
-                <span class="font-body-md">Quản lý Đặt xe</span>
+                <span class="material-symbols-outlined text-[20px]">event_note</span>
+                <span class="font-body-md">Quản lý đơn đặt xe</span>
             </a>
             <a class="@NavClass("Vehicle", "Index")" asp-controller="Vehicle" asp-action="Index">
                 <span class="material-symbols-outlined text-[20px]">minor_crash</span>
-                <span class="font-body-md">Quản lý Xe</span>
+                <span class="font-body-md">Quản lý xe</span>
             </a>
             <a class="@NavClass("VehicleCategory", "Index")" asp-controller="VehicleCategory" asp-action="Index">
                 <span class="material-symbols-outlined text-[20px]">category</span>
-                <span class="font-body-md font-medium">Quản lý Loại xe</span>
+                <span class="font-body-md">Quản lý loại xe</span>
             </a>
             <a class="@NavClass("Customer", "Index")" asp-controller="Customer" asp-action="Index">
                 <span class="material-symbols-outlined text-[20px]">person</span>
@@ -142,10 +141,6 @@
             <a class="@NavClass("Supplier", "Index")" asp-controller="Supplier" asp-action="Index">
                 <span class="material-symbols-outlined text-[20px]">inventory</span>
                 <span class="font-body-md">Nhà cung cấp</span>
-            </a>
-            <a class="@NavClass("Invoice", "Index")" asp-controller="Invoice" asp-action="Index">
-                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
-                <span class="font-body-md">Hóa đơn</span>
             </a>
         </nav>
         <div class="mt-auto border-t border-white/5 py-4 px-4 space-y-0.5">
