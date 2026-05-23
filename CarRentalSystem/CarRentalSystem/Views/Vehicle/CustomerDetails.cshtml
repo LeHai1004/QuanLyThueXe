@@ -1,0 +1,91 @@
+﻿@model CarRentalSystem.Models.Vehicle
+@{
+    ViewData["Title"] = Model.VehicleName;
+    Layout = "_Layout";
+}
+
+<main class="max-w-[1280px] mx-auto pt-8 pb-20 px-8">
+    <nav class="flex text-sm text-slate-400 mb-6 font-medium">
+        <a href="/Vehicle/CustomerList" class="hover:text-[#00236f] transition-colors">Danh sách xe</a>
+        <span class="mx-3">/</span>
+        <span class="text-slate-600">@Model.VehicleName</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div class="lg:col-span-7 space-y-8">
+            <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm aspect-[16/10]">
+                <img class="w-full h-full object-cover" src="@(Model.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")" alt="@Model.VehicleName" />
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                <h2 class="text-xl font-bold text-slate-800">Thông số kỹ thuật</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-slate-400 mb-1">event_seat</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Số chỗ</span>
+                        <span class="text-sm font-bold text-slate-700 mt-0.5">@Model.Seats chỗ</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-slate-400 mb-1">local_gas_station</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nhiên liệu</span>
+                        <span class="text-sm font-bold text-slate-700 mt-0.5">@(Model.FuelType ?? "Xăng")</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-slate-400 mb-1">settings</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hộp số</span>
+                        <span class="text-sm font-bold text-slate-700 mt-0.5">@(Model.Transmission ?? "Tự động")</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-slate-400 mb-1">badge</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Biển số</span>
+                        <span class="text-sm font-bold text-slate-700 mt-0.5">@Model.LicensePlate</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                <h2 class="text-xl font-bold text-slate-800">Mô tả chi tiết phương tiện</h2>
+                <p class="text-slate-600 leading-relaxed text-sm font-medium">
+                    @(Model.VehicleDesc ?? "Mẫu xe cao cấp được bảo dưỡng định kỳ, trang bị đầy đủ các tính năng an toàn hiện đại, hệ thống giải trí cao cấp mang đến trải nghiệm di chuyển tuyệt vời và êm ái trên mọi hành trình.")
+                </p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5">
+            <div class="sticky top-32 bg-white p-8 rounded-3xl border border-slate-100 shadow-xl space-y-6">
+                <div>
+                    <span class="px-3 py-1 bg-blue-50 text-[#00236f] rounded-full text-[11px] font-bold border border-blue-100 uppercase">@(Model.Category?.CategoryName ?? "Premium Car")</span>
+                    <h1 class="text-3xl font-black text-slate-800 mt-3 tracking-tight">@Model.VehicleName</h1>
+                    <div class="flex items-center gap-1 mt-2 text-amber-500">
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1">star</span>
+                        <span class="text-sm font-bold text-slate-700">@Model.AverageRating.ToString("0.0")</span>
+                        <span class="text-xs font-medium text-slate-400 ml-1">(Đánh giá hệ thống)</span>
+                    </div>
+                </div>
+
+                <div class="py-5 border-y border-slate-100 flex items-center justify-between">
+                    <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Đơn giá thuê</span>
+                    <div class="text-[#00236f] font-black">
+                        <span class="text-3xl">@Model.PricePerDay.ToString("N0")đ</span>
+                        <span class="text-xs font-medium text-slate-400">/ ngày</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 text-slate-600 text-sm font-medium bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+                        <span class="material-symbols-outlined text-emerald-600">verified</span>
+                        <span>Bảo hiểm chuyến đi toàn diện đi kèm</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-600 text-sm font-medium bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <span class="material-symbols-outlined text-slate-500">gavel</span>
+                        <span>Thủ tục nhận xe: CCCD & Bằng lái xe B2</span>
+                    </div>
+                </div>
+
+                <a href="/Booking/Create?vehicleId=@Model.VehicleId" class="w-full bg-[#00236f] text-white font-bold py-4 rounded-xl hover:bg-blue-950 transition-all text-center block shadow-lg shadow-blue-900/20 active:scale-[0.98]">
+                    Đặt xe ngay lập tức
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
