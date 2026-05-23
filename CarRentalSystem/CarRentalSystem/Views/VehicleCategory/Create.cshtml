@@ -1,0 +1,73 @@
+﻿@model CarRentalSystem.Models.VehicleCategory
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thêm Loại Xe Mới";
+}
+
+@* Lớp phủ mờ (Overlay) tạo hiệu ứng Popup *@
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
+
+    @* Card nội dung *@
+    <div class="mt-8 max-w-2xl mx-auto w-full animate-in zoom-in-95 duration-300">
+        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 overflow-hidden">
+
+            @* Card Header *@
+            <div class="px-10 py-7 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-secondary text-2xl">add_box</span>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-[#1E293B]">Thêm loại xe mới</h2>
+                    </div>
+                </div>
+                <a asp-action="Index" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </a>
+            </div>
+
+            @* Form *@
+            <form asp-action="Create" class="px-10 py-8 space-y-6">
+                @Html.AntiForgeryToken()
+
+                <div class="space-y-2">
+                    <label asp-for="CategoryName" class="block text-xs font-bold text-[#1E293B] uppercase tracking-widest">Tên loại xe *</label>
+                    <input asp-for="CategoryName" placeholder="VD: SUV, Sedan, Pickup..."
+                           class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-secondary/25 focus:border-secondary transition-all placeholder:text-slate-400 font-medium" />
+                    <span asp-validation-for="CategoryName" class="text-red-500 text-xs font-semibold"></span>
+                </div>
+
+                <div class="space-y-2">
+                    <label asp-for="Description" class="block text-xs font-bold text-[#1E293B] uppercase tracking-widest">Mô tả</label>
+                    <textarea asp-for="Description" rows="4" placeholder="Mô tả ngắn về loại xe này..."
+                              class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-secondary/25 focus:border-secondary transition-all resize-none placeholder:text-slate-400 font-medium"></textarea>
+                </div>
+
+                <div class="p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-700">Cho phép hoạt động</h4>
+                        <p class="text-xs font-medium text-slate-500 mt-0.5">Hiển thị loại xe này trên ứng dụng</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input asp-for="IsActive" type="checkbox" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-secondary after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                </div>
+
+                <div class="border-t border-slate-100 pt-8 mt-4 flex items-center justify-end gap-3">
+                    <a asp-action="Index" class="px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Hủy bỏ</a>
+                    <button type="submit" class="px-8 py-3 bg-secondary text-white rounded-xl font-bold text-sm shadow-lg shadow-secondary/30 hover:bg-primary transition-all active:scale-95 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">save</span> Lưu loại xe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
