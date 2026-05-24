@@ -1,0 +1,44 @@
+﻿@model CarRentalSystem.Models.Booking
+@{
+    ViewData["Title"] = "Đặt xe thành công";
+    Layout = "_Layout";
+}
+
+<main class="max-w-[700px] mx-auto my-16 px-6">
+    <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-10 text-center">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="material-symbols-outlined text-4xl text-green-500" style="font-variation-settings: 'FILL' 1">check_circle</span>
+        </div>
+
+        <h1 class="text-3xl font-black text-[#00236f] mb-4">Đặt xe thành công!</h1>
+        <p class="text-slate-500 mb-10">Cảm ơn quý khách đã tin tưởng lựa chọn dịch vụ. Yêu cầu đặt xe của quý khách đã được hệ thống ghi nhận.</p>
+
+        <div class="bg-slate-50 rounded-2xl p-8 text-left grid grid-cols-2 gap-8 mb-10">
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Mã đơn đặt</span>
+                <span class="text-lg font-bold text-[#0058be]">#RC-@Model.BookingId.ToString("D4")</span>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Phương tiện</span>
+                <span class="text-lg font-bold text-slate-800">@Model.Vehicle?.VehicleName</span>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Thời gian thuê</span>
+                <span class="text-sm font-semibold text-slate-700">@Model.PickupDateTime.ToString("dd/MM/yyyy") - @Model.ReturnDateTime.ToString("dd/MM/yyyy")</span>
+            </div>
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tổng thanh toán</span>
+                <span class="text-xl font-black text-[#00236f]">@Model.TotalAmount.ToString("N0")đ</span>
+            </div>
+        </div>
+
+        <div class="flex gap-4 justify-center">
+            <a href="/Vehicle/CustomerList" class="bg-[#00236f] text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-900 transition-all shadow-md">
+                Về trang chủ
+            </a>
+            <a href="/Booking/History" class="bg-white text-[#00236f] border-2 border-[#00236f] px-8 py-4 rounded-xl font-bold hover:bg-blue-50 transition-all">
+                Xem lịch sử đặt xe
+            </a>
+        </div>
+    </div>
+</main>

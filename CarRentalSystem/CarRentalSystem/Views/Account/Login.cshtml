@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập & Đăng ký";
+    Layout = "_Layout";
+}
+
+<style>
+    .tab-active {
+        border-bottom: 2px solid #1e3a8a;
+        color: #1e3a8a;
+    }
+
+    .tab-inactive {
+        color: #757682;
+    }
+</style>
+
+<main class="flex-grow flex items-center justify-center py-section-gap px-margin-mobile">
+    <div class="w-full max-w-container-max bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(30,58,138,0.08)] flex flex-col md:flex-row min-h-[700px]">
+        <section class="relative hidden md:block md:w-1/2 lg:w-3/5 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-tr from-primary/80 to-transparent z-10"></div>
+            <img class="absolute inset-0 w-full h-full object-cover" data-alt="A luxury car in a professional studio" src="https://images.unsplash.com/photo-1503376760367-1335b2a0c7eb?auto=format&fit=crop&w=1000&q=80" />
+            <div class="absolute bottom-12 left-12 z-20 text-white max-w-md">
+                <h2 class="font-h2 text-h2 mb-4">Trải nghiệm hành trình đẳng cấp</h2>
+                <p class="font-body-lg text-body-lg opacity-90">Khám phá bộ sưu tập những dòng xe sang trọng bậc nhất, mang lại sự tiện nghi và an toàn tuyệt đối cho mọi chuyến đi.</p>
+                <div class="mt-8 flex items-center gap-4">
+                    <span class="text-label-sm font-label-sm text-white/90">+5,000 khách hàng tin dùng</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="w-full md:w-1/2 lg:w-2/5 p-8 md:p-12 flex flex-col justify-center">
+            <div class="mb-10 text-center md:text-left">
+                <h1 class="font-h3 text-h3 text-primary mb-2">Chào mừng trở lại</h1>
+                <p class="text-on-surface-variant font-body-md">Đăng nhập để quản lý các chuyến đi của bạn.</p>
+            </div>
+
+            <div class="flex border-b border-outline-variant mb-8">
+                <button class="flex-1 py-4 text-center font-label-sm text-label-sm transition-all tab-active" id="loginTab">Đăng nhập</button>
+                <button class="flex-1 py-4 text-center font-label-sm text-label-sm transition-all tab-inactive" id="registerTab">Đăng ký</button>
+            </div>
+
+            <div class="form-container">
+                <form class="space-y-6 block" id="loginForm" method="post" asp-action="Login">
+                    @if (ViewBag.LoginError != null)
+                    {
+                        <div class="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-medium">@ViewBag.LoginError</div>
+                    }
+
+                    <div class="space-y-2">
+                        <label class="block text-label-sm font-label-sm text-on-surface">Email</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">mail</span>
+                            <input name="email" class="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all bg-white" placeholder="email@example.com" type="email" required />
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-label-sm font-label-sm text-on-surface">Mật khẩu</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">lock</span>
+                            <input name="password" class="w-full pl-10 pr-10 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all bg-white" placeholder="••••••••" type="password" required />
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-primary text-white py-3.5 rounded-lg font-label-sm text-label-sm hover:bg-primary/90 transition-all active:scale-[0.98] shadow-md" type="submit">Đăng nhập</button>
+                </form>
+
+                <form class="space-y-4 hidden" id="registerForm" method="post" asp-action="Register">
+                    @if (ViewBag.RegisterError != null)
+                    {
+                        <div class="p-3 bg-red-100 text-red-700 rounded-lg text-sm font-medium">@ViewBag.RegisterError</div>
+                    }
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-label-sm font-label-sm text-on-surface">Họ và tên</label>
+                            <input name="fullName" class="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none bg-white transition-all" placeholder="Nguyễn Văn A" type="text" required />
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-label-sm font-label-sm text-on-surface">Số điện thoại</label>
+                                <input name="phoneNumber" class="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none bg-white transition-all" placeholder="0901 234 567" type="tel" required />
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-label-sm font-label-sm text-on-surface">Số CCCD</label>
+                                <input name="nationalId" class="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none bg-white transition-all" placeholder="012345678912" type="text" required />
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-label-sm font-label-sm text-on-surface">Email</label>
+                            <input name="email" class="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none bg-white transition-all" placeholder="example@gmail.com" type="email" required />
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-label-sm font-label-sm text-on-surface">Mật khẩu</label>
+                                <input name="password" class="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none bg-white transition-all" placeholder="••••••••" type="password" required />
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-label-sm font-label-sm text-on-surface">Nhập lại mật khẩu</label>
+                                <input name="confirmPassword" class="w-full px-4 py-3 rounded-lg border border-outline-variant focus:border-primary outline-none bg-white transition-all" placeholder="••••••••" type="password" required />
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full bg-primary text-white py-3.5 rounded-lg font-label-sm text-label-sm hover:bg-primary/90 transition-all mt-4 shadow-md" type="submit">Đăng ký tài khoản</button>
+                </form>
+            </div>
+        </section>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        const loginTab = document.getElementById("loginTab");
+        const registerTab = document.getElementById("registerTab");
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const isRegisterError = '@(ViewBag.RegisterError != null)'.toLowerCase() === 'true';
+
+        if (isRegisterError) {
+            registerTab.classList.replace("tab-inactive", "tab-active");
+            loginTab.classList.replace("tab-active", "tab-inactive");
+            registerForm.classList.remove("hidden");
+            loginForm.classList.add("hidden");
+        }
+
+        loginTab.addEventListener("click", () => {
+            loginTab.classList.replace("tab-inactive", "tab-active");
+            registerTab.classList.replace("tab-active", "tab-inactive");
+            loginForm.classList.remove("hidden");
+            registerForm.classList.add("hidden");
+        });
+
+        registerTab.addEventListener("click", () => {
+            registerTab.classList.replace("tab-inactive", "tab-active");
+            loginTab.classList.replace("tab-active", "tab-inactive");
+            registerForm.classList.remove("hidden");
+            loginForm.classList.add("hidden");
+        });
+    </script>
+}
