@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Bảo dưỡng xe";
+    Layout = "_StaffLayout";
+    var vehicles = ViewBag.Vehicles as IEnumerable<CarRentalSystem.Models.Vehicle>;
+}
+
+<div class="space-y-10">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="font-h1 text-h1 text-primary">Ghi nhận bảo dưỡng / Sửa chữa</h1>
+            <nav class="flex text-[13px] text-slate-500 mt-1">
+                <a class="hover:text-primary" href="/Vehicle/Index">Quản lý Xe</a>
+                <span class="mx-2">/</span>
+                <span class="text-slate-400">Lập phiếu bảo dưỡng</span>
+            </nav>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto space-y-12">
+        <div class="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] overflow-hidden border border-slate-100">
+            <div class="bg-surface-container-low px-8 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">build</span>
+                    <span class="font-label-md text-label-md font-bold text-on-surface uppercase tracking-wide">Thông tin phiếu bảo dưỡng</span>
+                </div>
+                <span class="text-[12px] bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded">TRẠNG THÁI: MỚI</span>
+            </div>
+
+            <form asp-controller="Maintenance" asp-action="Index" method="post" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                @Html.AntiForgeryToken()
+
+                <div class="md:col-span-2 space-y-2">
+                    <label class="font-label-md text-label-md font-semibold text-on-surface-variant">Chọn xe <span class="text-error">*</span></label>
+                    <div class="relative">
+                        <select name="VehicleId" class="w-full h-12 px-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none appearance-none font-body-md text-body-md" required>
+                            <option disabled selected value="">Chọn xe cần bảo dưỡng...</option>
+                            @if (vehicles != null)
+                            {
+                                @foreach (var v in vehicles)
+                                {
+                                    <option value="@v.VehicleId">@v.VehicleName - @v.LicensePlate</option>
+                                }
+                            }
+                        </select>
+                        <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md font-semibold text-on-surface-variant">Loại bảo dưỡng <span class="text-error">*</span></label>
+                    <select name="MaintenanceType" class="w-full h-12 px-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none appearance-none font-body-md text-body-md" required>
+                        <option value="Dinh ky">Bảo dưỡng định kỳ</option>
+                        <option value="Sua chua">Sửa chữa đột xuất</option>
+                        <option value="Bao hanh">Bảo hành chính hãng</option>
+                        <option value="Kiem tra">Thay thế lốp / Ắc quy / Kiểm tra</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md font-semibold text-on-surface-variant">Chi phí (VNĐ) <span class="text-error">*</span></label>
+                    <div class="relative">
+                        <input name="Cost" type="number" min="0" class="w-full h-12 px-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none font-body-md text-body-md" placeholder="Ví dụ: 1500000" required />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[12px] font-bold">VNĐ</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md font-semibold text-on-surface-variant">Ngày thực hiện <span class="text-error">*</span></label>
+                    <div class="relative">
+                        <input name="MaintenanceDate" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="w-full h-12 px-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none font-body-md text-body-md" required />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="font-label-md text-label-md font-semibold text-on-surface-variant">Ngày bảo dưỡng tiếp theo</label>
+                    <div class="relative">
+                        <input name="MaintenanceDateTiep" type="date" class="w-full h-12 px-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none font-body-md text-body-md" />
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 space-y-2">
+                    <label class="font-label-md text-label-md font-semibold text-on-surface-variant">Mô tả chi tiết hạng mục <span class="text-error">*</span></label>
+                    <textarea name="Description" class="w-full p-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none font-body-md text-body-md resize-none" placeholder="Nhập chi tiết các linh kiện đã thay thế hoặc nội dung sửa chữa..." rows="4" required></textarea>
+                </div>
+
+                <div class="md:col-span-2 pt-6">
+                    <button type="submit" class="w-full h-14 bg-secondary text-white font-bold text-h2 rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-600/20">
+                        <span class="material-symbols-outlined text-2xl">save</span>
+                        Lưu thông tin bảo dưỡng
+                    </button>
+                    <p class="text-center text-[12px] text-slate-400 mt-4">Thông tin sẽ được ghi nhận vào lịch sử đội xe và báo cáo tài chính tháng.</p>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-secondary">verified</span>
+                </div>
+                <h4 class="font-label-md font-bold text-primary mb-1">Kiểm tra định kỳ</h4>
+                <p class="text-[12px] text-slate-500">Đảm bảo nhập chính xác hạng mục để hệ thống lưu lịch sử chi tiết cho xe.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-amber-600">receipt_long</span>
+                </div>
+                <h4 class="font-label-md font-bold text-primary mb-1">Tính minh bạch</h4>
+                <p class="text-[12px] text-slate-500">Mọi chi phí sửa chữa trên 5.000.000 VNĐ cần có chứng từ gửi kèm cho kế toán.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-emerald-600">security</span>
+                </div>
+                <h4 class="font-label-md font-bold text-primary mb-1">Hỗ trợ kỹ thuật</h4>
+                <p class="text-[12px] text-slate-500">Liên hệ phòng kỹ thuật nếu phát hiện hư hỏng nghiêm trọng.</p>
+            </div>
+        </div>
+    </div>
+</div>

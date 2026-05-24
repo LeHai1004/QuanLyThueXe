@@ -1,0 +1,117 @@
+﻿@model CarRentalSystem.Models.Booking
+@{
+    ViewData["Title"] = "Hóa đơn thanh toán";
+    Layout = "_StaffLayout";
+    var invoice = ViewBag.InvoiceData as CarRentalSystem.Models.Invoice;
+}
+
+@section Styles {
+    <style>
+        @@media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border: none;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+}
+
+<div class="p-8 max-w-5xl mx-auto w-full">
+    <div class="mb-8 flex justify-between items-center no-print">
+        <a href="/Booking/Details/@Model.BookingId" class="flex items-center gap-2 text-slate-500 hover:text-primary">
+            <span class="material-symbols-outlined">arrow_back</span> Trở về chi tiết
+        </a>
+        <button onclick="window.print()" class="flex items-center gap-2 px-8 py-3 bg-[#0051d5] text-white font-bold rounded-lg shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all">
+            <span class="material-symbols-outlined">print</span>
+            In hóa đơn
+        </button>
+    </div>
+
+    <div class="bg-white rounded-xl overflow-hidden print-area border border-slate-200">
+        <div class="p-8 border-b border-slate-100 flex justify-between items-start">
+            <div>
+                <h3 class="text-3xl font-black text-[#00236f] mb-2 uppercase tracking-widest">HÓA ĐƠN</h3>
+                <p class="text-slate-500 font-medium">Số: @invoice?.InvoiceNumber</p>
+                <p class="text-slate-500 font-medium">Ngày lập: @invoice?.IssueDate.ToString("dd/MM/yyyy")</p>
+            </div>
+            <div class="text-right">
+                <p class="font-bold text-[#00236f] text-lg">LuxeDrive Premium Rentals</p>
+                <p class="text-slate-500 text-sm">Đại học Sư Phạm Kỹ Thuật - ĐH Đà Nẵng</p>
+                <p class="text-slate-500 text-sm">Hotline: 1900 6789</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-8 p-8 bg-slate-50/50">
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Thông tin khách hàng</h4>
+                <div class="space-y-1">
+                    <p class="text-lg font-bold text-slate-900">@Model.Customer.UserProfile.FullName</p>
+                    <p class="text-sm text-slate-600">SĐT: @Model.Customer.UserProfile.PhoneNumber</p>
+                    <p class="text-sm text-slate-600">CCCD: @(Model.Customer.NationalId ?? "N/A")</p>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Thông tin xe</h4>
+                <div class="space-y-1">
+                    <p class="text-lg font-bold text-slate-900">@Model.Vehicle.VehicleName</p>
+                    <p class="text-sm text-slate-600">Biển số: @Model.Vehicle.LicensePlate</p>
+                    <p class="text-sm text-slate-600">Thời gian: @Model.PickupDateTime.ToString("dd/MM") - @Model.ReturnDateTime.ToString("dd/MM/yyyy")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="border-b-2 border-slate-900 text-left">
+                        <th class="py-4 font-bold text-xs uppercase tracking-wider text-slate-600">Diễn giải</th>
+                        <th class="py-4 font-bold text-xs uppercase tracking-wider text-slate-600 text-right">Thành tiền (VND)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <tr>
+                        <td class="py-5">
+                            <p class="font-bold text-slate-900">Thuê xe @Model.Vehicle.VehicleName</p>
+                        </td>
+                        <td class="py-5 text-right font-bold">@Model.BasePrice.ToString("N0")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-5">
+                            <p class="font-bold text-slate-900">Thuế VAT (10%)</p>
+                        </td>
+                        <td class="py-5 text-right font-bold">@invoice?.TaxAmount?.ToString("N0")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="px-8 pb-12 flex justify-end">
+            <div class="w-80 border-t border-slate-200 pt-3 flex justify-between items-center">
+                <span class="text-lg font-black text-[#00236f]">TỔNG CỘNG:</span>
+                <span class="text-2xl font-black text-[#0051d5]">@Model.TotalAmount.ToString("N0")</span>
+            </div>
+        </div>
+
+        <div class="px-8 py-6 bg-slate-900 text-white flex justify-between items-center">
+            <p class="text-[10px] text-slate-400">Cảm ơn quý khách đã tin tưởng sử dụng dịch vụ của LuxeDrive.</p>
+        </div>
+    </div>
+</div>

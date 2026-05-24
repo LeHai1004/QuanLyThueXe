@@ -1,0 +1,131 @@
+﻿@model CarRentalSystem.Models.Booking
+@{
+    ViewData["Title"] = "Chi tiết đơn đặt xe";
+    Layout = "_StaffLayout";
+}
+
+<div class="p-8">
+    <header class="flex items-center justify-between mb-8">
+        <div>
+            <nav class="flex items-center text-xs text-slate-500 gap-2 mb-2 uppercase tracking-wider font-bold">
+                <a href="/Booking/Index" class="hover:text-primary transition-colors">Quản lý Đặt xe</a>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span class="text-primary">Chi tiết yêu cầu</span>
+            </nav>
+            <h2 class="font-h1 text-h1 text-[#00174b]">Chi tiết yêu cầu đặt xe #RC-@Model.BookingId.ToString("D4")</h2>
+        </div>
+        <div class="flex gap-3">
+            <a href="/Booking/Invoice/@Model.BookingId" class="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">print</span>
+                Lập hóa đơn
+            </a>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-12 gap-8 items-start">
+        <div class="col-span-12 lg:col-span-7 flex flex-col gap-8">
+            <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="font-h2 text-h2 text-[#00174b] flex items-center gap-2">
+                        <span class="material-symbols-outlined">person</span>
+                        Thông tin khách hàng & Thuê xe
+                    </h3>
+                    @if (Model.Status == "Cho xac nhan")
+                    {
+                        <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold">Chờ xác nhận</span>
+                    }
+                    else if (Model.Status == "Da xac nhan")
+                    {
+
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">Đã xác nhận</span>
+                    }
+                    else if (Model.Status == "Hoan thanh")
+                    {
+
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">Hoàn thành</span>
+                    }
+                </div>
+                <div class="p-8 grid grid-cols-2 gap-y-10 gap-x-12">
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Họ và tên</p>
+                        <p class="font-body-lg text-lg text-slate-900 font-semibold">@Model.Customer.UserProfile.FullName</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Số điện thoại</p>
+                        <p class="font-body-lg text-lg text-slate-900 font-semibold">@Model.Customer.UserProfile.PhoneNumber</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Số CCCD</p>
+                        <p class="font-body-lg text-lg text-slate-900 font-semibold">@(Model.Customer.NationalId ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Địa điểm nhận/trả</p>
+                        <p class="font-body-lg text-lg text-slate-900 font-semibold">@Model.PickupLocation</p>
+                    </div>
+
+                    <div class="col-span-2 grid grid-cols-2 bg-slate-50 p-6 rounded-xl border border-slate-100 gap-6">
+                        <div class="space-y-1">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Ngày nhận xe</p>
+                            <div class="flex items-center gap-2 text-slate-900">
+                                <span class="material-symbols-outlined text-[#0051d5]">calendar_today</span>
+                                <p class="text-base font-bold">@Model.PickupDateTime.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Ngày trả xe</p>
+                            <div class="flex items-center gap-2 text-slate-900">
+                                <span class="material-symbols-outlined text-[#0051d5]">event_available</span>
+                                <p class="text-base font-bold">@Model.ReturnDateTime.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            @if (Model.Status == "Cho xac nhan")
+            {
+                <section class="flex gap-6">
+                    <form asp-controller="Booking" asp-action="Approve" method="post" class="flex-1">
+                        <input type="hidden" name="id" value="@Model.BookingId" />
+                        <button type="submit" class="w-full py-5 bg-emerald-600 text-white rounded-xl font-bold text-xl hover:bg-emerald-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-600/20">
+                            <span class="material-symbols-outlined text-2xl">check_circle</span>
+                            Xác nhận đơn
+                        </button>
+                    </form>
+                </section>
+            }
+        </div>
+
+        <div class="col-span-12 lg:col-span-5 flex flex-col gap-8">
+            <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="h-56 relative">
+                    <img class="w-full h-full object-cover" src="@(Model.Vehicle.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")" />
+                    <div class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg border border-slate-200 shadow-lg">
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-0.5">Biển số</p>
+                        <p class="text-[#00174b] font-bold text-xl leading-none">@Model.Vehicle.LicensePlate</p>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="mb-8">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Mẫu xe</p>
+                        <h4 class="text-2xl font-bold text-slate-900">@Model.Vehicle.VehicleName</h4>
+                    </div>
+                    <div class="space-y-5 pt-8 border-t border-slate-100">
+                        <div class="flex justify-between items-center text-slate-600">
+                            <span class="text-base">Giá thuê</span>
+                            <span class="font-semibold text-slate-900 text-lg">@Model.BasePrice.ToString("N0")đ</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-600">
+                            <span class="text-base">Giảm giá/Phụ phí</span>
+                            <span class="font-semibold text-slate-900 text-lg">0đ</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-6 border-t border-slate-200">
+                            <span class="text-xl font-bold text-[#00174b]">Tổng cộng</span>
+                            <span class="text-3xl font-black text-[#0051d5] tracking-tight">@Model.TotalAmount.ToString("N0")đ</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
