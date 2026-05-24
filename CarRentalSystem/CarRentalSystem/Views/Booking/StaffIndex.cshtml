@@ -1,0 +1,137 @@
+﻿@model IEnumerable<CarRentalSystem.Models.Booking>
+@{
+    ViewData["Title"] = "Danh sách đơn đặt xe";
+    Layout = "_StaffLayout";
+}
+
+<div class="space-y-6">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant flex flex-wrap gap-4 items-center">
+        <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-bold text-outline uppercase tracking-wider px-1">
+                Trạng thái
+                <select class="bg-surface-container-low border-none rounded-lg px-4 py-2 text-[14px] focus:ring-1 focus:ring-primary min-w-[160px]">
+                    <option>Tất cả trạng thái</option>
+                    <option>Chờ xác nhận</option>
+                    <option>Đã xác nhận</option>
+                    <option>Đang thuê</option>
+                    <option>Hoàn thành</option>
+                </select>
+            </label>
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-bold text-outline uppercase tracking-wider px-1">
+                Ngày đặt
+                <input class="bg-surface-container-low border-none rounded-lg px-4 py-2 text-[14px] focus:ring-1 focus:ring-primary" type="date" />
+            </label>
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-bold text-outline uppercase tracking-wider px-1">
+                Loại xe
+                <select class="bg-surface-container-low border-none rounded-lg px-4 py-2 text-[14px] focus:ring-1 focus:ring-primary min-w-[140px]">
+                    <option>Mọi loại xe</option>
+                    <option>Sedan</option>
+                    <option>SUV</option>
+                    <option>Hatchback</option>
+                </select>
+            </label>
+        </div>
+        <div class="ml-auto">
+            <button class="text-primary font-semibold text-[14px] flex items-center gap-1 hover:underline">
+                <span class="material-symbols-outlined text-[18px]">filter_alt_off</span> Xóa lọc
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low/50 border-b border-outline-variant">
+                        <th class="px-6 py-4 text-[12px] font-semibold text-outline uppercase tracking-wider">Mã đơn</th>
+                        <th class="px-6 py-4 text-[12px] font-semibold text-outline uppercase tracking-wider">Khách hàng</th>
+                        <th class="px-6 py-4 text-[12px] font-semibold text-outline uppercase tracking-wider">Xe</th>
+                        <th class="px-6 py-4 text-[12px] font-semibold text-outline uppercase tracking-wider">Ngày nhận - Trả</th>
+                        <th class="px-6 py-4 text-[12px] font-semibold text-outline uppercase tracking-wider text-right">Tổng tiền</th>
+                        <th class="px-6 py-4 text-[12px] font-semibold text-outline uppercase tracking-wider">Trạng thái</th>
+                        <th class="px-6 py-4 text-[12px] font-semibold text-outline uppercase tracking-wider text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-surface-container-lowest transition-colors">
+                            <td class="px-6 py-5 font-bold text-primary text-[14px]">
+                                #RC-@item.BookingId.ToString("D4")
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-on-surface">@(item.Customer?.UserProfile?.FullName ?? "Khách hàng ẩn")</span>
+                                    <span class="text-outline text-[13px]">@(item.Customer?.UserProfile?.PhoneNumber ?? "N/A")</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-[14px]">
+                                @(item.Vehicle?.VehicleName ?? "Xe không tồn tại")
+                            </td>
+                            <td class="px-6 py-5 text-[14px]">
+                                <div class="flex flex-col">
+                                    <span>@item.PickupDateTime.ToString("dd/MM/yyyy HH:mm")</span>
+                                    <span class="text-outline text-[12px]">đến @item.ReturnDateTime.ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-right font-bold text-on-surface">
+                                @item.TotalAmount.ToString("N0")đ
+                            </td>
+                            <td class="px-6 py-5">
+                                @if (item.Status == "Cho xac nhan")
+                                {
+                                    <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[12px] font-semibold whitespace-nowrap">Chờ xác nhận</span>
+                                }
+                                else if (item.Status == "Da xac nhan")
+                                {
+                                    <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-[12px] font-semibold whitespace-nowrap">Đã xác nhận</span>
+                                }
+                                else if (item.Status == "Dang thue")
+                                {
+                                    <span class="px-3 py-1 rounded-full bg-[#dbe1ff] text-[#0051d5] text-[12px] font-semibold whitespace-nowrap">Đang thuê</span>
+                                }
+                                else if (item.Status == "Hoan thanh")
+                                {
+                                    <span class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-[12px] font-semibold whitespace-nowrap">Hoàn thành</span>
+                                }
+                                else
+                                {
+                                    <span class="px-3 py-1 rounded-full bg-red-100 text-red-800 text-[12px] font-semibold whitespace-nowrap">Đã hủy</span>
+                                }
+                            </td>
+                            <td class="px-6 py-5 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="/Booking/Details/@item.BookingId" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Xem chi tiết">
+                                        <span class="material-symbols-outlined">visibility</span>
+                                    </a>
+                                    @if (item.Status == "Cho xac nhan")
+                                    {
+                                        <form asp-controller="Booking" asp-action="Approve" method="post" class="m-0 p-0">
+                                            <input type="hidden" name="id" value="@item.BookingId" />
+                                            <button type="submit" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xác nhận">
+                                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">check_circle</span>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button class="p-2 text-gray-400 cursor-not-allowed" disabled>
+                                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">check_circle</span>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="px-6 py-4 bg-surface-container-low/30 border-t border-outline-variant flex items-center justify-between">
+            <p class="text-[14px] text-outline">Hiển thị dữ liệu trực tiếp từ SQL Server</p>
+        </div>
+    </div>
+</div>
