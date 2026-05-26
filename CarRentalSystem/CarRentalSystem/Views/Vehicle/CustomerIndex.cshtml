@@ -1,10 +1,9 @@
 ﻿@model IEnumerable<CarRentalSystem.Models.Vehicle>
+@using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Danh sách xe";
     Layout = "_Layout";
     var categories = ViewBag.Categories as IEnumerable<CarRentalSystem.Models.VehicleCategory>;
-
-    // Lấy thông tin phân trang từ Controller
     int currentPage = ViewBag.CurrentPage;
     int totalPages = ViewBag.TotalPages;
     int totalItems = ViewBag.TotalItems;
@@ -12,23 +11,6 @@
 
 @section Styles {
     <style>
-        .filter-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .filter-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .filter-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-
-            .filter-scrollbar::-webkit-scrollbar-thumb:hover {
-                background: #94a3b8;
-            }
-
         details > summary {
             list-style: none;
         }
@@ -39,180 +21,176 @@
     </style>
 }
 
-<main class="max-w-[1280px] mx-auto pt-8 pb-20 px-8 flex flex-col md:flex-row gap-8">
+<main class="max-w-[1280px] mx-auto pt-10 pb-20 px-8 flex gap-8">
 
-    <aside class="w-full md:w-72 flex-shrink-0">
-        <form id="filterForm" method="get" action="/Vehicle/CustomerList" class="md:sticky md:top-24 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-auto md:h-[calc(100vh-120px)]">
-
+    @* ===== SIDEBAR ===== *@
+    <aside class="w-72 flex-shrink-0 hidden md:block">
+        <form id="filterForm" method="get" action="/Vehicle/CustomerList"
+              class="sticky top-28 space-y-8">
             <input type="hidden" name="page" id="pageInput" value="1" />
 
-            <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
-                <h2 class="text-lg font-black text-[#00236f] flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[20px]">filter_alt</span> Bộ lọc xe
-                </h2>
-                <span class="bg-blue-50 text-[#00236f] px-2.5 py-1 rounded-md text-xs font-bold">@totalItems xe</span>
-            </div>
+            <div>
+                <h2 class="text-xl font-bold text-on-surface mb-6">Bộ lọc tìm kiếm</h2>
+                <div class="space-y-6">
 
-            <div class="flex-1 overflow-y-auto pr-2 space-y-5 filter-scrollbar">
-
-                <details class="group" open>
-                    <summary class="flex justify-between items-center font-bold cursor-pointer text-sm text-slate-800 select-none">
-                        Danh mục xe
-                        <span class="transition-transform duration-300 group-open:rotate-180 material-symbols-outlined text-slate-400">expand_more</span>
-                    </summary>
-                    <div class="pt-4 space-y-2.5">
-                        <label class="flex items-center gap-3 cursor-pointer group/item">
-                            <input type="radio" name="categoryId" value="0" class="w-4 h-4 text-[#00236f] bg-slate-100 border-slate-300 focus:ring-[#00236f]" @(ViewBag.CurrentCategory == 0 ? "checked" : "") />
-                            <span class="text-sm font-medium text-slate-600 group-hover/item:text-[#00236f] transition-colors">Tất cả xe</span>
-                        </label>
-
-                        @if (categories != null)
-                        {
-                            foreach (var cat in categories)
+                    @* Loại xe - Bấm là tự lọc luôn (Có onchange) *@
+                    <details class="group border-b border-slate-100 pb-6" open>
+                        <summary class="flex justify-between items-center text-sm font-bold text-on-surface mb-4 cursor-pointer select-none py-2 hover:text-[#1E3A8A] transition-colors">
+                            Loại xe
+                            <span class="material-symbols-outlined text-slate-400 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 cursor-pointer relative p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                                <input type="radio" name="categoryId" value="0" class="peer hidden" @(ViewBag.CurrentCategory == 0 ? "checked" : "") onchange="changePage(1)" />
+                                <div class="absolute inset-0 rounded-xl border border-transparent peer-checked:bg-[#1E3A8A]/5 peer-checked:border-[#1E3A8A]/10 transition-colors pointer-events-none"></div>
+                                <span class="material-symbols-outlined text-slate-400 peer-checked:text-[#1E3A8A] relative z-10">directions_car</span>
+                                <span class="text-sm font-medium text-slate-600 peer-checked:font-semibold peer-checked:text-[#1E3A8A] relative z-10">Tất cả xe</span>
+                            </label>
+                            @if (categories != null)
                             {
-                                <label class="flex items-center gap-3 cursor-pointer group/item">
-                                    <input type="radio" name="categoryId" value="@cat.CategoryId" class="w-4 h-4 text-[#00236f] bg-slate-100 border-slate-300 focus:ring-[#00236f]" @(ViewBag.CurrentCategory == cat.CategoryId ? "checked" : "") />
-                                    <span class="text-sm font-medium text-slate-600 group-hover/item:text-[#00236f] transition-colors">@cat.CategoryName</span>
+                                var catIcons = new[] { "diamond", "terrain", "electric_car", "directions_car", "airport_shuttle" };
+                                int ci = 0;
+                                foreach (var cat in categories)
+                                {
+                                    bool active = ViewBag.CurrentCategory == cat.CategoryId;
+                                    string ico = ci < catIcons.Length ? catIcons[ci++] : "directions_car";
+                                    <label class="flex items-center gap-3 cursor-pointer relative p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                                        <input type="radio" name="categoryId" value="@cat.CategoryId" class="peer hidden" @(active ? "checked" : "") onchange="changePage(1)" />
+                                        <div class="absolute inset-0 rounded-xl border border-transparent peer-checked:bg-[#1E3A8A]/5 peer-checked:border-[#1E3A8A]/10 transition-colors pointer-events-none"></div>
+                                        <span class="material-symbols-outlined text-slate-400 peer-checked:text-[#1E3A8A] relative z-10">@ico</span>
+                                        <span class="text-sm font-medium text-slate-600 peer-checked:font-semibold peer-checked:text-[#1E3A8A] relative z-10">@cat.CategoryName</span>
+                                    </label>
+                                }
+                            }
+                        </div>
+                    </details>
+
+                    @* Giá - Kéo mượt mà, KHÔNG tự động lọc (Bỏ onchange) *@
+                    <details class="group border-b border-slate-100 pb-6" open>
+                        <summary class="flex justify-between items-center text-sm font-bold text-on-surface mb-4 cursor-pointer select-none py-2 hover:text-[#1E3A8A] transition-colors">
+                            Giá thuê (VND/ngày)
+                            <span class="material-symbols-outlined text-slate-400 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <div class="pt-4 pb-4">
+                            <input type="range" name="maxPrice" min="500000" max="10000000" step="500000"
+                                   value="@ViewBag.CurrentMaxPrice"
+                                   oninput="document.getElementById('priceDisplay').innerText = new Intl.NumberFormat('vi-VN').format(this.value) + 'đ'"
+                                   class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1E3A8A]" />
+                            <div class="flex justify-between mt-3 text-xs font-bold text-slate-400">
+                                <span>500K</span>
+                                <span id="priceDisplay" class="text-[#1E3A8A] text-sm bg-[#1E3A8A]/5 px-2 py-0.5 rounded">@CurrencyHelper.FormatVnd((decimal)ViewBag.CurrentMaxPrice)</span>
+                                <span>10Tr+</span>
+                            </div>
+                        </div>
+                    </details>
+
+                    @* Số chỗ - Chỉ đổi màu, KHÔNG tự động lọc (Bỏ onchange) *@
+                    <details class="group" open>
+                        <summary class="flex justify-between items-center text-sm font-bold text-on-surface mb-4 cursor-pointer select-none py-2 hover:text-[#1E3A8A] transition-colors">
+                            Số chỗ
+                            <span class="material-symbols-outlined text-slate-400 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+                        </summary>
+                        <div class="grid grid-cols-3 gap-2">
+                            @{
+                                var seatOpts = new[] { (0, "Tất cả"), (4, "4 chỗ"), (5, "5 chỗ"), (7, "7 chỗ") };
+                            }
+                            @foreach (var (val, lbl) in seatOpts)
+                            {
+                                bool isSeat = ViewBag.CurrentSeats == val;
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="seats" value="@val" class="hidden peer" @(isSeat ? "checked" : "") />
+                                    <div class="py-2.5 rounded-lg border text-center text-xs font-bold transition-all
+                                        peer-checked:border-[#1E3A8A] peer-checked:bg-[#1E3A8A] peer-checked:text-white
+                                        border-slate-200 text-slate-600 hover:border-[#1E3A8A] hover:text-[#1E3A8A]">
+                                        @lbl
+                                    </div>
                                 </label>
                             }
-                        }
-                    </div>
-                </details>
-
-                <hr class="border-slate-100" />
-
-                <details class="group" open>
-                    <summary class="flex justify-between items-center font-bold cursor-pointer text-sm text-slate-800 select-none">
-                        Mức giá tối đa/ngày
-                        <span class="transition-transform duration-300 group-open:rotate-180 material-symbols-outlined text-slate-400">expand_more</span>
-                    </summary>
-                    <div class="pt-4 pb-2">
-                        <input type="range" name="maxPrice" min="500000" max="10000000" step="500000" value="@ViewBag.CurrentMaxPrice"
-                               oninput="document.getElementById('priceDisplay').innerText = new Intl.NumberFormat('vi-VN').format(this.value) + ' VNĐ'"
-                               class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#00236f]" />
-                        <div class="text-center mt-3 text-sm font-bold text-[#00236f] bg-blue-50 py-1.5 rounded-lg" id="priceDisplay">
-                            @(((decimal)ViewBag.CurrentMaxPrice).ToString("N0")) VNĐ
                         </div>
-                    </div>
-                </details>
+                    </details>
+                </div>
 
-                <hr class="border-slate-100" />
-
-                <details class="group" open>
-                    <summary class="flex justify-between items-center font-bold cursor-pointer text-sm text-slate-800 select-none">
-                        Số chỗ ngồi
-                        <span class="transition-transform duration-300 group-open:rotate-180 material-symbols-outlined text-slate-400">expand_more</span>
-                    </summary>
-                    <div class="pt-4 grid grid-cols-2 gap-2">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="seats" value="0" class="hidden peer" @(ViewBag.CurrentSeats == 0 ? "checked" : "") />
-                            <div class="py-2 rounded-lg border text-center text-xs font-bold transition-all peer-checked:border-[#00236f] peer-checked:bg-[#00236f] peer-checked:text-white border-slate-200 text-slate-600 hover:border-[#00236f]">Tất cả</div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="seats" value="4" class="hidden peer" @(ViewBag.CurrentSeats == 4 ? "checked" : "") />
-                            <div class="py-2 rounded-lg border text-center text-xs font-bold transition-all peer-checked:border-[#00236f] peer-checked:bg-[#00236f] peer-checked:text-white border-slate-200 text-slate-600 hover:border-[#00236f]">4 chỗ</div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="seats" value="5" class="hidden peer" @(ViewBag.CurrentSeats == 5 ? "checked" : "") />
-                            <div class="py-2 rounded-lg border text-center text-xs font-bold transition-all peer-checked:border-[#00236f] peer-checked:bg-[#00236f] peer-checked:text-white border-slate-200 text-slate-600 hover:border-[#00236f]">5 chỗ</div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="seats" value="7" class="hidden peer" @(ViewBag.CurrentSeats == 7 ? "checked" : "") />
-                            <div class="py-2 rounded-lg border text-center text-xs font-bold transition-all peer-checked:border-[#00236f] peer-checked:bg-[#00236f] peer-checked:text-white border-slate-200 text-slate-600 hover:border-[#00236f]">7 chỗ</div>
-                        </label>
-                    </div>
-                </details>
-            </div>
-
-            <div class="pt-4 mt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
-                <a href="/Vehicle/CustomerList" class="py-2.5 rounded-xl border border-slate-200 text-slate-600 text-center text-sm font-bold hover:bg-slate-50 transition-colors">
-                    Xóa lọc
-                </a>
-                <button type="button" onclick="changePage(1)" class="py-2.5 rounded-xl bg-[#00236f] text-white text-center text-sm font-bold hover:bg-blue-900 transition-colors shadow-lg shadow-blue-900/20 active:scale-95">
-                    Áp dụng
-                </button>
+                <div class="mt-8 space-y-3">
+                    <button type="button" onclick="changePage(1)"
+                            class="w-full bg-[#1E3A8A] text-white font-bold py-3.5 rounded-xl hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/10 active:scale-95">
+                        Áp dụng bộ lọc
+                    </button>
+                    <a href="/Vehicle/CustomerList"
+                       class="block w-full text-center border border-slate-200 text-slate-500 font-bold py-3 rounded-xl hover:bg-slate-50 transition-all text-sm">
+                        Xóa bộ lọc
+                    </a>
+                </div>
             </div>
         </form>
     </aside>
 
-    <div class="flex-1 flex flex-col">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+    @* ===== MAIN CONTENT ===== *@
+    <div class="flex-1">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
-                <h1 class="text-3xl font-black text-on-surface tracking-tight mb-1">Khám phá xe</h1>
-                <p class="text-slate-500 font-medium text-sm">Tìm thấy <strong class="text-[#00236f]">@totalItems</strong> mẫu xe phù hợp tiêu chí</p>
+                <h1 class="text-4xl font-black text-on-surface tracking-tight mb-2">Danh sách xe</h1>
+                <p class="text-slate-500 font-medium">
+                    Tìm thấy <strong class="text-[#1E3A8A]">@totalItems</strong> mẫu xe cao cấp phù hợp với bạn
+                </p>
             </div>
-
-            <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm w-fit">
-                <span class="material-symbols-outlined text-slate-400 text-[20px]">sort</span>
-                <select name="sortOrder" form="filterForm" onchange="changePage(1)" class="border-none bg-transparent text-sm font-bold text-[#00236f] focus:ring-0 cursor-pointer py-1 pr-8">
-                    @if (ViewBag.CurrentSort == "default")
-                    {
-                        <option value="default" selected>Phổ biến nhất</option>
-                    }
-                    else
-                    {
-                        <option value="default">Phổ biến nhất</option>
-                    }
-                    @if (ViewBag.CurrentSort == "price_asc")
-                    {
-                        <option value="price_asc" selected>Giá: Thấp đến Cao</option>
-                    }
-                    else
-                    {
-                        <option value="price_asc">Giá: Thấp đến Cao</option>
-                    }
-                    @if (ViewBag.CurrentSort == "price_desc")
-                    {
-                        <option value="price_desc" selected>Giá: Cao xuống Thấp</option>
-                    }
-                    else
-                    {
-                        <option value="price_desc">Giá: Cao xuống Thấp</option>
-                    }
-                </select>
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-bold text-slate-400">Sắp xếp theo:</span>
+                <div class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-on-surface">
+                    <select name="sortOrder" form="filterForm" onchange="changePage(1)"
+                            class="border-none bg-transparent text-sm font-bold text-on-surface focus:ring-0 cursor-pointer appearance-none pr-6 outline-none">
+                        <option value="default" selected="@(ViewBag.CurrentSort == "default" ? "selected" : null)">Phổ biến nhất</option>
+                        <option value="price_asc" selected="@(ViewBag.CurrentSort == "price_asc" ? "selected" : null)">Giá: Thấp đến Cao</option>
+                        <option value="price_desc" selected="@(ViewBag.CurrentSort == "price_desc" ? "selected" : null)">Giá: Cao xuống Thấp</option>
+                    </select>
+                    <span class="material-symbols-outlined text-lg text-slate-400 pointer-events-none">expand_more</span>
+                </div>
             </div>
         </div>
 
         @if (!Model.Any())
         {
-            <div class="bg-white py-16 px-6 rounded-3xl border border-slate-200 text-center shadow-sm">
+            <div class="bg-white py-20 px-6 rounded-2xl border border-slate-100 text-center shadow-sm">
                 <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span class="material-symbols-outlined text-4xl text-slate-400">directions_car_off</span>
                 </div>
                 <h3 class="text-xl font-bold text-slate-800">Không tìm thấy mẫu xe phù hợp</h3>
                 <p class="text-slate-500 mt-2 text-sm max-w-md mx-auto">Thử mở rộng mức giá hoặc chọn lại số chỗ ngồi để xem thêm nhiều lựa chọn hấp dẫn khác.</p>
-                <a href="/Vehicle/CustomerList" class="inline-block mt-6 px-6 py-2.5 bg-blue-50 text-[#00236f] font-bold rounded-xl hover:bg-blue-100 transition-colors text-sm">
+                <a href="/Vehicle/CustomerList"
+                   class="inline-block mt-6 px-6 py-2.5 bg-blue-50 text-[#1E3A8A] font-bold rounded-xl hover:bg-blue-100 transition-colors text-sm">
                     Xóa toàn bộ bộ lọc
                 </a>
             </div>
         }
         else
         {
-            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
                 @foreach (var car in Model)
                 {
-                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-slate-200 transition-all duration-300 flex flex-col h-full group">
+                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-[#1E3A8A]/30 transition-all duration-300 flex flex-col h-full group">
                         <div class="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                            <img alt="@car.VehicleName" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="@(car.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")" />
+                            <img alt="@car.VehicleName"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                 src="@(car.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")" />
                             <div class="absolute top-3 left-3">
-                                <span class="bg-white/95 backdrop-blur-sm text-[#00236f] text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-sm">
+                                <span class="bg-white/95 backdrop-blur-sm text-[#1E3A8A] text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-sm border border-[#1E3A8A]/10">
                                     Sẵn sàng
                                 </span>
                             </div>
                         </div>
-                        <div class="p-5 flex-1 flex flex-col">
-                            <h3 class="text-lg font-extrabold text-slate-800 truncate mb-4" title="@car.VehicleName">@car.VehicleName</h3>
-
-                            <div class="flex items-center gap-3 text-slate-500 mb-6 flex-nowrap overflow-hidden">
-                                <div class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md">
+                        <div class="p-6 flex-1 flex flex-col">
+                            <h3 class="text-lg font-extrabold text-slate-800 truncate mb-4" title="@car.VehicleName">
+                                @car.VehicleName
+                            </h3>
+                            <div class="flex items-center gap-4 text-slate-500 mb-6 flex-nowrap overflow-hidden">
+                                <div class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
                                     <span class="material-symbols-outlined text-[16px]">event_seat</span>
                                     <span class="text-xs font-semibold">@car.Seats</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md">
+                                <div class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
                                     <span class="material-symbols-outlined text-[16px]">local_gas_station</span>
                                     <span class="text-xs font-semibold">@(car.FuelType ?? "Xăng")</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md">
+                                <div class="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
                                     <span class="material-symbols-outlined text-[16px]">settings</span>
                                     <span class="text-xs font-semibold">@(car.Transmission ?? "TĐ")</span>
                                 </div>
@@ -221,15 +199,17 @@
                             <div class="mt-auto">
                                 <div class="flex items-end justify-between mb-5 border-t border-slate-50 pt-4">
                                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Giá / Ngày</span>
-                                    <div class="text-[#00236f] font-black leading-none">
-                                        <span class="text-xl">@car.PricePerDay.ToString("N0")</span><span class="text-sm">đ</span>
+                                    <div class="text-[#1E3A8A] font-black leading-none">
+                                        <span class="text-xl">@CurrencyHelper.FormatVnd(car.PricePerDay)</span><span class="text-sm"></span>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2.5">
-                                    <a href="/Vehicle/CustomerDetails/@car.VehicleId" class="border-2 border-slate-100 text-slate-600 text-center px-3 py-2.5 rounded-xl font-bold text-sm hover:border-[#00236f] hover:text-[#00236f] transition-all">
+                                    <a href="/Vehicle/CustomerDetails/@car.VehicleId"
+                                       class="border-2 border-slate-100 text-slate-600 text-center px-3 py-2.5 rounded-xl font-bold text-sm hover:border-[#1E3A8A] hover:text-[#1E3A8A] transition-all">
                                         Chi tiết
                                     </a>
-                                    <a href="/Booking/Create?vehicleId=@car.VehicleId" class="bg-[#00236f] text-center text-white px-3 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-800 transition-all shadow-md shadow-blue-900/20">
+                                    <a href="/Booking/Create?vehicleId=@car.VehicleId"
+                                       class="bg-[#1E3A8A] text-center text-white px-3 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-900 transition-all shadow-md shadow-blue-900/20 active:scale-95">
                                         Đặt ngay
                                     </a>
                                 </div>
@@ -241,28 +221,27 @@
 
             @if (totalPages > 1)
             {
-                <div class="mt-auto flex justify-center gap-2">
-                    <button type="button" onclick="changePage(@(currentPage - 1))" class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:border-[#00236f] hover:text-[#00236f] transition-all disabled:opacity-30 disabled:cursor-not-allowed" @(currentPage == 1 ? "disabled" : "")>
+                <div class="flex justify-center gap-2">
+                    <button onclick="changePage(@(currentPage - 1))"
+                            class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:border-[#1E3A8A] hover:text-[#1E3A8A] transition-all @(currentPage == 1 ? "opacity-30 pointer-events-none" : "")">
                         <span class="material-symbols-outlined">chevron_left</span>
                     </button>
-
                     @for (int i = 1; i <= totalPages; i++)
                     {
                         if (i == currentPage)
                         {
-                            <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#00236f] text-white font-bold shadow-md shadow-blue-900/20">
-                                @i
-                            </button>
+                            <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1E3A8A] text-white font-bold shadow-md text-sm">@i</button>
                         }
                         else
                         {
-                            <button type="button" onclick="changePage(@i)" class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-[#00236f] hover:text-[#00236f] font-bold transition-all">
+                            <button onclick="changePage(@i)"
+                                    class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:border-[#1E3A8A] hover:text-[#1E3A8A] font-bold transition-all text-sm">
                                 @i
                             </button>
                         }
                     }
-
-                    <button type="button" onclick="changePage(@(currentPage + 1))" class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:border-[#00236f] hover:text-[#00236f] transition-all disabled:opacity-30 disabled:cursor-not-allowed" @(currentPage == totalPages ? "disabled" : "")>
+                    <button onclick="changePage(@(currentPage + 1))"
+                            class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:border-[#1E3A8A] hover:text-[#1E3A8A] transition-all @(currentPage == totalPages ? "opacity-30 pointer-events-none" : "")">
                         <span class="material-symbols-outlined">chevron_right</span>
                     </button>
                 </div>
@@ -273,7 +252,6 @@
 
 @section Scripts {
     <script>
-        // Script giúp Submit Form khi bấm phân trang
         function changePage(page) {
             document.getElementById('pageInput').value = page;
             document.getElementById('filterForm').submit();

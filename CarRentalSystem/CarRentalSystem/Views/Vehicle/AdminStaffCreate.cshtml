@@ -1,0 +1,208 @@
+@model CarRentalSystem.Models.Vehicle
+@using CarRentalSystem.Constants
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Thêm xe mới vào đội xe";
+
+    // Lấy Role từ Session
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("RoleName");
+
+    // Chọn Layout dựa trên Role
+    Layout = role == RoleConstants.Admin ? "_AdminLayout" : "_StaffLayout";
+
+    var categories = ViewBag.Categories as IEnumerable<CarRentalSystem.Models.VehicleCategory>;
+}
+
+<div class="space-y-8 mt-4">
+    @if (!string.IsNullOrEmpty(ViewBag.Error))
+    {
+        <div class="bg-red-50 border border-red-200 rounded-2xl p-6 flex items-center gap-4">
+            <span class="material-symbols-outlined text-red-500 text-2xl">error</span>
+            <div>
+                <h4 class="font-bold text-red-700 mb-1">Lỗi</h4>
+                <p class="text-sm text-red-600">@ViewBag.Error</p>
+            </div>
+        </div>
+    }
+
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-primary mb-1">Cập nhật phương tiện mới</h1>
+            <nav class="flex text-xs text-slate-400 font-medium uppercase tracking-wider">
+                <a href="/Vehicle/Index" class="hover:text-primary transition-colors">Đội xe</a>
+                <span class="mx-2">/</span>
+                <span class="text-slate-600">Thêm mới</span>
+            </nav>
+        </div>
+        <a href="/Vehicle/Index" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            Quay lại
+        </a>
+    </div>
+
+    <form asp-action="Create" method="post" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="AverageRating" value="0" />
+
+        <div class="lg:col-span-2 space-y-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">info</span>
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Thông tin định danh</h3>
+                </div>
+                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Tên phương tiện <span class="text-rose-500">*</span></label>
+                        <input asp-for="VehicleName" placeholder="VD: Mercedes-Benz S450" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Biển kiểm soát <span class="text-rose-500">*</span></label>
+                        <input asp-for="LicensePlate" placeholder="VD: 43A-123.45" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Hãng xe</label>
+                        <input asp-for="Brand" placeholder="VD: Mercedes" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Dòng xe (Model)</label>
+                        <input asp-for="Model" placeholder="VD: Maybach" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium" required />
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">settings_input_component</span>
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Thông số kỹ thuật</h3>
+                </div>
+                <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Loại xe <span class="text-rose-500">*</span></label>
+                        <select asp-for="CategoryId" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium cursor-pointer" required>
+                            <option value="">Chọn loại</option>
+                            @if (categories != null)
+                            {
+                                foreach (var cat in categories)
+                                {
+                                    <option value="@cat.CategoryId">@cat.CategoryName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Nhiên liệu</label>
+                        <select asp-for="FuelType" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium cursor-pointer">
+                            <option value="Xăng">Xăng</option>
+                            <option value="Dầu">Dầu (Diesel)</option>
+                            <option value="Điện">Điện</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Hộp số</label>
+                        <select asp-for="Transmission" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium cursor-pointer">
+                            <option value="Số tự động">Số tự động</option>
+                            <option value="Số sàn">Số sàn</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Số chỗ ngồi</label>
+                        <input asp-for="Seats" type="number" min="2" max="50" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Năm sản xuất</label>
+                        <input asp-for="ManufactureYear" type="number" min="2000" max="@DateTime.Now.Year" value="@DateTime.Now.Year" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Màu sắc</label>
+                        <input asp-for="Color" placeholder="VD: Đen, Trắng..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">description</span>
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Mô tả phương tiện</h3>
+                </div>
+                <div class="p-8">
+                    <textarea asp-for="VehicleDesc" rows="5" placeholder="Nhập giới thiệu ngắn hoặc tình trạng xe hiện tại..." class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-sm font-medium resize-none"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 space-y-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Định giá & Trạng thái</h3>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Giá thuê / Ngày (VNĐ)</label>
+                        <div class="relative">
+                            <input asp-for="PricePerDay" type="number" step="1000" placeholder="0" class="w-full pl-4 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-xl font-black text-secondary" required />
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">VNĐ</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Trạng thái ban đầu</label>
+                        <select asp-for="Status" class="w-full px-4 py-3 bg-blue-50 border border-blue-100 text-blue-700 rounded-xl outline-none font-bold text-sm cursor-pointer">
+                            <option value="@VehicleStatus.Available">Sẵn sàng cho thuê</option>
+                            <option value="@VehicleStatus.Inactive">Tạm ngưng hoạt động</option>
+                            <option value="@VehicleStatus.Maintenance">Đang bảo trì</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Hình ảnh đại diện</h3>
+                </div>
+                <div class="p-8 space-y-4">
+                    <div class="aspect-video w-full rounded-xl bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden relative group">
+                        <img id="previewImg" src="https://images.unsplash.com/photo-1550355291-bbee04a92027" class="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity" />
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="previewPlaceholder">
+                            <span class="material-symbols-outlined text-slate-400 text-4xl">add_photo_alternate</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase px-1">Đường dẫn ảnh (URL)</label>
+                        <input asp-for="HinhAnh" id="imgUrl" placeholder="https://..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-xs font-medium" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 space-y-3">
+                <button type="submit" class="w-full py-4 bg-secondary text-white font-bold rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">save</span>
+                    Lưu phương tiện
+                </button>
+                <button type="reset" class="w-full py-3 bg-white border border-slate-200 text-slate-500 font-bold rounded-2xl hover:bg-slate-50 transition-all text-sm">
+                    Làm mới Form
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const imgUrlInput = document.getElementById('imgUrl');
+        const previewImg = document.getElementById('previewImg');
+        const placeholder = document.getElementById('previewPlaceholder');
+
+        imgUrlInput.addEventListener('input', function() {
+            if(this.value) {
+                previewImg.src = this.value;
+                previewImg.classList.remove('opacity-50');
+                placeholder.classList.add('hidden');
+            } else {
+                previewImg.src = "https://images.unsplash.com/photo-1550355291-bbee04a92027";
+                previewImg.classList.add('opacity-50');
+                placeholder.classList.remove('hidden');
+            }
+        });
+    </script>
+}
