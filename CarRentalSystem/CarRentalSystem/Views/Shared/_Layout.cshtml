@@ -1,3 +1,8 @@
+@using Microsoft.AspNetCore.Http
+@{
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+}
 <!DOCTYPE html>
 <html lang="vi" class="light">
 <head>
@@ -5,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Car Rental System</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
@@ -54,13 +59,16 @@
                     CAR <span class="text-[#0058be]">RENTAL SYSTEM</span>
                 </a>
             </div>
+
             <nav class="hidden lg:flex items-center space-x-8">
-                <a asp-controller="Home" asp-action="Index" class="text-sm font-semibold text-[#00236f] hover:text-[#0058be] transition-colors">Trang chủ</a>
-                <a asp-controller="Vehicle" asp-action="CustomerList" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Đặt xe</a>
-                <a asp-controller="Vehicle" asp-action="CustomerIndex" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Dịch vụ</a>
-                <a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Về chúng tôi</a>
-                <a href="#" class="text-sm font-medium text-on-surface-variant hover:text-[#00236f] transition-colors">Liên hệ</a>
+                <a asp-controller="Home" asp-action="Index" class="text-sm font-semibold @(currentController == "Home" && currentAction == "Index" ? "text-[#0058be]" : "text-on-surface-variant hover:text-[#00236f]") transition-colors">Trang chủ</a>
+                <a asp-controller="Vehicle" asp-action="CustomerList" class="text-sm font-semibold @(currentController == "Vehicle" && currentAction == "CustomerList" ? "text-[#0058be]" : "text-on-surface-variant hover:text-[#00236f]") transition-colors">Đặt xe</a>
+                <a asp-controller="Home" asp-action="DichVu" class="text-sm font-semibold @(currentController == "Home" && currentAction == "DichVu" ? "text-[#0058be]" : "text-on-surface-variant hover:text-[#00236f]") transition-colors">Dịch vụ</a>
+                <a asp-controller="Home" asp-action="VeChungToi" class="text-sm font-semibold @(currentController == "Home" && currentAction == "VeChungToi" ? "text-[#0058be]" : "text-on-surface-variant hover:text-[#00236f]") transition-colors">Về chúng tôi</a>
+                <a asp-controller="Home" asp-action="LienHe" class="text-sm font-semibold @(currentController == "Home" && currentAction == "LienHe" ? "text-[#0058be]" : "text-on-surface-variant hover:text-[#00236f]") transition-colors">Liên hệ</a>
             </nav>
+
+
             <div class="flex items-center gap-4">
                 <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
                     <span class="material-symbols-outlined">search</span>
@@ -85,7 +93,7 @@
                         </button>
                         <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-[100]">
                             <div class="py-2">
-                                <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
+                                <a asp-controller="Account" asp-action="profile" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
                                     <span class="material-symbols-outlined text-outline">person</span> Hồ sơ cá nhân
                                 </a>
                                 <a asp-controller="Booking" asp-action="History" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
@@ -94,8 +102,11 @@
                                 <a asp-controller="Booking" asp-action="MyInvoices" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
                                     <span class="material-symbols-outlined text-outline">receipt_long</span> Hóa đơn của tôi
                                 </a>
-                                <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
+                                <a asp-controller="Account" asp-action="Myreviews" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
                                     <span class="material-symbols-outlined text-outline">star</span> Đánh giá của tôi
+                                </a>
+                                <a asp-controller="Account" asp-action="DoiMatKhau" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors">
+                                    <span class="material-symbols-outlined text-outline">lock_reset</span> Đổi mật khẩu
                                 </a>
                                 <div class="border-t border-outline-variant my-1"></div>
                                 <form asp-controller="Account" asp-action="Logout" method="post">
@@ -110,16 +121,18 @@
                 else
                 {
                     <div class="h-8 w-[1px] bg-outline-variant mx-2 hidden sm:block"></div>
-                    <a asp-controller="Account" asp-action="Login" class="text-[#00236f] font-bold text-sm hover:underline">Đăng nhập</a>
-                    <a asp-controller="Account" asp-action="Register" class="bg-[#00236f] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-900 transition-colors shadow-md">Đăng ký</a>
+                    <a asp-controller="Account" asp-action="Login" class="bg-white border border-slate-200 text-[#00236f] px-6 py-2 rounded-xl font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">Đăng nhập</a>
+                    <a asp-controller="Account" asp-action="Login" asp-route-tab="register" class="bg-[#00236f] text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-blue-900 transition-all shadow-md">Đăng ký</a>
                 }
             </div>
         </div>
     </header>
+
     <main class="flex-grow pt-4">
         @RenderBody()
     </main>
-    <footer class="bg-[#0b1c30] text-white py-16 mt-auto">
+
+    <footer class="bg-[#0b1c30] text-white py-20 mt-auto">
         <div class="max-w-[1280px] mx-auto px-4 md:px-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-left">
                 <div class="space-y-6">
@@ -129,34 +142,60 @@
                         </div>
                         <span class="text-xl font-bold tracking-tight text-white uppercase">LUXE<span class="text-[#adc6ff]">DRIVE</span></span>
                     </div>
-                    <p class="text-sm text-gray-400 leading-relaxed">Cung cấp dịch vụ thuê xe uy tín, nhanh chóng và tiện lợi cho mọi hành trình của bạn.</p>
+                    <p class="text-sm text-gray-400 leading-relaxed">
+                        Cung cấp dịch vụ thuê xe uy tín, nhanh chóng và tiện lợi cho mọi hành trình của bạn.
+                    </p>
+                    <div class="flex gap-4">
+                        <a class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0058be] transition-all" href="#">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+                            </svg>
+                        </a>
+                        <a class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0058be] transition-all text-white font-bold text-xs" href="#">Zalo</a>
+                        <a class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0058be] transition-all" href="#">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-white">Về chúng tôi</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-6 text-white">Về chúng tôi</h4>
                     <ul class="space-y-4 text-sm">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Giới thiệu</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Đội ngũ</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tuyển dụng</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Giới thiệu</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Đội ngũ</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Tuyển dụng</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Tin tức</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-white">Dịch vụ & Khám phá</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-6 text-white">Dịch vụ & Khám phá</h4>
                     <ul class="space-y-4 text-sm">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Bảng giá thuê xe</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Quy trình thuê xe</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Địa điểm thuê xe</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Bảng giá thuê xe</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Quy trình thuê xe</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Ưu đãi thành viên</a></li>
+                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#">Địa điểm thuê xe</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold uppercase tracking-widest mb-6 text-white">Liên hệ</h4>
-                    <ul class="space-y-4 text-sm mb-8 text-gray-400">
-                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#0058be]">call</span> 0123 456 789</li>
-                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-[#0058be]">mail</span> contact@thuexe.vn</li>
-                        <li class="flex items-start gap-3"><span class="material-symbols-outlined text-[#0058be]">location_on</span> 123 Đường Láng, Hà Nội</li>
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-6 text-white">Liên hệ</h4>
+                    <ul class="space-y-4 mb-8 text-sm">
+                        <li class="flex items-center gap-3 text-gray-400">
+                            <span class="material-symbols-outlined text-[#0058be]">call</span>
+                            <span>0123 456 789</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-400">
+                            <span class="material-symbols-outlined text-[#0058be]">mail</span>
+                            <span>contact@thuexe.vn</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-400">
+                            <span class="material-symbols-outlined text-[#0058be]">location_on</span>
+                            <span>123 Đường Láng, Hà Nội</span>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="mt-12 pt-8 border-t border-white/10 text-center text-xs text-gray-500">
+            <div class="mt-16 pt-8 border-t border-white/10 text-center text-xs text-gray-500">
                 <p>© 2026 Hệ thống thuê xe. Bản quyền thuộc về chúng tôi.</p>
             </div>
         </div>
