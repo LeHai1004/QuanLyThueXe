@@ -1,0 +1,161 @@
+﻿@model CarRentalSystem.Models.Customer
+@using CarRentalSystem.Helpers
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+    Layout = "_Layout";
+    var profile = Model.UserProfile;
+    var account = profile.Account;
+    string avatarUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(profile.FullName)}&background=00236f&color=fff&size=128";
+}
+
+@section Styles {
+    <style>
+        .sidebar-link {
+            @* active *@
+        }
+
+            .sidebar-link.active {
+                background: rgba(0,35,111,0.07);
+                color: #00236f;
+                border-left: 3px solid #00236f;
+                font-weight: 700;
+            }
+
+        input:read-only {
+            background: #f8f9ff;
+            color: #888;
+            cursor: not-allowed;
+        }
+    </style>
+}
+
+<main class="max-w-[1280px] mx-auto px-8 py-12 flex flex-col md:flex-row gap-8">
+
+    @* ===== SIDEBAR ===== *@
+    <aside class="w-full md:w-64 flex-shrink-0">
+        <div class="bg-white rounded-2xl shadow-[0_4px_20px_rgba(30,58,138,0.07)] border border-slate-100 overflow-hidden">
+            @* Avatar card *@
+            <div class="p-6 flex flex-col items-center border-b border-slate-100">
+                <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-md mb-3">
+                    <img src="@(profile.AvatarUrl ?? avatarUrl)" alt="Avatar" class="w-full h-full object-cover" />
+                </div>
+                <p class="font-bold text-[#00236f] text-base text-center">@profile.FullName</p>
+                <p class="text-xs text-slate-400 mt-1">Thành viên từ @profile.CreatedAt.ToString("MM/yyyy")</p>
+            </div>
+            @* Nav *@
+            <nav class="flex flex-col py-2">
+                <a href="/Account/Profile" class="sidebar-link active flex items-center gap-3 px-5 py-3.5 text-sm transition-colors">
+                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1">person</span>
+                    Thông tin cá nhân
+                </a>
+                <a href="/Booking/History" class="sidebar-link flex items-center gap-3 px-5 py-3.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#00236f] transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">history</span>
+                    Lịch sử thuê xe
+                </a>
+                <a href="/Booking/MyInvoices" class="sidebar-link flex items-center gap-3 px-5 py-3.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#00236f] transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    Hóa đơn của tôi
+                </a>
+                <a href="/Account/MyReviews" class="sidebar-link flex items-center gap-3 px-5 py-3.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#00236f] transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">star_rate</span>
+                    Đánh giá của tôi
+                </a>
+                <div class="border-t border-slate-100 my-1"></div>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="w-full flex items-center gap-3 px-5 py-3.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">logout</span>
+                        Đăng xuất
+                    </button>
+                </form>
+            </nav>
+        </div>
+    </aside>
+
+    @* ===== MAIN CONTENT ===== *@
+    <section class="flex-1">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="mb-6 px-5 py-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl flex items-center gap-3 font-semibold text-sm">
+                <span class="material-symbols-outlined">check_circle</span>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div class="bg-white rounded-2xl shadow-[0_4px_20px_rgba(30,58,138,0.07)] border border-slate-100 p-8">
+            <h1 class="text-2xl font-bold text-[#00236f] mb-8">Thông tin cá nhân</h1>
+
+            <form asp-action="UpdateProfile" asp-controller="Account" method="post">
+                @Html.AntiForgeryToken()
+
+                @* Avatar *@
+                <div class="flex items-center gap-6 mb-10 pb-8 border-b border-slate-100">
+                    <div class="relative">
+                        <img src="@(profile.AvatarUrl ?? avatarUrl)" alt="Avatar"
+                             class="w-24 h-24 rounded-full object-cover border-4 border-slate-100 shadow" />
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">@profile.FullName</h2>
+                        <p class="text-slate-400 text-sm mt-1">@account.Email</p>
+                        <p class="text-slate-400 text-xs mt-1">Tham gia: @profile.CreatedAt.ToString("dd/MM/yyyy")</p>
+                    </div>
+                </div>
+
+                @* Form fields *@
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Họ và tên</label>
+                        <input type="text" name="FullName" value="@profile.FullName"
+                               class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Số điện thoại</label>
+                        <input type="tel" name="PhoneNumber" value="@profile.PhoneNumber"
+                               class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Email</label>
+                        <input type="email" value="@account.Email" readonly
+                               class="px-4 py-3 rounded-xl border border-slate-100 text-sm bg-slate-50 text-slate-400 cursor-not-allowed" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ngày sinh</label>
+                        <input type="date" name="DateOfBirth"
+                               value="@(profile.DateOfBirth?.ToString("yyyy-MM-dd") ?? "")"
+                               class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">CCCD / Passport</label>
+                        <input type="text" name="NationalId" value="@Model.NationalId"
+                               class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Số bằng lái xe</label>
+                        <input type="text" name="LicenseNumber" value="@Model.LicenseNumber"
+                               class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5 md:col-span-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Địa chỉ</label>
+                        <input type="text" name="StreetAddress" value="@profile.StreetAddress"
+                               placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                               class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all" />
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-6 border-t border-slate-100">
+                    <button type="submit"
+                            class="flex items-center gap-2 bg-[#00236f] text-white font-bold px-8 py-3 rounded-xl hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/20 active:scale-95">
+                        <span class="material-symbols-outlined text-[20px]">save</span>
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
