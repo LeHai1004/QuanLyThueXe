@@ -1,0 +1,243 @@
+﻿@{
+    ViewData["Title"] = "Liên hệ";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <style>
+        .glass-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details[open] summary .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expand-icon {
+            transition: transform 0.25s;
+        }
+    </style>
+}
+
+@* Hero *@
+<section class="relative w-full h-[450px] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 z-0">
+        <img alt="Luxury car"
+             class="w-full h-full object-cover"
+             src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600&q=90" />
+        <div class="absolute inset-0 bg-primary/75 mix-blend-multiply"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+    </div>
+    <div class="relative z-10 text-center px-6 max-w-3xl">
+        <span class="inline-block text-white/60 font-semibold text-xs uppercase tracking-[0.3em] mb-5">Hỗ trợ khách hàng</span>
+        <h1 class="text-5xl font-black text-white mb-5 leading-tight tracking-tight drop-shadow-lg">
+            Liên hệ với chúng tôi
+        </h1>
+        <p class="text-lg text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow font-medium">
+            Chúng tôi luôn ở đây để lắng nghe và giải đáp mọi thắc mắc của bạn về
+            dịch vụ thuê xe cao cấp.
+        </p>
+    </div>
+</section>
+
+@* Main — pulled up *@
+<main class="w-full max-w-[1280px] mx-auto px-6 md:px-10 -mt-20 relative z-20 pb-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        @* Form *@
+        <div class="lg:col-span-7 glass-card rounded-2xl p-8 md:p-10 shadow-2xl border border-white/60">
+            <div class="mb-8">
+                <h2 class="text-4xl font-bold text-primary mb-2 tracking-tight">Gửi tin nhắn</h2>
+                <p class="text-base text-on-surface-variant font-medium">
+                    Vui lòng điền thông tin bên dưới, chúng tôi sẽ phản hồi trong vòng 24 giờ làm việc.
+                </p>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">Họ và tên</label>
+                    <input class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-on-surface focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all placeholder:text-slate-300 font-medium"
+                           placeholder="Nguyễn Văn A" type="text" />
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">Số điện thoại</label>
+                        <input class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-on-surface focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all placeholder:text-slate-300 font-medium"
+                               placeholder="09xx xxx xxx" type="tel" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">Email</label>
+                        <input class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-on-surface focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all placeholder:text-slate-300 font-medium"
+                               placeholder="email@example.com" type="email" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">Chủ đề</label>
+                    <select class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-on-surface focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all font-medium">
+                        <option>Tư vấn đặt xe</option>
+                        <option>Hỗ trợ kỹ thuật</option>
+                        <option>Góp ý dịch vụ</option>
+                        <option>Hợp tác kinh doanh</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-on-surface uppercase tracking-wider mb-2">Nội dung</label>
+                    <textarea class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-on-surface focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all placeholder:text-slate-300 font-medium resize-none"
+                              placeholder="Bạn cần hỗ trợ điều gì?" rows="4"></textarea>
+                </div>
+                <button onclick="alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.')"
+                        class="w-full bg-secondary text-white font-bold py-4 rounded-xl hover:bg-primary hover:shadow-lg active:scale-[0.98] transition-all flex justify-center items-center gap-2 group text-base">
+                    <span>Gửi tin nhắn ngay</span>
+                    <span class="material-symbols-outlined transition-transform group-hover:translate-x-1"
+                          style="font-variation-settings:'FILL' 1">send</span>
+                </button>
+            </div>
+        </div>
+
+        @* Right column *@
+        <div class="lg:col-span-5 flex flex-col gap-6">
+
+            @* Thông tin liên hệ *@
+            <div class="bg-white rounded-2xl p-8 shadow-xl border border-slate-100">
+                <h3 class="text-2xl font-semibold text-primary mb-6">Thông tin liên hệ</h3>
+                <div class="space-y-5">
+                    @{
+                        var contacts = new[]
+                        {
+                            ("call",     "bg-primary",   "Hotline 24/7",   "1900 1234"),
+                            ("mail",     "bg-secondary",  "Email hỗ trợ",   "support@carrentalsystem.vn"),
+                            ("schedule", "bg-[#232b30]",  "Giờ làm việc",   "Thứ 2 - CN: 08:00 - 20:00"),
+                            ("location_on","bg-[#0b1c30]","Địa chỉ chính",  "123 Nguyễn Văn Linh, Đà Nẵng")
+                        };
+                    }
+                    @foreach (var (icon, bg, label, value) in contacts)
+                    {
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl @bg text-white flex items-center justify-center flex-shrink-0 shadow-md">
+                                <span class="material-symbols-outlined">@icon</span>
+                            </div>
+                            <div>
+                                <p class="text-xs text-primary uppercase tracking-widest font-bold mb-0.5">@label</p>
+                                <p class="text-on-surface font-bold text-base">@value</p>
+                            </div>
+                        </div>
+                    }
+                    @* Mạng xã hội *@
+                    <div class="flex items-center gap-4 pt-2 border-t border-slate-100">
+                        <p class="text-xs text-primary uppercase tracking-widest font-bold mr-2">Theo dõi</p>
+                        @{
+                            var socials = new[] { ("public", "Facebook"), ("alternate_email", "Instagram"), ("smart_display", "YouTube") };
+                        }
+                        @foreach (var (icon, name) in socials)
+                        {
+                            <a href="#" title="@name"
+                               class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-secondary hover:text-white transition-colors shadow-sm">
+                                <span class="material-symbols-outlined text-xl">@icon</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* Bản đồ *@
+            <div class="rounded-2xl overflow-hidden shadow-xl h-[280px] relative border border-slate-100">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.2728878706235!2d108.20216!3d16.0544!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTbCsDAzJzE1LjgiTiAxMDjCsDEyJzA4LjgiRQ!5e0!3m2!1svi!2svn!4v1620000000000!5m2!1svi!2svn"
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade" class="w-full h-full"></iframe>
+                <div class="absolute bottom-4 right-4">
+                    <a href="https://maps.google.com" target="_blank"
+                       class="bg-secondary text-white px-4 py-2 rounded-full font-bold text-xs shadow-xl flex items-center gap-2 hover:bg-primary transition-all">
+                        <span class="material-symbols-outlined text-[16px]">directions</span>
+                        Chỉ đường
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Tại sao chọn chúng tôi *@
+    <section class="mt-20">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-primary mb-4 tracking-tight">Tại sao chọn chúng tôi?</h2>
+            <p class="text-base text-on-surface-variant font-medium max-w-xl mx-auto">
+                Chúng tôi cam kết mang lại giá trị tốt nhất thông qua chất lượng dịch vụ vượt trội.
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            @{
+                var reasons = new[]
+                {
+                    ("verified_user",  "Bảo hiểm trọn gói", "Mọi chuyến đi đều được bảo vệ bởi các gói bảo hiểm uy tín hàng đầu."),
+                    ("support_agent",  "Hỗ trợ 24/7",       "Đội ngũ kỹ thuật và CSKH luôn sẵn sàng ứng cứu trên mọi cung đường."),
+                    ("directions_car", "Xe đời mới",         "Dàn xe đa dạng, đời mới từ 2022 trở lên, được bảo dưỡng định kỳ."),
+                    ("sell",           "Giá tốt nhất",       "Cam kết minh bạch giá cả, không chi phí ẩn, cạnh tranh nhất thị trường.")
+                };
+            }
+            @foreach (var (icon, title, desc) in reasons)
+            {
+                <div class="p-8 rounded-2xl bg-white shadow-sm border border-slate-100 hover:border-secondary hover:-translate-y-1 hover:shadow-xl transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-xl bg-[#e5eeff] text-secondary flex items-center justify-center mb-6 group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
+                        <span class="material-symbols-outlined text-3xl">@icon</span>
+                    </div>
+                    <h4 class="font-bold text-xl text-on-surface mb-3">@title</h4>
+                    <p class="text-base text-on-surface-variant leading-relaxed">@desc</p>
+                </div>
+            }
+        </div>
+    </section>
+
+    @* FAQ *@
+    <section class="mt-20 max-w-3xl mx-auto">
+        <div class="text-center mb-10">
+            <h2 class="text-4xl font-bold text-primary mb-4 tracking-tight">Câu hỏi thường gặp</h2>
+            <p class="text-base text-on-surface-variant font-medium">Giải đáp nhanh các thắc mắc phổ biến của khách hàng.</p>
+        </div>
+        <div class="space-y-4">
+            @{
+                var faqs = new[]
+                {
+                    ("Quy trình thuê xe tại CAR RENTAL như thế nào?",
+                     "Quy trình gồm 4 bước: Chọn xe trực tuyến → Xác nhận thông tin → Ký hợp đồng → Nhận xe. Bạn có thể thực hiện hoàn toàn trên website của chúng tôi."),
+                    ("Tôi cần chuẩn bị giấy tờ gì khi thuê xe?",
+                     "Bạn cần CCCD/Hộ chiếu bản gốc, Bằng lái xe hạng B1/B2 trở lên và tài sản thế chấp (xe máy hoặc tiền mặt) tùy theo loại xe bạn chọn."),
+                    ("Có giới hạn số km di chuyển trong ngày không?",
+                     "Thông thường chúng tôi giới hạn 300km/ngày. Nếu vượt quá, phí phụ trội sẽ được tính theo bảng giá niêm yết trong hợp đồng thuê xe.")
+                };
+                int faqIdx = 0;
+            }
+            @foreach (var (question, answer) in faqs)
+            {
+                string faqId = $"faq-{faqIdx++}";
+                <details id="@faqId" class="group bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
+                    <summary onclick="toggleFaq('@faqId')"
+                             class="flex justify-between items-center p-6 cursor-pointer list-none select-none">
+                        <span class="font-bold text-lg text-on-surface">@question</span>
+                        <span class="material-symbols-outlined expand-icon flex-shrink-0 ml-4 text-secondary font-bold">expand_more</span>
+                    </summary>
+                    <div class="px-6 pb-6 text-base text-on-surface-variant leading-relaxed border-t border-slate-100 pt-4">
+                        @answer
+                    </div>
+                </details>
+            }
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script>
+        function toggleFaq(id) {
+            const el = document.getElementById(id);
+            const icon = el.querySelector('.expand-icon');
+            if (el.open) {
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+    </script>
+}
