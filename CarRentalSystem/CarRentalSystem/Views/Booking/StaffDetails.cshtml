@@ -1,4 +1,6 @@
 ﻿@model CarRentalSystem.Models.Booking
+@using CarRentalSystem.Constants
+@using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Chi tiết đơn đặt xe";
     Layout = "_StaffLayout";
@@ -30,19 +32,21 @@
                         <span class="material-symbols-outlined">person</span>
                         Thông tin khách hàng & Thuê xe
                     </h3>
-                    @if (Model.Status == "Cho xac nhan")
+                    @if (Model.Status == BookingStatus.Pending)
                     {
                         <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold">Chờ xác nhận</span>
                     }
-                    else if (Model.Status == "Da xac nhan")
+                    else if (Model.Status == BookingStatus.Confirmed)
                     {
-
                         <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">Đã xác nhận</span>
                     }
-                    else if (Model.Status == "Hoan thanh")
+                    else if (Model.Status == BookingStatus.Completed)
                     {
-
                         <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">Hoàn thành</span>
+                    }
+                    else
+                    {
+                        <span class="bg-slate-100 text-slate-800 px-3 py-1 rounded-full text-xs font-semibold">@Model.Status</span>
                     }
                 </div>
                 <div class="p-8 grid grid-cols-2 gap-y-10 gap-x-12">
@@ -82,7 +86,7 @@
                 </div>
             </section>
 
-            @if (Model.Status == "Cho xac nhan")
+            @if (Model.Status == BookingStatus.Pending)
             {
                 <section class="flex gap-6">
                     <form asp-controller="Booking" asp-action="Approve" method="post" class="flex-1">
@@ -113,15 +117,15 @@
                     <div class="space-y-5 pt-8 border-t border-slate-100">
                         <div class="flex justify-between items-center text-slate-600">
                             <span class="text-base">Giá thuê</span>
-                            <span class="font-semibold text-slate-900 text-lg">@Model.BasePrice.ToString("N0")đ</span>
+                            <span class="font-semibold text-slate-900 text-lg">@CurrencyHelper.FormatVnd(Model.BasePrice)</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-600">
                             <span class="text-base">Giảm giá/Phụ phí</span>
-                            <span class="font-semibold text-slate-900 text-lg">0đ</span>
+                            <span class="font-semibold text-slate-900 text-lg">@CurrencyHelper.FormatVnd(0m)</span>
                         </div>
                         <div class="flex justify-between items-center pt-6 border-t border-slate-200">
                             <span class="text-xl font-bold text-[#00174b]">Tổng cộng</span>
-                            <span class="text-3xl font-black text-[#0051d5] tracking-tight">@Model.TotalAmount.ToString("N0")đ</span>
+                            <span class="text-3xl font-black text-[#0051d5] tracking-tight">@CurrencyHelper.FormatVnd(Model.TotalAmount)</span>
                         </div>
                     </div>
                 </div>

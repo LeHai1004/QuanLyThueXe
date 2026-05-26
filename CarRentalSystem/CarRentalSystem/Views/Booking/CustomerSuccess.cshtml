@@ -1,4 +1,5 @@
 ﻿@model CarRentalSystem.Models.Booking
+@using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Đặt xe thành công";
     Layout = "_Layout";
@@ -28,7 +29,7 @@
             </div>
             <div>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tổng thanh toán</span>
-                <span class="text-xl font-black text-[#00236f]">@Model.TotalAmount.ToString("N0")đ</span>
+                <span class="text-xl font-black text-[#00236f]">@CurrencyHelper.FormatVnd(Model.TotalAmount)</span>
             </div>
         </div>
 

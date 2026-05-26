@@ -1,4 +1,6 @@
 ﻿@model CarRentalSystem.Models.Invoice
+@using CarRentalSystem.Constants
+@using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Chi tiết Hóa đơn " + Model.InvoiceNumber;
     Layout = "_Layout";
@@ -21,107 +23,81 @@
                     Hóa đơn #@Model.InvoiceNumber
                 </h1>
                 <p class="text-[16px] text-[#444651]">
-                    Ngày xuất: @Model.IssueDate.ToString("dd/MM/yyyy")
+                    Ngày lập: @Model.IssueDate.ToString("dd/MM/yyyy HH:mm")
                 </p>
             </div>
-            @if (Model.Status == "Da thanh toan" || Model.Status == "Đã thanh toán")
-            {
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-[#dcfce7] text-[#166534] rounded-full border border-[#16a34a]/20 font-semibold text-[14px]">
-                    <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                    <span>Đã thanh toán</span>
-                </div>
-            }
-            else
-            {
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-[#ffdad6] text-[#93000a] rounded-full border border-[#ba1a1a]/20 font-semibold text-[14px]">
-                    <span class="material-symbols-outlined text-[18px]">error</span>
-                    <span>Chưa thanh toán</span>
-                </div>
-            }
+            <div class="text-right">
+                @if (Model.Status == InvoiceStatus.Paid)
+                {
+                    <span class="inline-block bg-[#0058be] text-white px-4 py-2 rounded-full font-bold text-[14px] shadow-sm uppercase tracking-wider">Đã Thanh Toán</span>
+                }
+                else
+                {
+                    <span class="inline-block bg-[#ba1a1a] text-white px-4 py-2 rounded-full font-bold text-[14px] shadow-sm uppercase tracking-wider">Chưa Thanh Toán</span>
+                }
+            </div>
         </div>
 
         <div class="p-8 md:p-10">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
                 <div>
-                    <h2 class="text-[24px] font-bold text-[#0b1c30] border-b border-[#c5c5d3]/30 pb-3 mb-4">
-                        Thông tin khách hàng
-                    </h2>
-                    <ul class="space-y-3 text-[16px] text-[#444651]">
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Họ tên:</strong>
-                            @(Model.Customer?.UserProfile?.FullName ?? "N/A")
-                        </li>
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Số điện thoại:</strong>
-                            @(Model.Customer?.UserProfile?.PhoneNumber ?? "N/A")
-                        </li>
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Email:</strong>
-                            @(Context.Session.GetString("Email") ?? "N/A")
-                        </li>
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Địa chỉ:</strong>
-                            Chưa cập nhật
-                        </li>
-                    </ul>
+                    <h3 class="text-[12px] font-bold text-[#757682] uppercase tracking-wider mb-4 border-b border-[#c5c5d3]/30 pb-2">Thông tin Khách Hàng</h3>
+                    <div class="space-y-2">
+                        <p class="font-bold text-[#0b1c30] text-[18px]">@(Model.Customer?.UserProfile?.FullName)</p>
+                        <p class="text-[#444651] text-[15px] flex items-center gap-2"><span class="material-symbols-outlined text-[18px] text-[#757682]">phone_iphone</span> @(Model.Customer?.UserProfile?.PhoneNumber)</p>
+                        <p class="text-[#444651] text-[15px] flex items-center gap-2"><span class="material-symbols-outlined text-[18px] text-[#757682]">badge</span> @(Model.Customer?.NationalId)</p>
+                    </div>
                 </div>
                 <div>
-                    <h2 class="text-[24px] font-bold text-[#0b1c30] border-b border-[#c5c5d3]/30 pb-3 mb-4">
-                        Thông tin thuê xe
-                    </h2>
-                    <ul class="space-y-3 text-[16px] text-[#444651]">
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Loại xe:</strong>
-                            @(Model.Booking?.Vehicle?.VehicleName ?? "N/A")
-                        </li>
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Biển số:</strong>
-                            @(Model.Booking?.Vehicle?.LicensePlate ?? "N/A")
-                        </li>
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Thời gian thuê:</strong>
-                            @(Model.Booking?.PickupDateTime.ToString("dd/MM/yyyy")) - @(Model.Booking?.ReturnDateTime.ToString("dd/MM/yyyy"))
-                        </li>
-                        <li>
-                            <strong class="text-[#0b1c30] font-semibold">Phương thức thanh toán:</strong>
-                            Trực tuyến
-                        </li>
-                    </ul>
+                    <h3 class="text-[12px] font-bold text-[#757682] uppercase tracking-wider mb-4 border-b border-[#c5c5d3]/30 pb-2">Đơn Vị Cung Cấp</h3>
+                    <div class="space-y-2">
+                        <p class="font-bold text-[#0b1c30] text-[18px]">RoyalCar Co., Ltd</p>
+                        <p class="text-[#444651] text-[15px]">123 Đường Cầu Giấy, Đống Đa, Hà Nội</p>
+                        <p class="text-[#444651] text-[15px]">Mã số thuế: 0102938475</p>
+                    </div>
                 </div>
             </div>
 
             <div class="mb-10">
-                <h2 class="text-[24px] font-bold text-[#0b1c30] mb-4">
-                    Chi tiết thanh toán
-                </h2>
-                <div class="border border-[#c5c5d3]/30 rounded-lg overflow-hidden">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-[#eff4ff] text-[14px] font-semibold text-[#0b1c30] border-b border-[#c5c5d3]/30">
+                <h3 class="text-[12px] font-bold text-[#757682] uppercase tracking-wider mb-4">Chi tiết Hóa Đơn</h3>
+                <div class="border border-[#c5c5d3]/30 rounded-xl overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-[#f8f9ff]">
                             <tr>
-                                <th class="py-4 px-6">Mô tả</th>
-                                <th class="py-4 px-6 text-right">Thành tiền</th>
+                                <th class="py-4 px-6 text-[13px] font-bold text-[#444651]">Mô tả Dịch Vụ</th>
+                                <th class="py-4 px-6 text-[13px] font-bold text-[#444651] text-center">Số lượng</th>
+                                <th class="py-4 px-6 text-[13px] font-bold text-[#444651] text-right">Đơn giá</th>
+                                <th class="py-4 px-6 text-[13px] font-bold text-[#444651] text-right">Thành tiền</th>
                             </tr>
                         </thead>
-                        <tbody class="text-[16px] text-[#444651] divide-y divide-[#c5c5d3]/20">
-                            <tr class="hover:bg-[#f8f9ff] transition-colors">
-                                <td class="py-4 px-6">Tiền thuê xe (@days ngày x @((Model.Booking?.Vehicle?.PricePerDay ?? 0).ToString("N0"))đ)</td>
-                                <td class="py-4 px-6 text-right text-[#0b1c30] font-medium">@Model.SubTotal.ToString("N0")đ</td>
+                        <tbody class="divide-y divide-[#c5c5d3]/20">
+                            <tr>
+                                <td class="py-5 px-6">
+                                    <p class="font-bold text-[#0b1c30]">Thuê xe @(Model.Booking?.Vehicle?.VehicleName)</p>
+                                    <p class="text-[#757682] text-[13px] mt-1">Lịch trình: @(Model.Booking?.PickupDateTime.ToString("dd/MM/yyyy")) đến @(Model.Booking?.ReturnDateTime.ToString("dd/MM/yyyy"))</p>
+                                </td>
+                                <td class="py-5 px-6 text-center text-[#444651] font-medium">@days Ngày</td>
+                                <td class="py-5 px-6 text-right text-[#444651] font-medium">@CurrencyHelper.FormatVnd(Model.Booking?.Vehicle?.PricePerDay ?? 0)</td>
+                                <td class="py-5 px-6 text-right font-bold text-[#0b1c30]">@CurrencyHelper.FormatVnd(Model.SubTotal)</td>
                             </tr>
-                            <tr class="hover:bg-[#f8f9ff] transition-colors">
-                                <td class="py-4 px-6">Tiền cọc (10%)</td>
-                                <td class="py-4 px-6 text-right text-[#0b1c30] font-medium">@deposit.ToString("N0")đ</td>
+                            <tr>
+                                <td colspan="3" class="py-4 px-6 text-right text-[#757682] text-[14px]">Tổng trước thuế:</td>
+                                <td class="py-4 px-6 text-right font-semibold text-[#0b1c30]">@CurrencyHelper.FormatVnd(Model.SubTotal)</td>
                             </tr>
-                            <tr class="hover:bg-[#f8f9ff] transition-colors">
-                                <td class="py-4 px-6">Phụ thu (nếu có)</td>
-                                <td class="py-4 px-6 text-right text-[#0b1c30] font-medium">0đ</td>
+                            <tr>
+                                <td colspan="3" class="py-4 px-6 text-right text-[#757682] text-[14px]">Tiền cọc (10%):</td>
+                                <td class="py-4 px-6 text-right font-semibold text-[#0b1c30]">@CurrencyHelper.FormatVnd(deposit)</td>
                             </tr>
-                            <tr class="hover:bg-[#f8f9ff] transition-colors text-[#ba1a1a]">
-                                <td class="py-4 px-6">Giảm giá</td>
-                                <td class="py-4 px-6 text-right font-medium">-@Model.DiscountAmount.ToString("N0")đ</td>
-                            </tr>
-                            <tr class="bg-[#eff4ff] border-t-2 border-[#c5c5d3]/40">
-                                <td class="py-5 px-6 text-[24px] font-bold text-[#00236f] text-right">Tổng cộng:</td>
-                                <td class="py-5 px-6 text-[24px] font-bold text-[#00236f] text-right">@Model.GrandTotal.ToString("N0")đ</td>
+                            @if (Model.DiscountAmount > 0)
+                            {
+                                <tr>
+                                    <td colspan="3" class="py-4 px-6 text-right text-[#757682] text-[14px]">Chiết khấu/Giảm giá:</td>
+                                    <td class="py-4 px-6 text-right font-semibold text-[#ba1a1a]">-@CurrencyHelper.FormatVnd(Model.DiscountAmount)</td>
+                                </tr>
+                            }
+                            <tr class="bg-[#f8f9ff]">
+                                <td colspan="3" class="py-5 px-6 text-right font-bold text-[#0b1c30] text-[16px]">TỔNG THANH TOÁN:</td>
+                                <td class="py-5 px-6 text-[24px] font-bold text-[#00236f] text-right">@CurrencyHelper.FormatVnd(Model.GrandTotal)</td>
                             </tr>
                         </tbody>
                     </table>
