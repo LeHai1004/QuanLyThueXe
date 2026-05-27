@@ -1,0 +1,193 @@
+﻿@{
+    ViewData["Title"] = "Về chúng tôi";
+    Layout = "_Layout";
+}
+
+@* Hero *@
+<section class="relative h-[600px] flex items-center justify-center overflow-hidden">
+    <img class="absolute inset-0 w-full h-full object-cover scale-105"
+         src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=90"
+         alt="Hero" />
+    <div class="absolute inset-0 bg-gradient-to-b from-blue-950/70 via-blue-950/55 to-blue-950/80"></div>
+    <div class="relative z-10 text-center px-6 max-w-4xl">
+        <span class="inline-block text-white/60 font-semibold text-xs uppercase tracking-[0.3em] mb-5">
+            Về Car Rental System
+        </span>
+        <h1 class="text-6xl font-black text-white mb-6 leading-tight tracking-tight">
+            Kiến tạo hành trình,<br />
+            <span class="text-[#7eb3ff]">Truyền cảm hứng mỗi ngày</span>
+        </h1>
+        <p class="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
+            Khởi nguồn từ đam mê, vươn tầm bằng sự tận tâm. Chúng tôi không chỉ
+            cung cấp xe — chúng tôi kiến tạo những trải nghiệm đáng nhớ.
+        </p>
+    </div>
+</section>
+
+@* Câu chuyện *@
+<section class="py-24 bg-white">
+    <div class="max-w-[1280px] mx-auto px-8 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+        <div class="relative">
+            <div class="absolute -top-5 -left-5 w-28 h-28 bg-[#e5eeff] rounded-2xl -z-10"></div>
+            <div class="absolute -bottom-5 -right-5 w-36 h-36 border-r-4 border-b-4 border-primary -z-10 rounded-br-2xl"></div>
+            <img class="rounded-2xl shadow-2xl w-full aspect-[4/3] object-cover"
+                 src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&q=90"
+                 alt="Câu chuyện" />
+            <div class="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm rounded-xl px-5 py-4 shadow-xl border border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-xl">emoji_events</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Thành lập từ</p>
+                        <p class="text-lg font-black text-primary">2014</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <span class="text-secondary font-bold text-xs uppercase tracking-[0.25em] mb-4 block">Câu chuyện của chúng tôi</span>
+            <h2 class="text-4xl font-bold text-primary mb-6 leading-tight tracking-tight">
+                Hành trình kiến tạo niềm tin qua từng km
+            </h2>
+            <div class="text-base text-on-surface-variant space-y-4 leading-relaxed">
+                <p>Được thành lập với tầm nhìn tái định nghĩa dịch vụ vận tải cá nhân, Car Rental System bắt đầu hành trình từ một đội xe nhỏ với khao khát mang đến sự minh bạch và chuyên nghiệp tuyệt đối cho khách hàng.</p>
+                <p>Qua hơn một thập kỷ phát triển, chúng tôi đã không ngừng cải tiến quy trình, đầu tư vào công nghệ quản lý hiện đại và đa dạng hóa đội hình phương tiện để đáp ứng mọi nhu cầu từ cá nhân đến doanh nghiệp.</p>
+                <p>Tại Car Rental System, mỗi chiếc xe được bàn giao không chỉ là một phương tiện di chuyển, mà là lời cam kết về sự an toàn, tiện nghi và sự hài lòng tuyệt đối trên mọi nẻo đường.</p>
+            </div>
+            <div class="mt-8 flex gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">check_circle</span>
+                    <span class="text-sm font-semibold text-on-surface-variant">Đội xe 500+ phương tiện</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">check_circle</span>
+                    <span class="text-sm font-semibold text-on-surface-variant">Phủ khắp 25+ tỉnh thành</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* Sứ mệnh & Tầm nhìn *@
+<section class="py-24 bg-[#eff4ff]">
+    <div class="max-w-[1280px] mx-auto px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-2xl"></div>
+            <div class="w-16 h-16 bg-[#e5eeff] rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-300">
+                <span class="material-symbols-outlined text-primary text-4xl group-hover:text-white transition-colors duration-300">rocket_launch</span>
+            </div>
+            <h3 class="text-2xl font-semibold text-primary mb-4">Sứ mệnh</h3>
+            <p class="text-base text-on-surface-variant leading-relaxed">
+                Mang lại trải nghiệm di chuyển an toàn, tiện nghi và linh hoạt cho mọi khách hàng thông qua giải pháp cho thuê xe chuyên nghiệp và đội ngũ hỗ trợ tận tâm.
+            </p>
+        </div>
+        <div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-secondary rounded-l-2xl"></div>
+            <div class="w-16 h-16 bg-[#e5eeff] rounded-xl flex items-center justify-center mb-6 group-hover:bg-secondary transition-colors duration-300">
+                <span class="material-symbols-outlined text-secondary text-4xl group-hover:text-white transition-colors duration-300">visibility</span>
+            </div>
+            <h3 class="text-2xl font-semibold text-primary mb-4">Tầm nhìn</h3>
+            <p class="text-base text-on-surface-variant leading-relaxed">
+                Trở thành đơn vị cho thuê xe hàng đầu tại Việt Nam và khu vực, tiên phong trong việc áp dụng công nghệ số để tối ưu hóa trải nghiệm người dùng và bảo vệ môi trường.
+            </p>
+        </div>
+    </div>
+</section>
+
+@* Giá trị cốt lõi *@
+<section class="py-24 bg-white">
+    <div class="max-w-[1280px] mx-auto px-8">
+        <div class="text-center mb-16">
+            <span class="text-secondary font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Giá trị cốt lõi</span>
+            <h2 class="text-4xl font-bold text-primary tracking-tight">Nền tảng của sự phát triển</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @{
+                var values = new[]
+                {
+                    ("verified",   "Chất lượng hàng đầu",      "Đảm bảo tình trạng xe hoàn hảo nhất trước khi bàn giao."),
+                    ("groups",     "Khách hàng là trung tâm",  "Luôn lắng nghe và thấu hiểu mọi nhu cầu của khách hàng."),
+                    ("gavel",      "Minh bạch tuyệt đối",      "Cam kết rõ ràng về chi phí và các điều khoản dịch vụ."),
+                    ("psychology", "Đổi mới không ngừng",      "Áp dụng công nghệ mới để nâng cao chất lượng phục vụ.")
+                };
+            }
+            @foreach (var (icon, title, desc) in values)
+            {
+                <div class="group text-center p-8 bg-[#f8f9ff] rounded-2xl hover:-translate-y-2 hover:shadow-xl transition-all duration-300 border border-transparent hover:border-[#e5eeff]">
+                    <div class="w-16 h-16 bg-white shadow-md rounded-full flex items-center justify-center mx-auto mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                        <span class="material-symbols-outlined text-3xl">@icon</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-primary mb-3">@title</h4>
+                    <p class="text-sm text-on-surface-variant leading-relaxed">@desc</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@* Thống kê *@
+<section class="py-20 bg-primary relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+        <img src="https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=1600&q=60" class="w-full h-full object-cover" />
+    </div>
+    <div class="relative z-10 max-w-[1280px] mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        @{
+            var stats = new[] { ("500+", "Xe hiện đại"), ("10,000+", "Khách hàng hài lòng"), ("25+", "Chi nhánh toàn quốc"), ("10", "Năm kinh nghiệm") };
+        }
+        @foreach (var (num, label) in stats)
+        {
+            <div>
+                <div class="text-5xl md:text-6xl font-black text-white mb-2">@num</div>
+                <div class="text-white/60 text-sm font-semibold uppercase tracking-widest">@label</div>
+            </div>
+        }
+    </div>
+</section>
+
+@* Tại sao chọn chúng tôi *@
+<section class="py-24 bg-white">
+    <div class="max-w-[1280px] mx-auto px-8">
+        <div class="text-center mb-16">
+            <span class="text-secondary font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Lợi thế cạnh tranh</span>
+            <h2 class="text-4xl font-bold text-primary tracking-tight">Tại sao khách hàng tin tưởng chúng tôi?</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            @{
+                var reasons = new[]
+                {
+                    ("payments",         "Giá cả cạnh tranh",    "Chúng tôi cung cấp nhiều gói giá linh hoạt, đảm bảo mức phí tối ưu nhất cho ngân sách của bạn."),
+                    ("support_agent",    "Hỗ trợ 24/7",          "Đội ngũ kỹ thuật và chăm sóc khách hàng luôn sẵn sàng ứng cứu và giải đáp thắc mắc bất kể ngày đêm."),
+                    ("health_and_safety","Bảo hiểm toàn diện",   "Sự an tâm tuyệt đối với gói bảo hiểm dân sự và vật chất xe đi kèm trong mọi hợp đồng.")
+                };
+            }
+            @foreach (var (icon, title, desc) in reasons)
+            {
+                <div class="flex flex-col items-center text-center group">
+                    <div class="mb-6 p-5 bg-[#e5eeff] rounded-2xl group-hover:bg-primary transition-colors duration-300">
+                        <span class="material-symbols-outlined text-primary text-5xl group-hover:text-white transition-colors duration-300">@icon</span>
+                    </div>
+                    <h4 class="text-2xl font-semibold text-primary mb-3">@title</h4>
+                    <p class="text-base text-on-surface-variant leading-relaxed">@desc</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@* CTA *@
+<section class="relative py-28 overflow-hidden">
+    <img class="absolute inset-0 w-full h-full object-cover"
+         src="https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=1600&q=90"
+         alt="CTA" />
+    <div class="absolute inset-0 bg-primary/80 backdrop-blur-[2px]"></div>
+    <div class="relative z-10 text-center px-8 max-w-3xl mx-auto">
+        <h2 class="text-5xl font-black text-white mb-6 tracking-tight leading-tight">Sẵn sàng cho hành trình tiếp theo?</h2>
+        <p class="text-white/80 mb-10 text-lg leading-relaxed">Hàng trăm mẫu xe đời mới đang chờ bạn khám phá. Đặt ngay hôm nay.</p>
+        <a href="/Vehicle/CustomerList"
+           class="inline-flex items-center gap-2 px-12 py-5 bg-white text-primary font-bold rounded-full shadow-2xl hover:scale-105 transition-transform active:scale-95 text-lg">
+            <span class="material-symbols-outlined">directions_car</span>
+            Đặt xe ngay
+        </a>
+    </div>
+</section>

@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<CarRentalSystem.Models.Customer>
+@using CarRentalSystem.Constants
+@using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Quản lý Khách hàng";
     Layout = "_AdminLayout";
@@ -51,10 +53,8 @@
                 <tbody class="divide-y divide-slate-100">
                     @foreach (var item in Model)
                     {
-                        // Tính tổng tiền từ các đơn hàng Đã hoàn thành
-                        decimal totalSpent = item.Bookings?.Where(b => b.Status == "Hoan thanh" || b.Status == "Đã hoàn thành").Sum(b => (decimal?)b.TotalAmount) ?? 0;
+                        decimal totalSpent = item.Bookings?.Where(b => b.Status == BookingStatus.Completed).Sum(b => (decimal?)b.TotalAmount) ?? 0;
 
-                        // Phân loại hạng thẻ
                         string tier = "Member";
                         string tierClass = "bg-slate-100 text-slate-600";
                         if (totalSpent >= 50000000)
@@ -103,7 +103,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-5 text-right font-bold text-[#1E293B] text-[15px]">
-                                @totalSpent.ToString("N0") <span class="text-[11px] text-slate-400 font-normal">VNĐ</span>
+                                @CurrencyHelper.FormatVnd(totalSpent)
                             </td>
                             <td class="px-6 py-5 text-center">
                                 <button class="p-2 rounded-lg hover:bg-blue-50 text-[#316bf3] transition-colors" title="Xem chi tiết">

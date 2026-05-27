@@ -1,4 +1,5 @@
-﻿@{
+﻿@using CarRentalSystem.Helpers
+@{
     ViewData["Title"] = "Thanh toán đơn hàng";
     Layout = "_Layout";
 }
@@ -10,7 +11,7 @@
 
         <div class="bg-slate-50 p-4 rounded-xl flex justify-between items-center mb-8 border border-slate-100">
             <span class="text-slate-600 font-medium">Tổng số tiền cần thanh toán:</span>
-            <span class="text-xl font-extrabold text-[#0058be]">@Convert.ToDecimal(ViewBag.TotalAmount).ToString("N0")đ</span>
+            <span class="text-xl font-extrabold text-[#0058be]">@CurrencyHelper.FormatVnd(Convert.ToDecimal(ViewBag.TotalAmount))</span>
         </div>
 
         <div class="space-y-4">

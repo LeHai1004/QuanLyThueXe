@@ -1,5 +1,6 @@
 ﻿using CarRentalSystem.Data;
 using CarRentalSystem.Models;
+using CarRentalSystem.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ namespace CarRentalSystem.Controllers
         public IActionResult Index()
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin" && role != "Staff") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
 
             // Lấy danh sách khách hàng, bao gồm thông tin cá nhân và lịch sử đặt xe để tính tổng chi tiêu
             // Lấy danh sách khách hàng, bao gồm thông tin cá nhân, tài khoản và lịch sử đặt xe
@@ -30,7 +31,7 @@ namespace CarRentalSystem.Controllers
                 .OrderByDescending(c => c.CustomerId)
                 .ToList();
 
-            if (role == "Admin")
+            if (role == RoleConstants.Admin)
             {
                 return View("AdminIndex", customers);
             }

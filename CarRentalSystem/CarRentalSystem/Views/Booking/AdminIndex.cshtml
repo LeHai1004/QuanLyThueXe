@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<CarRentalSystem.Models.Booking>
+@using CarRentalSystem.Constants
 @{
     ViewData["Title"] = "Quản lý đơn đặt xe";
     Layout = "_AdminLayout";
@@ -22,99 +23,105 @@
 </header>
 
 <section class="mb-6">
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant flex flex-wrap gap-4 items-center">
+    <form method="get" action="/Booking/Index" class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant flex flex-wrap gap-4 items-center">
         <div class="flex-1 min-w-[300px] relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
-            <input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-body-md transition-all" placeholder="Tìm theo mã đơn, tên khách hàng hoặc biển số..." type="text" />
+            <input name="search" value="@ViewBag.SearchString" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg focus:ring-1 focus:ring-primary transition-all text-[14px]" placeholder="Tìm theo mã đơn hoặc tên khách..." type="text" />
         </div>
-        <div class="flex gap-3">
-            <select class="bg-surface-container-low border-outline-variant rounded-lg py-2 px-3 text-label-md focus:ring-2 focus:ring-primary/20">
-                <option>Chi nhánh: Tất cả</option>
+        <div class="flex gap-3 items-center">
+            <select name="status" class="bg-surface-container-low border-none rounded-lg px-4 py-2 text-[14px] focus:ring-1 focus:ring-primary outline-none cursor-pointer">
+                <option value="" selected="@(string.IsNullOrEmpty(ViewBag.CurrentStatus) ? "selected" : null)">Tất cả trạng thái</option>
+                <option value="@BookingStatus.Pending" selected="@(ViewBag.CurrentStatus == BookingStatus.Pending ? "selected" : null)">Chờ xác nhận</option>
+                <option value="@BookingStatus.Confirmed" selected="@(ViewBag.CurrentStatus == BookingStatus.Confirmed ? "selected" : null)">Đã xác nhận</option>
+                <option value="@BookingStatus.Active" selected="@(ViewBag.CurrentStatus == BookingStatus.Active ? "selected" : null)">Đang thuê</option>
+                <option value="@BookingStatus.Completed" selected="@(ViewBag.CurrentStatus == BookingStatus.Completed ? "selected" : null)">Hoàn thành</option>
+                <option value="@BookingStatus.Cancelled" selected="@(ViewBag.CurrentStatus == BookingStatus.Cancelled ? "selected" : null)">Đã hủy</option>
             </select>
-            <select class="bg-surface-container-low border-outline-variant rounded-lg py-2 px-3 text-label-md focus:ring-2 focus:ring-primary/20">
-                <option>Trạng thái: Tất cả</option>
-                <option>Chờ xác nhận</option>
-                <option>Đang thuê</option>
-                <option>Hoàn tất</option>
-                <option>Đã hủy</option>
-            </select>
-            <div class="relative">
-                <input class="bg-surface-container-low border-outline-variant rounded-lg py-2 px-3 text-label-md focus:ring-2 focus:ring-primary/20" type="date" />
-            </div>
+
+            <button type="submit" class="px-5 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:bg-blue-900 transition-all">Lọc</button>
+
+            @if (!string.IsNullOrEmpty(ViewBag.SearchString) || !string.IsNullOrEmpty(ViewBag.CurrentStatus))
+            {
+                <a href="/Booking/Index" class="px-3 py-2 text-slate-500 hover:text-slate-800 font-bold text-sm transition-colors">Xóa lọc</a>
+            }
         </div>
-        <button class="flex items-center gap-1 text-primary font-label-md px-3 py-2 hover:bg-primary/5 rounded-lg transition-colors">
-            <span class="material-symbols-outlined text-[18px]">filter_list</span>
-            Lọc nâng cao
-        </button>
-    </div>
+    </form>
 </section>
 
-<section class="flex-1 pb-8">
-    <div class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden mb-8">
+    <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-slate-50 border-b border-outline-variant">
-                    <th class="px-6 py-4 text-[12px] font-semibold text-outline-variant uppercase tracking-wider text-on-surface-variant">Mã đơn</th>
-                    <th class="px-6 py-4 text-[12px] font-semibold text-outline-variant uppercase tracking-wider text-on-surface-variant">Khách hàng</th>
-                    <th class="px-6 py-4 text-[12px] font-semibold text-outline-variant uppercase tracking-wider text-on-surface-variant">Xe</th>
-                    <th class="px-6 py-4 text-[12px] font-semibold text-outline-variant uppercase tracking-wider text-on-surface-variant">Thời gian nhận/trả</th>
-                    <th class="px-6 py-4 text-[12px] font-semibold text-outline-variant uppercase tracking-wider text-on-surface-variant text-right">Tổng tiền</th>
-                    <th class="px-6 py-4 text-[12px] font-semibold text-outline-variant uppercase tracking-wider text-on-surface-variant text-center">Trạng thái</th>
-                    <th class="px-6 py-4 text-[12px] font-semibold text-outline-variant uppercase tracking-wider text-on-surface-variant text-center">Hành động</th>
+                <tr class="bg-surface-container-lowest border-b border-outline-variant/30 text-[12px] font-bold text-on-surface-variant uppercase tracking-wider">
+                    <th class="py-4 px-6">Mã đơn</th>
+                    <th class="py-4 px-6">Khách hàng</th>
+                    <th class="py-4 px-6">Xe thuê</th>
+                    <th class="py-4 px-6">Thời gian</th>
+                    <th class="py-4 px-6 text-center">Trạng thái</th>
+                    <th class="py-4 px-6 text-center">Thao tác</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-outline-variant/30">
-                @foreach (var item in Model)
+            <tbody class="divide-y divide-outline-variant/20">
+                @if (!Model.Any())
                 {
-                    <tr class="hover:bg-slate-50 transition-colors group">
-                        <td class="px-6 py-5 font-medium text-primary">#RC-@item.BookingId.ToString("D4")</td>
-                        <td class="px-6 py-5">
-                            <div class="font-semibold text-on-surface">@(item.Customer?.UserProfile?.FullName ?? "Khách ẩn")</div>
-                            <div class="text-[12px] text-on-surface-variant">@(item.Customer?.UserProfile?.PhoneNumber ?? "N/A")</div>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="font-semibold text-on-surface">@(item.Vehicle?.VehicleName ?? "N/A")</div>
-                            <div class="text-[12px] text-on-surface-variant">@(item.Vehicle?.LicensePlate ?? "N/A")</div>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="text-[13px]">@item.PickupDateTime.ToString("dd/MM/yyyy HH:mm") - @item.ReturnDateTime.ToString("dd/MM/yyyy HH:mm")</div>
-                        </td>
-                        <td class="px-6 py-5 text-right font-bold text-on-surface">
-                            @item.TotalAmount.ToString("N0")đ
-                        </td>
-                        <td class="px-6 py-5 text-center">
-                            @if (item.Status == "Cho xac nhan" || item.Status == "Chờ xác nhận")
-                            {
-                                <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-[12px] font-semibold whitespace-nowrap">Chờ xử lý</span>
-                            }
-                            else if (item.Status == "Da xac nhan" || item.Status == "Đã xác nhận")
-                            {
-                                <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-[12px] font-semibold whitespace-nowrap">Đã xác nhận</span>
-                            }
-                            else if (item.Status == "Dang thue" || item.Status == "Đang thuê")
-                            {
-                                <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-[12px] font-semibold whitespace-nowrap">Đang thuê</span>
-                            }
-                            else if (item.Status == "Hoan thanh" || item.Status == "Hoàn thành")
-                            {
-                                <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-[12px] font-semibold whitespace-nowrap">Hoàn tất</span>
-                            }
-                            else
-                            {
-                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-[12px] font-semibold whitespace-nowrap">Đã hủy</span>
-                            }
-                        </td>
-                        <td class="px-6 py-5 text-center">
-                            <div class="flex justify-center gap-2">
-                                <a href="/Booking/Details/@item.BookingId" class="p-1.5 hover:bg-primary/10 text-primary rounded transition-colors">
-                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
-                                </a>
-                                <button class="p-1.5 hover:bg-secondary/10 text-secondary rounded transition-colors">
-                                    <span class="material-symbols-outlined text-[20px]">edit</span>
-                                </button>
-                            </div>
+                    <tr>
+                        <td colspan="6" class="py-10 px-6 text-center text-slate-500 font-medium">
+                            Không tìm thấy đơn đặt xe nào phù hợp với bộ lọc.
                         </td>
                     </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-surface-container-low/50 transition-colors">
+                            <td class="py-4 px-6 font-bold text-primary">#RC-@item.BookingId.ToString("D4")</td>
+                            <td class="py-4 px-6">
+                                <p class="font-semibold text-on-surface">@(item.Customer?.UserProfile?.FullName ?? "N/A")</p>
+                                <p class="text-[12px] text-outline">SĐT: @(item.Customer?.UserProfile?.PhoneNumber ?? "N/A")</p>
+                            </td>
+                            <td class="py-4 px-6">
+                                <p class="font-medium text-on-surface">@(item.Vehicle?.VehicleName ?? "N/A")</p>
+                                <p class="text-[12px] text-outline">Biển: @(item.Vehicle?.LicensePlate ?? "N/A")</p>
+                            </td>
+                            <td class="py-4 px-6">
+                                <p class="text-[13px] text-on-surface">@item.PickupDateTime.ToString("dd/MM/yyyy")</p>
+                                <p class="text-[13px] text-on-surface-variant">đến @item.ReturnDateTime.ToString("dd/MM/yyyy")</p>
+                            </td>
+                            <td class="py-4 px-6 text-center">
+                                @if (item.Status == BookingStatus.Pending)
+                                {
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700">Chờ xác nhận</span>
+                                }
+                                else if (item.Status == BookingStatus.Confirmed)
+                                {
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#1e3a8a] text-blue-200">Đã xác nhận</span>
+                                }
+                                else if (item.Status == BookingStatus.Active)
+                                {
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#0058be] text-white">Đang thuê</span>
+                                }
+                                else if (item.Status == BookingStatus.Completed)
+                                {
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Hoàn thành</span>
+                                }
+                                else
+                                {
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">Đã hủy</span>
+                                }
+                            </td>
+                            <td class="py-4 px-6 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <a href="/Booking/Details/@item.BookingId" class="p-1.5 hover:bg-primary/10 text-primary rounded transition-colors" title="Chi tiết">
+                                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                    </a>
+                                    <button class="p-1.5 hover:bg-secondary/10 text-secondary rounded transition-colors" title="Chỉnh sửa">
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
@@ -128,4 +135,4 @@
             </div>
         </div>
     </div>
-</section>
+</div>

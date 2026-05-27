@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using CarRentalSystem.Constants;
+using CarRentalSystem.Helpers;
 
 namespace CarRentalSystem.Controllers
 {
@@ -17,29 +19,56 @@ namespace CarRentalSystem.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string search, string status)
         {
+            // 1. Kiểm tra phân quyền giống hệt code cũ của bạn
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin" && role != "Staff") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            var receipts = _context.ImportReceipts
+            // 2. Khởi tạo câu truy vấn
+            var query = _context.ImportReceipts
                 .Include(r => r.Supplier)
-                .OrderByDescending(r => r.ImportReceiptId)
-                .ToList();
+                .AsQueryable();
 
-            if (role == "Admin")
+            // 3. Xử lý logic Tìm kiếm
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(i => i.SoImportReceipt.Contains(search)
+                                      || i.Supplier.SupplierName.Contains(search));
+                ViewBag.SearchString = search;
+            }
+
+            // 4. Xử lý logic Lọc theo Trạng thái
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(i => i.Status == status);
+                ViewBag.CurrentStatus = status;
+            }
+
+            // 5. Sắp xếp phiếu mới nhất lên đầu (như code cũ)
+            var receipts = await query.OrderByDescending(r => r.ImportReceiptId).ToListAsync();
+
+            // 6. Trả về View tương ứng theo Role
+            if (role == RoleConstants.Admin)
             {
                 return View("AdminIndex", receipts);
             }
 
-            return View(receipts);
+            return View(receipts); // Dành cho Staff
         }
 
         [HttpGet]
         public IActionResult Create()
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Staff") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             ViewBag.Categories = _context.VehicleCategories.ToList();
             ViewBag.Suppliers = _context.Suppliers.ToList();
@@ -52,82 +81,156 @@ namespace CarRentalSystem.Controllers
         public IActionResult Create(IFormCollection form)
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Staff") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var accountIdStr = HttpContext.Session.GetString("AccountId");
+            if (string.IsNullOrEmpty(accountIdStr))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             int accountId = int.Parse(accountIdStr);
 
-            var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
-            if (staff == null) return RedirectToAction("Login", "Account");
+            // Đã thêm Include để tránh lỗi Null Reference
+            var staff = _context.Staff
+                .Include(s => s.UserProfile)
+                .FirstOrDefault(s => s.UserProfile.AccountId == accountId);
 
-            var vehicle = new Vehicle
+            if (staff == null)
             {
-                VehicleName = form["VehicleName"].ToString(),
-                LicensePlate = form["LicensePlate"].ToString(),
-                CategoryId = int.Parse(form["CategoryId"]),
-                Status = "Cho duyet",
-                PricePerDay = 500000,
-                ManufactureYear = DateTime.Now.Year,
-                Brand = "Chưa xác định",
-                Model = "Chưa xác định",
-                Seats = 4,
-                AverageRating = 0,
-                HinhAnh = "https://images.unsplash.com/photo-1550355291-bbee04a92027",
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
-            _context.Vehicles.Add(vehicle);
-            _context.SaveChanges();
+                return RedirectToAction("Login", "Account");
+            }
 
-            var receipt = new ImportReceipt
+            try
             {
-                SoImportReceipt = "PN" + DateTime.Now.ToString("ddHHmmss"),
-                SupplierId = int.Parse(form["SupplierId"]),
-                StaffId = staff.StaffId,
-                ImportDate = DateTime.Now,
-                TotalAmount = decimal.Parse(form["TotalAmount"]),
-                Status = "Cho duyet",
-                CreatedAt = DateTime.Now
-            };
-            _context.ImportReceipts.Add(receipt);
-            _context.SaveChanges();
+                // 1. Kiểm tra các trường bắt buộc
+                if (string.IsNullOrEmpty(form["CategoryId"]) ||
+                    string.IsNullOrEmpty(form["VehicleName"]) ||
+                    string.IsNullOrEmpty(form["LicensePlate"]) ||
+                    string.IsNullOrEmpty(form["SupplierId"]) ||
+                    string.IsNullOrEmpty(form["Brand"]) ||
+                    string.IsNullOrEmpty(form["Model"]))
+                {
+                    TempData["ErrorMessage"] = "Vui lòng điền đầy đủ Tên xe, Hãng xe, Dòng xe, Biển số, Loại xe và Nhà cung cấp.";
+                    ViewBag.Categories = _context.VehicleCategories.ToList();
+                    ViewBag.Suppliers = _context.Suppliers.ToList();
+                    return View();
+                }
 
-            var receiptDetail = new ImportReceiptDetail
+                // 2. Kiểm tra biển số trùng lặp (tránh lỗi UNIQUE trong DB)
+                string licensePlate = form["LicensePlate"].ToString();
+                var existingVehicle = _context.Vehicles.FirstOrDefault(v => v.LicensePlate == licensePlate);
+                if (existingVehicle != null)
+                {
+                    TempData["ErrorMessage"] = $"Biển số xe '{licensePlate}' đã tồn tại trong hệ thống. Vui lòng kiểm tra lại.";
+                    ViewBag.Categories = _context.VehicleCategories.ToList();
+                    ViewBag.Suppliers = _context.Suppliers.ToList();
+                    return View();
+                }
+
+                // 3. Tạo mới Vehicle
+                var vehicle = new Vehicle
+                {
+                    CategoryId = int.Parse(form["CategoryId"]),
+                    VehicleName = form["VehicleName"].ToString(),
+                    LicensePlate = licensePlate,
+                    Brand = form["Brand"].ToString(),
+                    Model = form["Model"].ToString(),
+                    ManufactureYear = string.IsNullOrEmpty(form["ManufactureYear"]) ? DateTime.Now.Year : int.Parse(form["ManufactureYear"]),
+                    Color = form["Color"].ToString() ?? "Không xác định",
+                    Seats = string.IsNullOrEmpty(form["Seats"]) ? 4 : int.Parse(form["Seats"]),
+                    Transmission = form["Transmission"].ToString() ?? "Tự động",
+                    FuelType = form["FuelType"].ToString() ?? "Xăng",
+                    PricePerDay = string.IsNullOrEmpty(form["TotalAmount"]) ? 0 : decimal.Parse(form["TotalAmount"]),
+                    Status = VehicleStatus.Inactive, // Xe mới nhập, chờ duyệt
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+                _context.Vehicles.Add(vehicle);
+                _context.SaveChanges();
+
+                // 4. Tạo Import Receipt (Phiếu nhập)
+                var totalAmount = string.IsNullOrEmpty(form["TotalAmount"]) ? 0 : decimal.Parse(form["TotalAmount"]);
+
+                var receipt = new ImportReceipt
+                {
+                    SoImportReceipt = CodeGeneratorHelper.GenerateReceiptCode(),
+                    SupplierId = int.Parse(form["SupplierId"]),
+                    StaffId = staff.StaffId,
+                    ImportDate = DateTime.Now,
+                    TotalAmount = totalAmount,
+                    Status = ImportReceiptStatus.Pending,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.ImportReceipts.Add(receipt);
+                _context.SaveChanges();
+
+                // 5. Tạo Import Receipt Detail (Chi tiết nhập)
+                var detail = new ImportReceiptDetail
+                {
+                    ImportReceiptId = receipt.ImportReceiptId,
+                    VehicleId = vehicle.VehicleId,
+                    Quantity = 1,                           // BỔ SUNG: Nhập 1 chiếc xe
+                    UnitPrice = totalAmount,
+                    LineTotal = totalAmount,                // BỔ SUNG: Tổng tiền dòng này
+                    CurrentKm = 0,                          // BỔ SUNG: Xe mới nhập Km = 0
+                    VehicleCondition = "Bình thường"        // BỔ SUNG: Tình trạng xe
+                };
+
+                _context.ImportReceiptDetails.Add(detail);
+                _context.SaveChanges();
+
+                TempData["SuccessMessage"] = "Tạo phiếu nhập kho thành công! Chờ Admin phê duyệt.";
+                return RedirectToAction("Index");
+            }
+            catch (DbUpdateException dbEx)
             {
-                ImportReceiptId = receipt.ImportReceiptId,
-                VehicleId = vehicle.VehicleId,
-                Quantity = 1,
-                UnitPrice = decimal.Parse(form["TotalAmount"]),
-                LineTotal = decimal.Parse(form["TotalAmount"]),
-                CurrentKm = 0
-            };
-            _context.ImportReceiptDetails.Add(receiptDetail);
-            _context.SaveChanges();
+                // Bắt lỗi sâu từ Database (Ví dụ: lỗi khóa ngoại, lỗi null)
+                string dbErrorMsg = dbEx.InnerException?.Message ?? dbEx.Message;
+                TempData["ErrorMessage"] = $"Lỗi cơ sở dữ liệu: {dbErrorMsg}";
 
-            TempData["SuccessMessage"] = "Gửi phiếu nhập thành công! Đang chờ Admin duyệt.";
+                ViewBag.Categories = _context.VehicleCategories.ToList();
+                ViewBag.Suppliers = _context.Suppliers.ToList();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                // Bắt các lỗi chung khác
+                TempData["ErrorMessage"] = $"Lỗi hệ thống: {ex.Message}";
 
-            return RedirectToAction("Index");
+                ViewBag.Categories = _context.VehicleCategories.ToList();
+                ViewBag.Suppliers = _context.Suppliers.ToList();
+                return View();
+            }
         }
+
         [HttpPost]
         public IActionResult Approve(int id)
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Admin)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var receipt = _context.ImportReceipts.Find(id);
             if (receipt != null)
             {
-                // Cập nhật trạng thái phiếu nhập thành Đã duyệt
-                receipt.Status = "Da duyet";
+                receipt.Status = ImportReceiptStatus.Approved;
+                receipt.ApprovalDate = DateTime.Now;
 
-                // Tìm xe tương ứng trong chi tiết phiếu nhập và mở khóa cho thuê
                 var details = _context.ImportReceiptDetails.Where(d => d.ImportReceiptId == id).ToList();
                 foreach (var detail in details)
                 {
                     var vehicle = _context.Vehicles.Find(detail.VehicleId);
                     if (vehicle != null)
                     {
-                        vehicle.Status = "San sang"; // Đổi trạng thái xe thành Sẵn sàng cho khách thuê
+                        vehicle.Status = VehicleStatus.Available;
                     }
                 }
 
@@ -141,21 +244,24 @@ namespace CarRentalSystem.Controllers
         public IActionResult Reject(int id)
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Admin)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var receipt = _context.ImportReceipts.Find(id);
             if (receipt != null)
             {
-                receipt.Status = "Tu choi";
+                receipt.Status = ImportReceiptStatus.Rejected;
+                receipt.ApprovalDate = DateTime.Now;
 
-                // Đổi trạng thái xe thành "Huy bo" vì bị từ chối nhập kho
                 var details = _context.ImportReceiptDetails.Where(d => d.ImportReceiptId == id).ToList();
                 foreach (var detail in details)
                 {
                     var vehicle = _context.Vehicles.Find(detail.VehicleId);
                     if (vehicle != null)
                     {
-                        vehicle.Status = "Huy bo";
+                        vehicle.Status = VehicleStatus.Inactive;
                     }
                 }
 

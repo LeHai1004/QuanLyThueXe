@@ -1,73 +1,95 @@
 ﻿@model IEnumerable<CarRentalSystem.Models.Vehicle>
+@using CarRentalSystem.Helpers
 @{
-    ViewData["Title"] = "Trang chủ - RoyalCar";
+    ViewData["Title"] = "Trang chủ - Car Rental System";
     Layout = "_Layout";
 }
 
-<section class="relative bg-slate-900 text-white overflow-hidden py-24 md:py-32">
-    <div class="absolute inset-0 opacity-20">
-        <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover" alt="Hero Background" />
+@* ===== HERO ===== *@
+<section class="relative bg-slate-900 text-white overflow-hidden min-h-[620px] flex items-center">
+    <div class="absolute inset-0">
+        <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1920&q=85"
+             class="w-full h-full object-cover" alt="Hero" />
+        <div class="absolute inset-0 bg-gradient-to-r from-[#00164e]/90 via-[#00236f]/70 to-transparent"></div>
     </div>
-    <div class="max-w-[1280px] mx-auto px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <div class="space-y-6">
-            <span class="inline-block bg-blue-600/20 text-blue-400 border border-blue-500/30 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">Trải nghiệm đẳng cấp thượng lưu</span>
-            <h1 class="text-5xl md:text-6xl font-black tracking-tight leading-none text-white">
-                Hành trình hoàn hảo <br />Bắt đầu từ <span class="text-[#316bf3]">RoyalCar</span>
+
+    <div class="max-w-[1280px] mx-auto px-8 relative z-10 py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+        <div class="space-y-7">
+            <span class="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/90 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Hệ thống thuê xe chuyên nghiệp
+            </span>
+            <h1 class="text-5xl md:text-6xl font-black tracking-tight leading-[1.05] text-white">
+                Hành trình hoàn hảo<br/>
+                Bắt đầu từ <span class="text-[#7eb3ff]">Car Rental</span>
             </h1>
-            <p class="text-slate-300 text-lg font-medium max-w-md">
-                Sở hữu bộ sưu tập xe cao cấp đời mới nhất. Thủ tục đơn giản, giao xe tận nơi nhanh chóng trong 30 phút.
+            <p class="text-white/75 text-lg font-medium max-w-md leading-relaxed">
+                Bộ sưu tập xe đa dạng, đời mới nhất. Thủ tục đơn giản, đặt xe trực tuyến nhanh chóng trong vài phút.
             </p>
-            <div class="pt-4 flex flex-wrap gap-4">
-                <a href="/Vehicle/CustomerList" class="bg-[#316bf3] hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]">
-                    Thuê xe ngay lập tức
+            <div class="flex flex-wrap gap-4 pt-2">
+                <a href="/Vehicle/CustomerList"
+                   class="bg-secondary hover:bg-[#004aaa] text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-blue-900/30 active:scale-[0.98] flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">directions_car</span>
+                    Thuê xe ngay
                 </a>
-                <a href="#kham-pha" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-xl transition-all">
+                <a href="#kham-pha"
+                   class="bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold px-8 py-4 rounded-xl transition-all backdrop-blur-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">expand_more</span>
                     Tìm hiểu thêm
                 </a>
             </div>
         </div>
-    </div>
-</section>
 
-<section id="kham-pha" class="max-w-[1280px] mx-auto py-20 px-8 space-y-12">
-    <div class="text-center max-w-2xl mx-auto space-y-2">
-        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Tại sao nên chọn dịch vụ của chúng tôi?</h2>
-        <p class="text-slate-500 font-medium text-sm">RoyalCar mang lại sự an tâm tuyệt đối trên mọi cung đường di chuyển.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 bg-blue-50 text-[#00236f] rounded-xl flex items-center justify-center mb-6">
-                <span class="material-symbols-outlined text-2xl">verified</span>
+        @* Stats float card *@
+        <div class="hidden lg:flex justify-end">
+            <div class="grid grid-cols-2 gap-4 w-fit">
+                @{
+                    var heroStats = new[] { ("500+", "Xe hiện đại"), ("10K+", "Khách hàng"), ("25+", "Chi nhánh"), ("10", "Năm KN") };
+                }
+                @foreach (var (num, label) in heroStats)
+                {
+                    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-7 py-5 text-center">
+                        <div class="text-3xl font-black text-white">@num</div>
+                        <div class="text-white/60 text-xs font-semibold uppercase tracking-wider mt-1">@label</div>
+                    </div>
+                }
             </div>
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Đội xe chất lượng cao</h3>
-            <p class="text-slate-500 text-sm font-medium leading-relaxed">
-                Toàn bộ phương tiện đều thuộc các phân khúc đời mới, được kiểm tra và bảo dưỡng nghiêm ngặt trước mỗi chuyến đi.
-            </p>
-        </div>
-
-        <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-6">
-                <span class="material-symbols-outlined text-2xl">support_agent</span>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Hỗ trợ khẩn cấp 24/7</h3>
-            <p class="text-slate-500 text-sm font-medium leading-relaxed">
-                Đội ngũ kỹ thuật viên và nhân viên vận hành luôn sẵn sàng đồng hành, giải quyết mọi sự cố phát sinh trên đường.
-            </p>
-        </div>
-
-        <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-6">
-                <span class="material-symbols-outlined text-2xl">distance</span>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Không giới hạn số km</h3>
-            <p class="text-slate-500 text-sm font-medium leading-relaxed">
-                Thoải mái tận hưởng chuyến hành trình dài cùng gia đình và bạn bè mà không cần lo lắng về chi phí phát sinh phụ trội.
-            </p>
         </div>
     </div>
 </section>
 
+@* ===== TẠI SAO CHỌN CHÚNG TÔI ===== *@
+<section id="kham-pha" class="py-24 bg-white">
+    <div class="max-w-[1280px] mx-auto px-8">
+        <div class="text-center max-w-2xl mx-auto mb-14">
+            <span class="text-secondary font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Lợi thế của chúng tôi</span>
+            <h2 class="text-4xl font-black text-primary tracking-tight">Tại sao nên chọn Car Rental System?</h2>
+            <p class="text-on-surface-variant mt-3 font-medium">Chúng tôi mang lại sự an tâm tuyệt đối trên mọi cung đường di chuyển.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            @{
+                var whys = new[]
+                {
+                    ("verified",       "bg-blue-50",   "text-primary",   "Đội xe chất lượng cao",    "Toàn bộ phương tiện đều thuộc các phân khúc đời mới, được kiểm tra và bảo dưỡng nghiêm ngặt trước mỗi chuyến đi."),
+                    ("support_agent",  "bg-emerald-50","text-emerald-600","Hỗ trợ khẩn cấp 24/7",    "Đội ngũ kỹ thuật viên luôn sẵn sàng đồng hành, giải quyết mọi sự cố phát sinh trên đường."),
+                    ("verified_user",  "bg-amber-50",  "text-amber-600", "Bảo hiểm toàn diện",       "Sự an tâm tuyệt đối với gói bảo hiểm dân sự và vật chất xe đi kèm trong mọi hợp đồng thuê.")
+                };
+            }
+            @foreach (var (icon, bg, color, title, desc) in whys)
+            {
+                <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                    <div class="w-14 h-14 @bg @color rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">@icon</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-on-surface mb-3">@title</h3>
+                    <p class="text-on-surface-variant text-sm font-medium leading-relaxed">@desc</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@* ===== XE NỔI BẬT ===== *@
 <section class="max-w-[1280px] mx-auto py-4 px-8 space-y-12">
     <div class="text-center max-w-2xl mx-auto space-y-2">
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">Mẫu xe nổi bật nổi bật</h2>
@@ -104,7 +126,7 @@
                         <div class="flex items-center justify-between mb-4 border-t border-slate-50 pt-4">
                             <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Giá thuê</span>
                             <div class="text-[#00236f] font-bold whitespace-nowrap">
-                                <span class="text-lg">@car.PricePerDay.ToString("N0")đ</span><span class="text-[10px] text-slate-400">/ngày</span>
+                                <span class="text-lg">@CurrencyHelper.FormatVnd(car.PricePerDay)</span><span class="text-[10px] text-slate-400">/ngày</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
@@ -122,21 +144,60 @@
     </div>
 </section>
 
-<section class="max-w-[1280px] mx-auto px-8 py-16">
-    <div class="bg-[#00236f] rounded-3xl p-12 md:p-16 text-center text-white relative overflow-hidden shadow-xl">
-        <div class="absolute inset-0 opacity-10 pointer-events-none">
-            <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover" alt="CTA BG" />
+@* ===== QUY TRÌNH ===== *@
+<section class="py-24 bg-white">
+    <div class="max-w-[1280px] mx-auto px-8">
+        <div class="text-center mb-16">
+            <span class="text-secondary font-bold text-xs uppercase tracking-[0.25em] mb-3 block">Đơn giản & Nhanh chóng</span>
+            <h2 class="text-4xl font-black text-primary tracking-tight">Thuê xe chỉ trong 3 bước</h2>
         </div>
-        <div class="relative z-10 max-w-xl mx-auto space-y-6">
-            <h2 class="text-3xl md:text-4xl font-black tracking-tight">Sẵn sàng trải nghiệm chuyến đi của riêng bạn?</h2>
-            <p class="text-blue-100 text-sm font-medium leading-relaxed">
-                Chỉ mất chưa đầy 3 phút để chọn mẫu xe mong muốn và hoàn tất thủ tục giữ xe trực tuyến an toàn.
+        <div class="relative flex flex-col md:flex-row justify-between items-start gap-8">
+            <div class="hidden md:block absolute top-10 left-[12%] right-[12%] h-0.5 bg-[#e5eeff] -z-10"></div>
+            @{
+                var steps = new[]
+                {
+                    ("search",          "Chọn xe ưng ý",    "Tham khảo đội xe đa dạng, lọc theo nhu cầu và ngân sách."),
+                    ("edit_calendar",   "Đặt lịch & Thanh toán","Chọn ngày nhận - trả xe, xác nhận và hoàn tất thanh toán online."),
+                    ("car_rental",      "Nhận xe & Lên đường","Xuất trình giấy tờ, ký hợp đồng và bắt đầu hành trình.")
+                };
+                int stepN = 1;
+            }
+            @foreach (var (icon, title, desc) in steps)
+            {
+                <div class="flex-1 flex flex-col items-center text-center">
+                    <div class="relative mb-6">
+                        <div class="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-900/20 border-4 border-white">
+                            <span class="material-symbols-outlined text-3xl">@icon</span>
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-7 h-7 bg-secondary text-white rounded-full flex items-center justify-center text-xs font-black border-2 border-white">@stepN</div>
+                    </div>
+                    <h4 class="text-xl font-bold text-primary mb-2">@title</h4>
+                    <p class="text-sm text-on-surface-variant leading-relaxed max-w-xs">@desc</p>
+                </div>
+                stepN++;
+            }
+        </div>
+    </div>
+</section>
+
+@* ===== CTA ===== *@
+<section class="max-w-[1280px] mx-auto px-8 py-16">
+    <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+        <img src="https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=1600&q=85"
+             class="absolute inset-0 w-full h-full object-cover" alt="CTA" />
+        <div class="absolute inset-0 bg-primary/85"></div>
+        <div class="relative z-10 p-14 md:p-20 text-center text-white max-w-2xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-5 leading-tight">
+                Sẵn sàng cho chuyến đi<br/>của riêng bạn?
+            </h2>
+            <p class="text-white/75 text-base font-medium mb-10 leading-relaxed">
+                Chỉ mất vài phút để chọn xe và hoàn tất đặt lịch trực tuyến an toàn.
             </p>
-            <div class="pt-4">
-                <a href="/Vehicle/CustomerList" class="inline-block bg-white text-[#00236f] font-extrabold px-8 py-4 rounded-xl hover:bg-slate-50 transition-all active:scale-[0.98]">
-                    Khám phá danh sách xe ngay
-                </a>
-            </div>
+            <a href="/Vehicle/CustomerList"
+               class="inline-flex items-center gap-3 bg-white text-primary font-extrabold px-10 py-5 rounded-full hover:scale-105 transition-transform active:scale-95 shadow-2xl text-base">
+                <span class="material-symbols-outlined">directions_car</span>
+                Khám phá danh sách xe
+            </a>
         </div>
     </div>
 </section>

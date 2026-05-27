@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using CarRentalSystem.Constants;
 
 namespace CarRentalSystem.Controllers
 {
@@ -19,18 +20,19 @@ namespace CarRentalSystem.Controllers
         public IActionResult Index()
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Admin)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            // Lấy danh sách nhân viên kèm thông tin cá nhân và tài khoản
             var staffs = _context.Staff
                 .Include(s => s.UserProfile)
                     .ThenInclude(u => u.Account)
                 .OrderByDescending(s => s.StaffId)
                 .ToList();
 
-            // Lấy thêm tổng doanh thu tháng này để hiển thị trên thẻ báo cáo
             ViewBag.TotalRevenue = _context.Invoices
-                .Where(i => i.Status == "Da thanh toan" || i.Status == "Đã thanh toán")
+                .Where(i => i.Status == InvoiceStatus.Paid)
                 .Sum(i => (decimal?)i.GrandTotal) ?? 0;
 
             return View("AdminIndex", staffs);

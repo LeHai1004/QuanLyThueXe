@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using CarRentalSystem.Constants; // Gọi bộ hằng số chống sai chính tả
+using CarRentalSystem.Business;  // Gọi bộ não xử lý tính toán
 
 namespace CarRentalSystem.Controllers
 {
@@ -20,15 +22,16 @@ namespace CarRentalSystem.Controllers
         public IActionResult Index()
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin" && role != "Staff")
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
 
+            // Đã thay thế toàn bộ chữ thuần bằng Enum/Constants
             ViewBag.TotalOrders = _context.Bookings.Count();
-            ViewBag.RentedCars = _context.Bookings.Count(b => b.Status == "Dang thue");
-            ViewBag.AvailableCars = _context.Vehicles.Count(v => v.Status == "San sang");
-            ViewBag.Revenue = _context.Bookings.Where(b => b.Status == "Hoan thanh").Sum(b => (decimal?)b.TotalAmount) ?? 0;
+            ViewBag.RentedCars = _context.Bookings.Count(b => b.Status == BookingStatus.Active);
+            ViewBag.AvailableCars = _context.Vehicles.Count(v => v.Status == VehicleStatus.Available);
+            ViewBag.Revenue = _context.Bookings.Where(b => b.Status == BookingStatus.Completed).Sum(b => (decimal?)b.TotalAmount) ?? 0;
 
             var sevenDaysAgo = DateTime.Now.AddDays(-7);
             ViewBag.NewCustomers = _context.Customers.Count(c => c.UserProfile.CreatedAt >= sevenDaysAgo);
@@ -41,7 +44,7 @@ namespace CarRentalSystem.Controllers
                 .Take(5)
                 .ToList();
 
-            if (role == "Admin")
+            if (role == RoleConstants.Admin)
             {
                 return View("AdminIndex", recentOrders);
             }
@@ -54,37 +57,36 @@ namespace CarRentalSystem.Controllers
             var role = HttpContext.Session.GetString("RoleName");
             if (role != "Admin") return RedirectToAction("Login", "Account");
 
+            // 1. Khởi tạo bộ não Business Logic
+            var dashboardBiz = new DashboardBusiness();
+
+            // 2. Gom trạng thái hóa đơn bằng Constants
             var totalRevenue = _context.Invoices
-                .Where(i => i.Status == "Da thanh toan" || i.Status == "Đã thanh toán")
+                .Where(i => i.Status == InvoiceStatus.Paid)
                 .Sum(i => (decimal?)i.GrandTotal) ?? 0;
 
             var netProfit = totalRevenue * 0.35m;
 
             var totalBookings = _context.Bookings.Count();
 
+            // 3. Tính tỷ lệ lấp đầy thông qua Business Logic
             var totalVehicles = _context.Vehicles.Count();
-            var rentedVehicles = _context.Vehicles.Count(v => v.Status == "Dang thue" || v.Status == "Đang thuê");
-            var occupancyRate = totalVehicles > 0 ? (double)rentedVehicles / totalVehicles * 100 : 0;
+            var rentedVehicles = _context.Vehicles.Count(v => v.Status == VehicleStatus.Rented);
+            var occupancyRate = dashboardBiz.CalculateOccupancyRate(totalVehicles, rentedVehicles);
 
             var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
 
+            // 4. Xử lý tăng trưởng chi nhánh: Giao phó phép chia cho Business
             var branchStats = _context.Bookings
-                .Where(b => b.Status == "Hoan thanh" || b.Status == "Đã hoàn thành")
-                .ToList()
+                .Where(b => b.Status == BookingStatus.Completed)
+                .AsEnumerable() // Chuyển về xử lý RAM để hàm GroupBy chạy mượt với logic phức tạp
                 .GroupBy(b => b.PickupLocation)
                 .Select(g => {
-                    var thisMonthRev = g.Where(x => x.ReturnDateTime.Month == currentMonth).Sum(x => x.TotalAmount);
-                    var lastMonthRev = g.Where(x => x.ReturnDateTime.Month == (currentMonth == 1 ? 12 : currentMonth - 1)).Sum(x => x.TotalAmount);
-                    double growth = 0;
-
-                    if (lastMonthRev > 0)
-                    {
-                        growth = (double)((thisMonthRev - lastMonthRev) / lastMonthRev * 100);
-                    }
-                    else if (thisMonthRev > 0)
-                    {
-                        growth = 100;
-                    }
+                    var thisMonthRev = g.Where(x => x.ReturnDateTime.Month == currentMonth && x.ReturnDateTime.Year == currentYear).Sum(x => x.TotalAmount);
+                    var lastMonthYear = currentMonth == 1 ? currentYear - 1 : currentYear;
+                    var lastMonthNum = currentMonth == 1 ? 12 : currentMonth - 1;
+                    var lastMonthRev = g.Where(x => x.ReturnDateTime.Month == lastMonthNum && x.ReturnDateTime.Year == lastMonthYear).Sum(x => x.TotalAmount);
 
                     return new
                     {
@@ -92,7 +94,9 @@ namespace CarRentalSystem.Controllers
                         Address = g.Key,
                         BookingCount = g.Count(),
                         Revenue = g.Sum(b => b.TotalAmount),
-                        Growth = Math.Round(growth, 1)
+
+                        // Đẩy toàn bộ khối if/else rườm rà qua cho DashboardBusiness lo
+                        Growth = Math.Round(dashboardBiz.CalculateGrowthRate(thisMonthRev, lastMonthRev), 1)
                     };
                 })
                 .OrderByDescending(x => x.Revenue)
@@ -105,7 +109,15 @@ namespace CarRentalSystem.Controllers
             ViewBag.OccupancyRate = occupancyRate;
             ViewBag.BranchStats = branchStats;
 
-            return View();
+            // ✅ THÊM: load danh sách khách hàng truyền vào Model
+            var customers = _context.Customers
+                .Include(c => c.UserProfile)
+                    .ThenInclude(u => u.Account)
+                .Include(c => c.Bookings)
+                .OrderByDescending(c => c.CustomerId)
+                .ToList();
+
+            return View(customers); // ✅ truyền customers thay vì View()
         }
     }
 }
