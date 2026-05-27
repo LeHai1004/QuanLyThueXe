@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using CarRentalSystem.Constants;
 
 namespace CarRentalSystem.Controllers
 {
@@ -20,19 +21,19 @@ namespace CarRentalSystem.Controllers
         public IActionResult Index()
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin" && role != "Staff") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var suppliers = _context.Suppliers.OrderByDescending(s => s.SupplierId).ToList();
 
-            if (role == "Admin")
+            if (role == RoleConstants.Admin)
             {
-                // Tính toán số liệu thống kê cho Admin
                 ViewBag.TotalSuppliers = suppliers.Count;
-                // Thay đoạn đếm cũ bằng đoạn này:
-                ViewBag.ActiveSuppliers = suppliers.Count(s => s.IsActive == true); // Đang hợp tác
-                ViewBag.InactiveSuppliers = suppliers.Count(s => s.IsActive == false); // Ngừng giao dịch
+                ViewBag.ActiveSuppliers = suppliers.Count(s => s.IsActive == true);
+                ViewBag.InactiveSuppliers = suppliers.Count(s => s.IsActive == false);
 
-                // Đếm số phiếu nhập kho trong tháng này
                 var currentMonth = DateTime.Now.Month;
                 var currentYear = DateTime.Now.Year;
                 ViewBag.MonthlyImports = _context.ImportReceipts

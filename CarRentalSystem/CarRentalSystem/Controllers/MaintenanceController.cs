@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using CarRentalSystem.Constants;
 
 namespace CarRentalSystem.Controllers
 {
@@ -21,10 +22,13 @@ namespace CarRentalSystem.Controllers
         public IActionResult Index()
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Staff") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             ViewBag.Vehicles = _context.Vehicles
-                                       .Where(v => v.Status != "Ngung hoat dong")
+                                       .Where(v => v.Status != VehicleStatus.Inactive)
                                        .ToList();
             return View();
         }
@@ -34,13 +38,19 @@ namespace CarRentalSystem.Controllers
         public IActionResult Index(IFormCollection form)
         {
             var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Staff") return RedirectToAction("Login", "Account");
+            if (role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var accountIdStr = HttpContext.Session.GetString("AccountId");
             int accountId = int.Parse(accountIdStr);
             var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
 
-            if (staff == null) return RedirectToAction("Login", "Account");
+            if (staff == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var maintenanceLog = new MaintenanceLog
             {
@@ -48,17 +58,13 @@ namespace CarRentalSystem.Controllers
                 StaffId = staff.StaffId,
                 MaintenanceType = form["MaintenanceType"].ToString(),
                 Cost = decimal.Parse(form["Cost"]),
-
-                // Đã chuyển sang dùng DateOnly để khớp hoàn toàn với CSDL của bạn
                 MaintenanceDate = DateOnly.Parse(form["MaintenanceDate"]),
-
                 Description = form["Description"].ToString(),
-                Status = "Hoan thanh"
+                Status = MaintenanceStatus.Completed
             };
 
             if (!string.IsNullOrEmpty(form["MaintenanceDateTiep"]))
             {
-                // Tương tự, chuyển sang DateOnly
                 maintenanceLog.MaintenanceDateTiep = DateOnly.Parse(form["MaintenanceDateTiep"]);
             }
 

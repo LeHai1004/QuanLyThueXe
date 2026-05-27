@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using CarRentalSystem.Constants;
 
 namespace CarRentalSystem.Controllers
 {
@@ -19,7 +20,7 @@ namespace CarRentalSystem.Controllers
         {
             var featuredVehicles = await _db.Vehicles
                 .Include(v => v.Category)
-                .Where(v => v.Status == "San sang" || v.Status == "Sẵn sàng")
+                .Where(v => v.Status == VehicleStatus.Available)
                 .OrderByDescending(v => v.AverageRating)
                 .Take(3)
                 .ToListAsync();
@@ -28,6 +29,21 @@ namespace CarRentalSystem.Controllers
         }
 
         public IActionResult Error()
+        {
+            return View();
+        }
+
+        public IActionResult VeChungToi()
+        {
+            return View();
+        }
+
+        public IActionResult DichVu()
+        {
+            return View();
+        }
+
+        public IActionResult LienHe()
         {
             return View();
         }

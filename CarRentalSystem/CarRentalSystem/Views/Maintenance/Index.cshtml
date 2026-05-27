@@ -1,4 +1,5 @@
-﻿@{
+﻿@using CarRentalSystem.Constants
+@{
     ViewData["Title"] = "Bảo dưỡng xe";
     Layout = "_StaffLayout";
     var vehicles = ViewBag.Vehicles as IEnumerable<CarRentalSystem.Models.Vehicle>;
@@ -49,10 +50,9 @@
                 <div class="space-y-2">
                     <label class="font-label-md text-label-md font-semibold text-on-surface-variant">Loại bảo dưỡng <span class="text-error">*</span></label>
                     <select name="MaintenanceType" class="w-full h-12 px-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none appearance-none font-body-md text-body-md" required>
-                        <option value="Dinh ky">Bảo dưỡng định kỳ</option>
-                        <option value="Sua chua">Sửa chữa đột xuất</option>
-                        <option value="Bao hanh">Bảo hành chính hãng</option>
-                        <option value="Kiem tra">Thay thế lốp / Ắc quy / Kiểm tra</option>
+                        <option value="@MaintenanceType.Periodic">Bảo dưỡng định kỳ</option>
+                        <option value="@MaintenanceType.Repair">Sửa chữa đột xuất</option>
+                        <option value="@MaintenanceType.Inspection">Thay thế lốp / Ắc quy / Kiểm tra</option>
                     </select>
                 </div>
 

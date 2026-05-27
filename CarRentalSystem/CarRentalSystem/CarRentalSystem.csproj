@@ -18,14 +18,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\Customer\" />
-    <Folder Include="Views\Dashboard\" />
-    <Folder Include="Views\ImportReceipt\" />
-    <Folder Include="Views\Maintenance\" />
-    <Folder Include="Views\Staff\" />
-    <Folder Include="Views\Supplier\" />
-    <Folder Include="Views\VehicleCategory\" />
-  </ItemGroup>
-
 </Project>

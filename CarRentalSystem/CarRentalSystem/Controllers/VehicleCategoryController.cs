@@ -1,7 +1,12 @@
 ﻿using CarRentalSystem.Data;
 using CarRentalSystem.Models;
+using CarRentalSystem.Constants;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CarRentalSystem.Controllers
 {
@@ -14,11 +19,13 @@ namespace CarRentalSystem.Controllers
             _db = db;
         }
 
-        // GET: /VehicleCategory (Đã thêm Phân trang & Tìm kiếm)
         public async Task<IActionResult> Index(string search, int page = 1)
         {
-            // Bỏ comment nếu đã có Đăng nhập
-            // if (HttpContext.Session.GetString("RoleName") == null) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             int pageSize = 10;
             var query = _db.VehicleCategories.Include(c => c.Vehicles).AsQueryable();
@@ -46,13 +53,14 @@ namespace CarRentalSystem.Controllers
             return View(list);
         }
 
-        // GET: /VehicleCategory/Create
         public IActionResult Create()
         {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin) return RedirectToAction("Login", "Account");
+
             return View();
         }
 
-        // POST: /VehicleCategory/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(VehicleCategory model)
@@ -61,21 +69,25 @@ namespace CarRentalSystem.Controllers
             {
                 _db.VehicleCategories.Add(model);
                 await _db.SaveChangesAsync();
-                TempData["Success"] = "Thêm loại xe mới thành công!";
+                TempData["Success"] = "Đã thêm loại xe mới thành công!";
                 return RedirectToAction("Index");
             }
             return View(model);
         }
 
-        // GET: /VehicleCategory/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin) return RedirectToAction("Login", "Account");
+
+            if (id == null) return NotFound();
+
             var item = await _db.VehicleCategories.FindAsync(id);
             if (item == null) return NotFound();
+
             return View(item);
         }
 
-        // POST: /VehicleCategory/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VehicleCategory model)
@@ -90,9 +102,11 @@ namespace CarRentalSystem.Controllers
             return View(model);
         }
 
-        // 1. HÀM GET: Chuyển sang giao diện Danger Card để xác nhận Xóa
         public async Task<IActionResult> Delete(int? id)
         {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin) return RedirectToAction("Login", "Account");
+
             if (id == null) return NotFound();
 
             var item = await _db.VehicleCategories
@@ -104,7 +118,6 @@ namespace CarRentalSystem.Controllers
             return View(item);
         }
 
-        // 2. HÀM POST: Thực thi xóa khi bấm nút Xác nhận trên Danger Card
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

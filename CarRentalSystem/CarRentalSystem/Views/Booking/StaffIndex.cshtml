@@ -107,26 +107,48 @@
                                     <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">Đã hủy</span>
                                 }
                             </td>
-                            <td class="py-4 px-6 text-center">
+                            <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <a href="/Booking/Details/@item.BookingId" class="p-2 text-primary hover:bg-surface-container rounded-lg transition-colors" title="Chi tiết">
+                                    <a href="/Booking/StaffDetails/@item.BookingId" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Xem chi tiết">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </a>
 
                                     @if (item.Status == BookingStatus.Pending)
                                     {
-                                        <form asp-controller="Booking" asp-action="Approve" method="post" class="m-0 p-0">
+                                        <form asp-action="Approve" method="post" class="m-0 p-0">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@item.BookingId" />
-                                            <button type="submit" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xác nhận">
-                                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">check_circle</span>
+                                            <button type="submit" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors" title="Duyệt đơn">
+                                                <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                                            </button>
+                                        </form>
+                                        <form asp-action="Reject" method="post" class="m-0 p-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.BookingId" />
+                                            <button type="submit" class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" title="Từ chối">
+                                                <span class="material-symbols-outlined text-[20px]">cancel</span>
                                             </button>
                                         </form>
                                     }
-                                    else
+                                    else if (item.Status == BookingStatus.Confirmed)
                                     {
-                                        <button class="p-2 text-gray-400 cursor-not-allowed" disabled>
-                                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">check_circle</span>
-                                        </button>
+                                        <form asp-action="HandoverVehicle" method="post" class="m-0 p-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.BookingId" />
+                                            <button type="submit" class="px-3 py-1 bg-[#00236f] text-white text-xs font-bold rounded-lg hover:bg-blue-900 transition-colors flex items-center gap-1 shadow-sm">
+                                                <span class="material-symbols-outlined text-[14px]">key</span> Giao xe
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (item.Status == BookingStatus.Active)
+                                    {
+                                        <form asp-action="ReturnVehicle" method="post" class="m-0 p-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.BookingId" />
+                                            <button type="submit" class="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-1 shadow-sm">
+                                                <span class="material-symbols-outlined text-[14px]">task_alt</span> Nhận xe
+                                            </button>
+                                        </form>
                                     }
                                 </div>
                             </td>

@@ -1,190 +1,241 @@
 ﻿@model IEnumerable<CarRentalSystem.Models.Booking>
+@using CarRentalSystem.Constants
+@using CarRentalSystem.Helpers
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Dashboard Admin";
     Layout = "_AdminLayout";
+    var fullName = HttpContextAccessor.HttpContext?.Session.GetString("FullName") ?? "Admin";
 }
 
-<div class="space-y-6">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 mt-2">
+<div class="space-y-8 mt-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-primary">Tổng quan hệ thống</h1>
-            <p class="text-on-surface-variant mt-1">Chào mừng quay trở lại, @Context.Session.GetString("FullName")</p>
+            <h1 class="text-3xl font-black text-[#1E293B] tracking-tight mb-1">Trang tổng quan Quản trị</h1>
+            <p class="text-sm font-medium text-slate-500">
+                Xin chào, @fullName | <span class="text-slate-700">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+            </p>
         </div>
-        <div>
-            <button class="bg-[#00236f] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-900 transition-all flex items-center gap-2">
+        <div class="flex gap-4">
+            <button class="bg-white border border-slate-200 p-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-[#00236f] transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-[22px]">notifications</span>
+            </button>
+            <button class="bg-[#00236f] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/20 hover:bg-blue-900 hover:-translate-y-0.5 transition-all flex items-center gap-2 active:scale-95">
                 <span class="material-symbols-outlined text-[20px]">download</span>
                 Tải báo cáo
             </button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <div class="bg-white p-6 rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md transition-shadow">
-            <p class="text-[13px] font-bold text-on-surface-variant mb-3 uppercase tracking-wider">
-                Doanh thu (Đã hoàn thành)
-            </p>
-            <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-bold text-primary">@Convert.ToDecimal(ViewBag.Revenue).ToString("N0")đ</h3>
-                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded whitespace-nowrap">+12.5%</span>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute right-0 top-0 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                <span class="material-symbols-outlined" style="font-size: 100px;">account_balance_wallet</span>
+            </div>
+            <p class="text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wider relative z-10">Doanh thu (Hoàn thành)</p>
+            <h3 class="text-2xl font-black text-[#00236f] mb-3 relative z-10">@CurrencyHelper.FormatVnd(ViewBag.Revenue)</h3>
+            <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md w-max relative z-10">
+                <span class="material-symbols-outlined text-[14px]">trending_up</span> +12.5% so với tháng trước
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md transition-shadow">
-            <p class="text-[13px] font-bold text-on-surface-variant mb-3 uppercase tracking-wider">
-                Xe đang cho thuê
-            </p>
-            <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-bold text-primary">@ViewBag.RentedCars</h3>
-                <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded whitespace-nowrap">Trong đội xe @(ViewBag.RentedCars + ViewBag.AvailableCars)</span>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute right-0 top-0 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                <span class="material-symbols-outlined" style="font-size: 100px;">receipt_long</span>
+            </div>
+            <p class="text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wider relative z-10">Tổng đơn đặt xe</p>
+            <h3 class="text-2xl font-black text-[#00236f] mb-3 relative z-10">@ViewBag.TotalOrders</h3>
+            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md w-max relative z-10">
+                Toàn thời gian hệ thống
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md transition-shadow">
-            <p class="text-[13px] font-bold text-on-surface-variant mb-3 uppercase tracking-wider">
-                Tổng đơn hàng
-            </p>
-            <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-bold text-primary">@ViewBag.TotalOrders</h3>
-                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded whitespace-nowrap">+8%</span>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute right-0 top-0 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                <span class="material-symbols-outlined" style="font-size: 100px;">key</span>
+            </div>
+            <p class="text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wider relative z-10">Xe đang cho thuê</p>
+            <h3 class="text-2xl font-black text-blue-600 mb-3 relative z-10">@ViewBag.RentedCars</h3>
+            <div class="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md w-max relative z-10">
+                <span class="material-symbols-outlined text-[14px]">directions_car</span> Đang chạy trên đường
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md transition-shadow">
-            <p class="text-[13px] font-bold text-on-surface-variant mb-3 uppercase tracking-wider">
-                Khách hàng mới (Tuần)
-            </p>
-            <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-bold text-primary">@ViewBag.NewCustomers</h3>
-                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded whitespace-nowrap">+5 tuần này</span>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute right-0 top-0 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                <span class="material-symbols-outlined" style="font-size: 100px;">local_parking</span>
+            </div>
+            <p class="text-[12px] font-bold text-slate-500 mb-2 uppercase tracking-wider relative z-10">Xe sẵn sàng đón khách</p>
+            <h3 class="text-2xl font-black text-emerald-600 mb-3 relative z-10">@ViewBag.AvailableCars</h3>
+            <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md w-max relative z-10">
+                <span class="material-symbols-outlined text-[14px]">check_circle</span> Hiện đang nằm tại bãi
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-10 gap-10 mb-10">
-        <div class="lg:col-span-7 bg-white p-8 rounded-xl border border-outline-variant/50 shadow-sm">
-            <div class="flex justify-between items-start mb-8">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+        <section class="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div>
-                    <h2 class="text-lg font-bold text-on-surface mb-1">
-                        Biểu đồ xu hướng doanh thu 6 tháng
-                    </h2>
-                    <p class="text-sm text-on-surface-variant">
-                        Thống kê lợi nhuận ròng từ dịch vụ cho thuê xe
-                    </p>
+                    <h2 class="text-lg font-bold text-[#1E293B]">Đơn đặt xe gần đây</h2>
+                    <p class="text-[13px] text-slate-500 font-medium mt-1">Danh sách các giao dịch mới nhất trên hệ thống</p>
                 </div>
-                <select class="bg-slate-50 border border-outline-variant/50 text-sm rounded-lg font-semibold px-3 py-1 outline-none focus:ring-1 focus:ring-secondary">
-                    <option>Tháng 1 - Tháng 6</option>
-                    <option>Tháng 7 - Tháng 12</option>
-                </select>
+                <a href="/Booking/Index" class="text-sm font-bold text-[#00236f] hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-xl transition-colors">Xem tất cả</a>
             </div>
-            <div class="h-[300px] w-full relative">
-                <svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 800 300">
-                    <defs>
-                        <lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" stop-color="#316bf3" stop-opacity="0.2"></stop>
-                            <stop offset="100%" stop-color="#316bf3" stop-opacity="0"></stop>
-                        </lineargradient>
-                    </defs>
-                    <line stroke="#F1F5F9" stroke-dasharray="4" x1="0" x2="800" y1="50" y2="50"></line>
-                    <line stroke="#F1F5F9" stroke-dasharray="4" x1="0" x2="800" y1="125" y2="125"></line>
-                    <line stroke="#F1F5F9" stroke-dasharray="4" x1="0" x2="800" y1="200" y2="200"></line>
-                    <line stroke="#F1F5F9" stroke-dasharray="4" x1="0" x2="800" y1="275" y2="275"></line>
-                    <path d="M0,250 Q100,220 200,230 T400,100 T600,150 T800,50 L800,300 L0,300 Z" fill="url(#chartGradient)"></path>
-                    <path d="M0,250 Q100,220 200,230 T400,100 T600,150 T800,50" fill="none" stroke="#316bf3" stroke-linecap="round" stroke-width="3"></path>
-                    <circle cx="0" cy="250" fill="#316bf3" r="4"></circle>
-                    <circle cx="200" cy="230" fill="#316bf3" r="4"></circle>
-                    <circle cx="400" cy="100" fill="#316bf3" r="4"></circle>
-                    <circle cx="600" cy="150" fill="#316bf3" r="4"></circle>
-                    <circle cx="800" cy="50" fill="#316bf3" r="4"></circle>
-                </svg>
-                <div class="flex justify-between mt-4 px-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
-                    <span>Tháng 1</span><span>Tháng 2</span><span>Tháng 3</span><span>Tháng 4</span><span>Tháng 5</span><span>Tháng 6</span>
-                </div>
-            </div>
-        </div>
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white border-b border-slate-200">
+                            <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Khách hàng / Mã đơn</th>
+                            <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Phương tiện</th>
+                            <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap text-right">Tổng tiền</th>
+                            <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap text-center">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-slate-50/80 transition-colors group">
+                                <td class="px-8 py-5">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[#1E293B] text-sm group-hover:text-[#00236f] transition-colors">@(item.Customer?.UserProfile?.FullName ?? "Khách vãng lai")</span>
+                                        <span class="text-[12px] text-slate-500 font-medium mt-0.5">#RC-@item.BookingId.ToString("D4")</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-slate-700 text-sm">@(item.Vehicle?.VehicleName ?? "N/A")</span>
+                                        <span class="text-[12px] text-slate-500 mt-0.5 font-medium flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                            @item.PickupDateTime.ToString("dd/MM") - @item.ReturnDateTime.ToString("dd/MM")
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="font-bold text-[#00236f]">@CurrencyHelper.FormatVnd(item.TotalAmount)</span>
+                                </td>
+                                <td class="px-8 py-5 text-center">
+                                    @{
+                                        string badgeClass = item.Status switch
+                                        {
+                                            BookingStatus.Pending => "bg-amber-100 text-amber-700 border-amber-200",
+                                            BookingStatus.Confirmed => "bg-indigo-100 text-indigo-700 border-indigo-200",
+                                            BookingStatus.Active => "bg-blue-100 text-blue-700 border-blue-200",
+                                            BookingStatus.Completed => "bg-emerald-100 text-emerald-700 border-emerald-200",
+                                            BookingStatus.Cancelled => "bg-slate-100 text-slate-600 border-slate-200",
+                                            _ => "bg-slate-100 text-slate-600 border-slate-200"
+                                        };
 
-        <div class="lg:col-span-3 bg-white p-8 rounded-xl border border-outline-variant/50 shadow-sm">
-            <h2 class="text-lg font-bold text-on-surface mb-6">Top 3 xe thuê nhiều nhất</h2>
-            <div class="flex flex-col gap-6">
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-3">
-                        <img src="https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=100&q=80" class="w-12 h-12 rounded-lg object-cover border border-slate-100" />
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-on-surface">Mercedes S450</p>
-                            <p class="text-xs text-on-surface-variant font-medium">54 lượt thuê</p>
+                                        string statusText = item.Status switch
+                                        {
+                                            BookingStatus.Pending => "Chờ duyệt",
+                                            BookingStatus.Confirmed => "Đã xác nhận",
+                                            BookingStatus.Active => "Đang thuê",
+                                            BookingStatus.Completed => "Hoàn thành",
+                                            BookingStatus.Cancelled => "Đã hủy",
+                                            _ => item.Status
+                                        };
+                                    }
+                                    <div class="inline-flex justify-center w-28">
+                                        <span class="px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider border @badgeClass w-full text-center">
+                                            @statusText
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="px-8 py-10 text-center text-slate-500 font-medium">
+                                    Không có đơn đặt xe nào gần đây.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="xl:col-span-1 space-y-8 flex flex-col">
+
+            <div class="bg-gradient-to-br from-[#00236f] to-[#316bf3] p-8 rounded-2xl text-white shadow-xl shadow-blue-900/20 relative overflow-hidden flex-shrink-0">
+                <div class="absolute right-0 top-1/2 -translate-y-1/2 opacity-10">
+                    <span class="material-symbols-outlined" style="font-size:160px; font-variation-settings: 'FILL' 1;">groups</span>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="material-symbols-outlined text-blue-200 text-xl">insights</span>
+                        <p class="text-blue-100 text-xs font-bold uppercase tracking-widest">Khách hàng mới (Tuần)</p>
+                    </div>
+
+                    <div class="flex items-end gap-2 mb-6">
+                        <p class="text-5xl font-black leading-none tracking-tight">@ViewBag.NewCustomers</p>
+                        <p class="text-sm font-semibold text-blue-200 mb-1">thành viên</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-bold text-blue-100">
+                            <span>Tiến độ mục tiêu</span>
+                            <span>75%</span>
                         </div>
-                        <span class="text-xs font-bold text-emerald-600">+12%</span>
-                    </div>
-                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                        <div class="bg-secondary h-full" style="width: 85%"></div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-3">
-                        <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=100&q=80" class="w-12 h-12 rounded-lg object-cover border border-slate-100" />
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-on-surface">Ferrari 488</p>
-                            <p class="text-xs text-on-surface-variant font-medium">48 lượt thuê</p>
+                        <div class="w-full bg-blue-900/40 rounded-full h-2 overflow-hidden backdrop-blur-sm">
+                            <div class="bg-white h-full rounded-full relative">
+                                <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                            </div>
                         </div>
-                        <span class="text-xs font-bold text-emerald-600">+8%</span>
-                    </div>
-                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                        <div class="bg-secondary h-full" style="width: 72%"></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-3">
-                        <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=100&q=80" class="w-12 h-12 rounded-lg object-cover border border-slate-100" />
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-on-surface">Audi A6</p>
-                            <p class="text-xs text-on-surface-variant font-medium">41 lượt thuê</p>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex-1">
+                <h2 class="text-lg font-bold text-[#1E293B] mb-6">Hệ thống Trạm / Bãi xe</h2>
+                <div class="space-y-5">
+
+                    <div class="flex items-center justify-between p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-100/50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">domain</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-[#1E293B] text-sm">Chi nhánh Trung tâm</p>
+                                <p class="text-[12px] font-medium text-slate-500 mt-0.5">Hoạt động bình thường</p>
+                            </div>
                         </div>
-                        <span class="text-xs font-bold text-red-500">-2%</span>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200">Active</span>
                     </div>
-                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                        <div class="bg-secondary h-full" style="width: 65%"></div>
+
+                    <div class="flex items-center justify-between p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100/50 text-amber-600 flex items-center justify-center border border-amber-100">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">warehouse</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-[#1E293B] text-sm">Bãi đỗ Sân bay</p>
+                                <p class="text-[12px] font-medium text-slate-500 mt-0.5">Công suất hiện tại</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200">90% Full</span>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100/50 text-blue-600 flex items-center justify-center border border-blue-100">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">ev_station</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-[#1E293B] text-sm">Trạm sạc EV Quận 1</p>
+                                <p class="text-[12px] font-medium text-slate-500 mt-0.5">Đang nâng cấp</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200">Maint</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white p-5 rounded-xl border border-outline-variant/50 flex items-center gap-5 shadow-sm">
-            <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">person_check</span>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-on-surface">12</p>
-                <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
-                    Nhân viên Online
-                </p>
-            </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-xl border border-outline-variant/50 flex items-center gap-5 shadow-sm">
-            <div class="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">build</span>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-on-surface">2</p>
-                <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
-                    Xe Đang bảo trì
-                </p>
-            </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-xl border border-outline-variant/50 flex items-center gap-5 shadow-sm">
-            <div class="w-12 h-12 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">pending_actions</span>
-            </div>
-            <div>
-                <p class="text-2xl font-black text-on-surface">3</p>
-                <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
-                    Phiếu chờ duyệt
-                </p>
-            </div>
-        </div>
+        </section>
     </div>
 </div>

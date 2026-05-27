@@ -11,6 +11,42 @@
         .booking-card-shadow {
             box-shadow: 0 10px 30px -10px rgba(30, 58, 138, 0.08);
         }
+
+        .booking-card {
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+            .booking-card.hidden {
+                display: none !important;
+            }
+
+            .booking-card.opacity-0 {
+                opacity: 0;
+            }
+
+            .booking-card.translate-y-2 {
+                transform: translateY(8px);
+            }
+
+            .booking-card.opacity-100 {
+                opacity: 1;
+            }
+
+            .booking-card.translate-y-0 {
+                transform: translateY(0);
+            }
+
+        .filter-btn {
+            transition: all 0.15s ease-in-out;
+        }
+
+            .filter-btn.active {
+                background-color: #00236f;
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 35, 111, 0.2);
+            }
     </style>
 }
 
@@ -25,16 +61,19 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3 mb-8 bg-white p-2 rounded-xl border border-slate-200 shadow-sm overflow-x-auto whitespace-nowrap">
-            <button class="px-6 py-2.5 rounded-lg bg-[#00236f] text-white font-semibold text-sm transition-all shadow-md">
+            <button class="filter-btn px-6 py-2.5 rounded-lg font-semibold text-sm transition-all active bg-[#00236f] text-white shadow-md" data-filter="all">
                 Tất cả
             </button>
-            <button class="px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all">
-                Đang thuê
-            </button>
-            <button class="px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all">
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Pending">
                 Chờ xác nhận
             </button>
-            <button class="px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all">
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Confirmed">
+                Đã xác nhận
+            </button>
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Active">
+                Đang thuê
+            </button>
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Completed">
                 Đã hoàn thành
             </button>
         </div>
@@ -54,10 +93,10 @@
         }
         else
         {
-            <div class="space-y-6">
+            <div class="space-y-6" id="bookingsList">
                 @foreach (var item in Model)
                 {
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden booking-card-shadow flex flex-col md:flex-row group">
+                    <div class="booking-card bg-white rounded-2xl border border-slate-200 overflow-hidden booking-card-shadow flex flex-col md:flex-row group" data-status="@item.Status">
                         <div class="w-full md:w-72 h-56 md:h-auto relative overflow-hidden flex-shrink-0 bg-slate-100">
                             <img src="@(item.Vehicle?.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")" alt="@item.Vehicle?.VehicleName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                             <div class="absolute top-4 left-4">
@@ -140,7 +179,6 @@
                                     </button>
                                 }
 
-                                @* Đã đổi thuộc tính onclick vào nút Hủy đặt xe *@
                                 @if (item.Status == BookingStatus.Pending || item.Status == BookingStatus.Confirmed)
                                 {
                                     <button type="button" onclick="openCancelModal(@item.BookingId)" class="px-6 py-2.5 rounded-lg text-red-600 font-semibold text-sm hover:bg-red-50 border border-transparent hover:border-red-200 transition-all flex items-center gap-1.5">
@@ -202,6 +240,53 @@
 
 @section Scripts {
     <script>
+        // Booking Filter Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const bookingCards = document.querySelectorAll('.booking-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const filterValue = btn.getAttribute('data-filter');
+
+                // Update active button style
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-[#00236f]', 'text-white', 'shadow-md', 'active');
+                    b.classList.add('text-slate-500', 'hover:bg-slate-100');
+                });
+                btn.classList.remove('text-slate-500', 'hover:bg-slate-100');
+                btn.classList.add('bg-[#00236f]', 'text-white', 'shadow-md', 'active');
+
+                // Filter cards with fast animation
+                bookingCards.forEach(card => {
+                    const cardStatus = card.getAttribute('data-status');
+                    const isMatch = filterValue === 'all' || cardStatus === filterValue;
+
+                    if (isMatch) {
+                        card.classList.remove('hidden', 'opacity-0', 'translate-y-2');
+                        // Trigger reflow to ensure animation plays
+                        void card.offsetHeight;
+                        card.classList.add('opacity-100', 'translate-y-0');
+                    } else {
+                        card.classList.add('opacity-0', 'translate-y-2');
+                        setTimeout(() => {
+                            card.classList.add('hidden');
+                        }, 200); // Reduced from 300ms
+                    }
+                });
+            });
+        });
+
+        // Initialize - show all on load
+        document.addEventListener('DOMContentLoaded', () => {
+            bookingCards.forEach(card => {
+                card.classList.add('opacity-100', 'translate-y-0');
+                card.classList.remove('opacity-0', 'translate-y-2', 'hidden');
+            });
+        });
+    </script>
+
+    <script>
         const modal = document.getElementById('cancelModal');
         const backdrop = document.getElementById('cancelBackdrop');
         const content = document.getElementById('cancelModalContent');
@@ -209,15 +294,12 @@
         const displayTitle = document.getElementById('cancelBookingTitle');
 
         function openCancelModal(bookingId) {
-            // Đẩy ID vào form
             hiddenInputId.value = bookingId;
             displayTitle.innerText = '#RC-' + bookingId.toString().padStart(4, '0');
 
-            // Hiển thị Modal với hiệu ứng Fade & Scale
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // Dùng setTimeout để Tailwind kịp render display:flex trước khi chạy animation opacity
             setTimeout(() => {
                 backdrop.classList.remove('opacity-0');
                 backdrop.classList.add('opacity-100');
@@ -227,13 +309,11 @@
         }
 
         function closeCancelModal() {
-            // Hiệu ứng biến mất
             backdrop.classList.remove('opacity-100');
             backdrop.classList.add('opacity-0');
             content.classList.remove('scale-100', 'opacity-100');
             content.classList.add('scale-95', 'opacity-0');
 
-            // Ẩn hoàn toàn sau khi chạy xong CSS transition (300ms)
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');

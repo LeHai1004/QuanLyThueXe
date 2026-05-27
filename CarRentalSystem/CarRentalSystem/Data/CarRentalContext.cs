@@ -56,7 +56,7 @@ public partial class CarRentalContext : DbContext
 
     public virtual DbSet<VwTopRentedVehicle> VwTopRentedVehicles { get; set; }
 
-
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
