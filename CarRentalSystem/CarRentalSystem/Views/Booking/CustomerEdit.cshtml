@@ -1,0 +1,210 @@
+﻿@model CarRentalSystem.Models.Booking
+@using CarRentalSystem.Helpers
+@{
+    ViewData["Title"] = "Thay đổi lịch trình chuyến đi";
+    Layout = "_Layout";
+}
+
+<main class="mt-12 mb-24 max-w-[1280px] mx-auto px-6 lg:px-8">
+    <div class="mb-8">
+        <a href="/Booking/CustomerDetails/@Model.BookingId" class="text-[#757682] hover:text-[#00236f] flex items-center gap-1 mb-3 font-medium text-[14px] transition-colors w-max">
+            <span class="material-symbols-outlined text-base">arrow_back</span>
+            Trở lại chi tiết đơn
+        </a>
+        <h1 class="text-[32px] md:text-[40px] font-black text-[#00236f] tracking-tight mb-2">Điều chỉnh lịch trình</h1>
+        <p class="text-slate-500 font-medium">Mã đơn đặt xe của bạn: <strong class="text-[#316bf3]">#RC-@Model.BookingId.ToString("D4")</strong></p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        @* ========== CỘT TRÁI: THÔNG TIN HIỆN TẠI ========== *@
+        <div class="lg:col-span-5 space-y-6 sticky top-28">
+            <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgba(30,58,138,0.06)] overflow-hidden border border-[#c5c5d3]/40">
+                <div class="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                    <img class="w-full h-full object-cover" src="@(Model.Vehicle?.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")" alt="@Model.Vehicle?.VehicleName" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#00236f]/90 via-[#00236f]/20 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 right-6">
+                        <span class="bg-[#316bf3] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm mb-3 inline-block">
+                            Phương tiện đang chọn
+                        </span>
+                        <h3 class="text-2xl font-black text-white drop-shadow-md">@Model.Vehicle?.VehicleName</h3>
+                        <p class="text-blue-200 text-sm font-semibold">Biển số: @Model.Vehicle?.LicensePlate</p>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 bg-slate-50 border-t border-[#c5c5d3]/30">
+                    <h4 class="text-[13px] font-bold text-[#757682] uppercase tracking-wider mb-4">Lịch trình đang lưu</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white border border-[#c5c5d3]/50 flex items-center justify-center text-[#757682] shadow-sm">
+                                <span class="material-symbols-outlined text-[18px]">flight_takeoff</span>
+                            </div>
+                            <div>
+                                <p class="text-[12px] font-bold text-[#757682] uppercase">Nhận xe</p>
+                                <p class="text-[15px] font-semibold text-[#0b1c30]">@Model.PickupDateTime.ToString("dd/MM/yyyy - HH:mm")</p>
+                            </div>
+                        </div>
+                        <div class="w-0.5 h-6 bg-[#c5c5d3]/50 ml-5 -my-2"></div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white border border-[#c5c5d3]/50 flex items-center justify-center text-[#757682] shadow-sm">
+                                <span class="material-symbols-outlined text-[18px]">flight_land</span>
+                            </div>
+                            <div>
+                                <p class="text-[12px] font-bold text-[#757682] uppercase">Trả xe</p>
+                                <p class="text-[15px] font-semibold text-[#0b1c30]">@Model.ReturnDateTime.ToString("dd/MM/yyyy - HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-5 border-t border-[#c5c5d3]/30 flex justify-between items-center">
+                        <span class="text-[14px] font-bold text-[#757682]">Tổng tiền hiện tại</span>
+                        <span class="text-[20px] font-black text-[#00236f]">@CurrencyHelper.FormatVnd(Model.TotalAmount)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ========== CỘT PHẢI: FORM CẬP NHẬT ========== *@
+        <div class="lg:col-span-7">
+            <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgba(30,58,138,0.06)] border border-[#c5c5d3]/40 overflow-hidden">
+                <div class="p-6 md:p-10">
+                    <div class="flex items-center gap-3 mb-8 border-b border-[#c5c5d3]/30 pb-5">
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+                            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">edit_calendar</span>
+                        </div>
+                        <div>
+                            <h2 class="text-[20px] md:text-[24px] font-black text-[#00236f]">Chọn thời gian mới</h2>
+                            <p class="text-sm text-[#757682] mt-0.5">Hệ thống sẽ tự động tính toán lại chi phí thuê xe</p>
+                        </div>
+                    </div>
+
+                    <form asp-controller="Booking" asp-action="Edit" method="post" class="space-y-8" id="updateBookingForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="BookingId" value="@Model.BookingId" />
+                        <input type="hidden" name="VehicleId" value="@Model.VehicleId" />
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[13px] font-bold text-[#444651] uppercase tracking-wider block">Lấy xe lúc <span class="text-rose-500">*</span></label>
+                                <div class="relative">
+                                    <input name="PickupDateTime" id="newPickupDate"
+                                           value="@Model.PickupDateTime.ToString("yyyy-MM-ddTHH:mm")"
+                                           class="w-full bg-[#f8f9ff] border border-[#c5c5d3] rounded-xl pl-4 pr-10 py-3.5 focus:ring-4 focus:ring-[#316bf3]/20 focus:border-[#316bf3] outline-none transition-all font-semibold text-[#0b1c30]"
+                                           type="datetime-local" required />
+                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#757682] pointer-events-none">calendar_today</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[13px] font-bold text-[#444651] uppercase tracking-wider block">Trả xe lúc <span class="text-rose-500">*</span></label>
+                                <div class="relative">
+                                    <input name="ReturnDateTime" id="newReturnDate"
+                                           value="@Model.ReturnDateTime.ToString("yyyy-MM-ddTHH:mm")"
+                                           class="w-full bg-[#f8f9ff] border border-[#c5c5d3] rounded-xl pl-4 pr-10 py-3.5 focus:ring-4 focus:ring-[#316bf3]/20 focus:border-[#316bf3] outline-none transition-all font-semibold text-[#0b1c30]"
+                                           type="datetime-local" required />
+                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#757682] pointer-events-none">event</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-rose-500 text-[13px] font-semibold hidden flex items-center gap-1" id="newDateError">
+                            <span class="material-symbols-outlined text-[16px]">error</span>
+                            Thời gian trả xe phải sau thời gian nhận xe.
+                        </p>
+
+                        <div id="priceDiffBox" class="hidden bg-[#e5eeff] p-6 rounded-xl border border-[#c5c5d3]/30">
+                            <h3 class="text-[13px] font-bold text-[#0058be] uppercase tracking-wider mb-4">Chi tiết dự toán mới</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-[15px]">
+                                    <span class="font-medium text-[#444651]">Thời gian thuê mới</span>
+                                    <span class="font-bold text-[#0b1c30]" id="lblNewDaysCount">0 ngày</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[15px]">
+                                    <span class="font-medium text-[#444651]">Thành tiền mới</span>
+                                    <span class="font-bold text-[#0b1c30]" id="lblNewSubtotal">0 đ</span>
+                                </div>
+                                <div class="pt-4 mt-2 border-t border-[#c5c5d3]/50 flex justify-between items-end">
+                                    <div>
+                                        <span class="font-bold text-[#00236f] block text-[18px]">Tổng tiền cập nhật</span>
+                                        <span class="text-[11px] text-[#757682]">(Bao gồm VAT)</span>
+                                    </div>
+                                    <span class="font-black text-[28px] text-[#316bf3]" id="lblNewGrandTotal">0 đ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-[#c5c5d3]/30">
+                            <button type="submit" id="btnUpdateSubmit" class="w-full bg-[#00236f] py-4 rounded-xl text-white font-bold text-[16px] hover:bg-[#1e3a8a] transition-all shadow-xl shadow-[#00236f]/20 active:scale-[0.98] flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">save</span>
+                                Lưu thay đổi lịch trình
+                            </button>
+                            <p class="text-center text-[13px] font-medium text-[#757682] mt-4">
+                                Nếu tổng tiền thay đổi, nhân viên của chúng tôi sẽ liên hệ để xác nhận lại phần chênh lệch.
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@* Truyền data Giá cho JS tính toán *@
+<span id="vehicleDailyPrice" data-price="@Model.Vehicle?.PricePerDay" class="hidden"></span>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const pickupInput = document.getElementById('newPickupDate');
+            const returnInput = document.getElementById('newReturnDate');
+
+            const priceBox = document.getElementById('priceDiffBox');
+            const lblDaysCount = document.getElementById('lblNewDaysCount');
+            const lblSubtotal = document.getElementById('lblNewSubtotal');
+            const lblGrandTotal = document.getElementById('lblNewGrandTotal');
+            const dateError = document.getElementById('newDateError');
+            const btnSubmit = document.getElementById('btnUpdateSubmit');
+
+            // Lấy giá trị PricePerDay từ thẻ span ẩn
+            const dailyPriceElement = document.getElementById('vehicleDailyPrice');
+            const dailyPrice = parseFloat(dailyPriceElement.getAttribute('data-price')) || 0;
+
+            const formatMoney = (amount) => {
+                return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+            };
+
+            function calculateNewPrice() {
+                if (!pickupInput.value || !returnInput.value) return;
+
+                const start = new Date(pickupInput.value);
+                const end = new Date(returnInput.value);
+
+                if (end <= start) {
+                    dateError.classList.remove('hidden');
+                    priceBox.classList.add('hidden');
+                    btnSubmit.disabled = true;
+                    btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+                    return;
+                } else {
+                    dateError.classList.add('hidden');
+                    priceBox.classList.remove('hidden');
+                    btnSubmit.disabled = false;
+                    btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                const diffTime = Math.abs(end - start);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays === 0) diffDays = 1;
+
+                const total = diffDays * dailyPrice;
+
+                lblDaysCount.innerText = diffDays + ' ngày';
+                lblSubtotal.innerText = formatMoney(total);
+                lblGrandTotal.innerText = formatMoney(total);
+            }
+
+            pickupInput.addEventListener('change', calculateNewPrice);
+            returnInput.addEventListener('change', calculateNewPrice);
+
+            // Chạy tính toán ngay lúc load trang để hiển thị bảng dự toán
+            calculateNewPrice();
+        });
+    </script>
+}

@@ -1,25 +1,51 @@
-using CarRentalSystem.Models;
+using CarRentalSystem.Data;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
+using CarRentalSystem.Constants;
 
 namespace CarRentalSystem.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly CarRentalContext _db;
+
+        public HomeController(CarRentalContext db)
         {
-            return View();
+            _db = db;
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var featuredVehicles = await _db.Vehicles
+                .Include(v => v.Category)
+                .Where(v => v.Status == VehicleStatus.Available)
+                .OrderByDescending(v => v.AverageRating)
+                .Take(3)
+                .ToListAsync();
+
+            return View(featuredVehicles);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
+        }
+
+        public IActionResult VeChungToi()
+        {
+            return View();
+        }
+
+        public IActionResult DichVu()
+        {
+            return View();
+        }
+
+        public IActionResult LienHe()
+        {
+            return View();
         }
     }
 }

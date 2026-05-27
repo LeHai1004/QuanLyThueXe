@@ -1,0 +1,151 @@
+﻿@model IEnumerable<CarRentalSystem.Models.Review>
+@using CarRentalSystem.Helpers
+@{
+    ViewData["Title"] = "Đánh giá của tôi";
+    Layout = "_Layout";
+    var profile = ViewBag.Profile as CarRentalSystem.Models.UserProfile;
+    string avatarUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(profile?.FullName ?? "U")}&background=00236f&color=fff&size=128";
+}
+
+<main class="max-w-[1280px] mx-auto px-8 py-12 flex flex-col md:flex-row gap-8">
+
+    @* ===== SIDEBAR (giống Profile) ===== *@
+    <aside class="w-full md:w-64 flex-shrink-0">
+        <div class="bg-white rounded-2xl shadow-[0_4px_20px_rgba(30,58,138,0.07)] border border-slate-100 overflow-hidden">
+            <div class="p-6 flex flex-col items-center border-b border-slate-100">
+                <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-md mb-3">
+                    <img src="@(profile?.AvatarUrl ?? avatarUrl)" alt="Avatar" class="w-full h-full object-cover" />
+                </div>
+                <p class="font-bold text-[#00236f] text-base text-center">@profile?.FullName</p>
+                <p class="text-xs text-slate-400 mt-1">Thành viên từ @profile?.CreatedAt.ToString("MM/yyyy")</p>
+            </div>
+            <nav class="flex flex-col py-2">
+                <a href="/Account/Profile" class="flex items-center gap-3 px-5 py-3.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#00236f] transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">person</span>
+                    Thông tin cá nhân
+                </a>
+                <a href="/Booking/History" class="flex items-center gap-3 px-5 py-3.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#00236f] transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">history</span>
+                    Lịch sử thuê xe
+                </a>
+                <a href="/Booking/MyInvoices" class="flex items-center gap-3 px-5 py-3.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#00236f] transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    Hóa đơn của tôi
+                </a>
+                <a href="/Account/MyReviews" class="flex items-center gap-3 px-5 py-3.5 text-sm font-bold text-[#00236f] border-l-[3px] border-[#00236f] bg-blue-50/60 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1">star_rate</span>
+                    Đánh giá của tôi
+                </a>
+                <div class="border-t border-slate-100 my-1"></div>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="w-full flex items-center gap-3 px-5 py-3.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">logout</span>
+                        Đăng xuất
+                    </button>
+                </form>
+            </nav>
+        </div>
+    </aside>
+
+    @* ===== MAIN CONTENT ===== *@
+    <section class="flex-1">
+        <div class="bg-white rounded-2xl shadow-[0_4px_20px_rgba(30,58,138,0.07)] border border-slate-100 p-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-[#00236f]">Đánh giá của tôi</h1>
+                    <p class="text-slate-400 text-sm mt-1">Tổng cộng @Model.Count() đánh giá đã gửi</p>
+                </div>
+                @if (Model.Any())
+                {
+                    <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl">
+                        <span class="material-symbols-outlined text-amber-400 text-xl" style="font-variation-settings:'FILL' 1">star</span>
+                        <span class="font-bold text-amber-700 text-lg">@Model.Average(r => r.StarRating).ToString("F1")</span>
+                        <span class="text-amber-600 text-sm">/ 5 trung bình</span>
+                    </div>
+                }
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="py-20 flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-5">
+                        <span class="material-symbols-outlined text-[36px] text-amber-400">star_rate</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700 mb-2">Bạn chưa có đánh giá nào</h3>
+                    <p class="text-slate-400 text-sm mb-6 max-w-xs">Sau khi hoàn thành chuyến đi, hãy chia sẻ trải nghiệm của bạn nhé!</p>
+                    <a href="/Booking/History" class="px-6 py-3 bg-[#00236f] text-white font-bold rounded-xl text-sm hover:bg-blue-900 transition-all">
+                        Xem chuyến đi của tôi
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="space-y-5">
+                    @foreach (var review in Model)
+                    {
+                        <div class="border border-slate-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                            <div class="flex flex-col md:flex-row">
+                                @* Ảnh xe *@
+                                <div class="w-full md:w-48 h-36 md:h-auto flex-shrink-0 bg-slate-100 overflow-hidden">
+                                    <img src="@(review.Vehicle?.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")"
+                                         alt="@review.Vehicle?.VehicleName"
+                                         class="w-full h-full object-cover" />
+                                </div>
+
+                                @* Nội dung *@
+                                <div class="flex-1 p-6">
+                                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+                                        <div>
+                                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">
+                                                #RC-@review.Booking?.BookingId.ToString("D4") •
+                                                @review.NgayReview.ToString("dd/MM/yyyy")
+                                            </p>
+                                            <h3 class="text-lg font-bold text-[#00236f]">@review.Vehicle?.VehicleName</h3>
+                                            <p class="text-sm text-slate-500">BKS: @review.Vehicle?.LicensePlate</p>
+                                        </div>
+
+                                        @* Sao *@
+                                        <div class="flex flex-col items-start md:items-end gap-1">
+                                            <div class="flex gap-0.5">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <span class="material-symbols-outlined text-xl @(i <= review.StarRating ? "text-amber-400" : "text-slate-200")"
+                                                          style="font-variation-settings:'FILL' @(i <= review.StarRating ? "1" : "0")">star</span>
+                                                }
+                                            </div>
+                                            <span class="text-xs font-semibold @(review.StarRating >= 4 ? "text-emerald-600" : review.StarRating == 3 ? "text-amber-600" : "text-red-500")">
+                                                @(review.StarRating switch { 5 => "Tuyệt vời!", 4 => "Tốt", 3 => "Bình thường", 2 => "Tệ", _ => "Rất tệ" })
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    @* Nội dung đánh giá *@
+                                    @if (!string.IsNullOrEmpty(review.Content))
+                                    {
+                                        <div class="bg-slate-50 rounded-xl px-5 py-4 border border-slate-100">
+                                            <p class="text-sm text-slate-600 leading-relaxed italic">"@review.Content"</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-sm text-slate-400 italic">Không có nhận xét.</p>
+                                    }
+
+                                    @* Thời gian thuê *@
+                                    @if (review.Booking != null)
+                                    {
+                                        <div class="flex items-center gap-2 mt-4 text-xs text-slate-400">
+                                            <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                            @review.Booking.PickupDateTime.ToString("dd/MM/yyyy") —
+                                            @review.Booking.ReturnDateTime.ToString("dd/MM/yyyy")
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+</main>

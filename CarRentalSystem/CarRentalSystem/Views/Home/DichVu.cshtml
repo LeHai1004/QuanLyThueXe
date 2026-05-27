@@ -1,0 +1,176 @@
+﻿@{
+    ViewData["Title"] = "Dịch vụ";
+    Layout = "_Layout";
+}
+
+@* Hero *@
+<header class="relative pt-20 h-[600px] flex items-center overflow-hidden">
+    <div class="absolute inset-0 z-0">
+        <img alt="Dịch vụ thuê xe"
+             class="w-full h-full object-cover"
+             src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1600&q=80" />
+        <div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent"></div>
+    </div>
+    <div class="relative z-10 max-w-[1280px] mx-auto px-8 w-full">
+        <div class="max-w-2xl">
+            <h1 class="text-5xl font-black text-white mb-6 leading-tight tracking-tight">Dịch vụ Thuê Xe</h1>
+            <p class="text-lg text-white/90 mb-8 leading-relaxed">
+                Giải pháp di chuyển linh hoạt và chuyên nghiệp cho mọi hành trình
+                của bạn.
+            </p>
+            <div class="flex gap-4">
+                <a href="/Vehicle/CustomerList"
+                   class="px-8 py-4 bg-secondary text-white font-bold rounded-xl shadow-lg hover:bg-[#00236f] transition-colors">
+                    Khám phá ngay
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+@* Gói dịch vụ chính *@
+<section class="py-20 px-8 max-w-[1280px] mx-auto">
+    <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-primary mb-4 tracking-tight">Các gói dịch vụ chính</h2>
+        <div class="w-20 h-1 bg-secondary mx-auto rounded-full"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        @{
+            var packages = new[]
+            {
+                ("calendar_today", "Thuê theo ngày",   "Linh hoạt cho các chuyến đi ngắn ngày, công tác hoặc du lịch cuối tuần."),
+                ("date_range",     "Thuê theo tuần",   "Tiết kiệm hơn cho những chuyến công tác dài ngày hoặc kỳ nghỉ gia đình."),
+                ("calendar_month", "Thuê theo tháng",  "Giải pháp tối ưu cho nhu cầu di chuyển dài ngày với chi phí hợp lý nhất."),
+                ("contract",       "Thuê xe dài hạn",  "Ưu đãi đặc biệt cho các hợp đồng trên 6 tháng dành cho cá nhân và doanh nghiệp.")
+            };
+        }
+        @foreach (var (icon, title, desc) in packages)
+        {
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 group">
+                <div class="w-16 h-16 bg-surface-container rounded-lg flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-4xl">@icon</span>
+                </div>
+                <h3 class="text-2xl font-semibold text-on-surface mb-3">@title</h3>
+                <p class="text-base text-on-surface-variant leading-relaxed">@desc</p>
+            </div>
+        }
+    </div>
+</section>
+
+@* Dịch vụ bổ sung *@
+<section class="py-20 bg-[#eff4ff]">
+    <div class="max-w-[1280px] mx-auto px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-primary mb-4 tracking-tight">Dịch vụ bổ sung</h2>
+            <p class="text-base text-on-surface-variant">Tăng thêm trải nghiệm tiện nghi cho mọi hành trình</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            @{
+                var extras = new[]
+                {
+                    ("local_shipping", "Giao xe tận nơi",       "Tiết kiệm thời gian di chuyển của bạn."),
+                    ("person_pin",     "Tài xế chuyên nghiệp",  "Đội ngũ tài xế tận tâm, giàu kinh nghiệm."),
+                    ("verified_user",  "Bảo hiểm toàn diện",    "Yên tâm trên mọi nẻo đường hành trình."),
+                    ("support_agent",  "Hỗ trợ 24/7",           "Luôn đồng hành cùng bạn mọi lúc, mọi nơi."),
+                    ("build",          "Bảo dưỡng miễn phí",    "Xe luôn trong tình trạng vận hành tốt nhất.")
+                };
+            }
+            @foreach (var (icon, title, desc) in extras)
+            {
+                <div class="flex flex-col items-center text-center p-6 bg-white rounded-xl shadow-sm">
+                    <span class="material-symbols-outlined text-secondary text-4xl mb-4">@icon</span>
+                    <h4 class="text-sm font-semibold text-primary mb-2 tracking-wide">@title</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">@desc</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@* Quy trình thuê xe *@
+<section class="py-20 px-8 max-w-[1280px] mx-auto">
+    <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-primary mb-4 tracking-tight">Quy trình thuê xe</h2>
+        <p class="text-base text-on-surface-variant">Đơn giản - Nhanh chóng - Minh bạch</p>
+    </div>
+    <div class="relative flex flex-col md:flex-row justify-between items-start gap-8">
+        <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
+        @{
+            var steps = new[]
+            {
+                ("1", "Chọn xe ưng ý",    "Tham khảo đội xe đa dạng từ phổ thông đến cao cấp."),
+                ("2", "Điền thông tin",   "Cung cấp thông tin đặt xe và thời gian nhận xe."),
+                ("3", "Xác nhận & Cọc",  "Xác nhận yêu cầu và tiến hành đặt cọc giữ chỗ."),
+                ("4", "Nhận xe",          "Hoàn tất thủ tục và bắt đầu hành trình của bạn.")
+            };
+        }
+        @foreach (var (num, title, desc) in steps)
+        {
+            <div class="flex-1 flex flex-col items-center text-center">
+                <div class="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xl mb-6 shadow-md border-4 border-white">@num</div>
+                <h4 class="text-2xl font-semibold text-on-surface mb-2">@title</h4>
+                <p class="text-base text-on-surface-variant leading-relaxed">@desc</p>
+            </div>
+        }
+    </div>
+</section>
+
+@* Chính sách & Điều khoản *@
+<section class="py-20 bg-slate-100">
+    <div class="max-w-4xl mx-auto px-8">
+        <div class="bg-white rounded-2xl p-10 shadow-sm border border-slate-200">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-primary text-3xl">policy</span>
+                <h2 class="text-4xl font-bold text-primary tracking-tight">Chính sách & Điều khoản</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-base text-on-surface-variant">
+                <div class="space-y-4">
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-secondary flex-shrink-0">check_circle</span>
+                        <p><strong class="text-on-surface">Minh bạch chi phí:</strong> Không phí ẩn, tất cả được liệt kê rõ ràng trong hợp đồng.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-secondary flex-shrink-0">check_circle</span>
+                        <p><strong class="text-on-surface">Quyền lợi khách hàng:</strong> Được đổi xe trong vòng 2 giờ nếu phát hiện lỗi kỹ thuật.</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-secondary flex-shrink-0">check_circle</span>
+                        <p><strong class="text-on-surface">Hỗ trợ cứu hộ:</strong> Miễn phí trong bán kính 50km từ điểm thuê gần nhất.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-secondary flex-shrink-0">check_circle</span>
+                        <p><strong class="text-on-surface">Thủ tục nhanh gọn:</strong> Cam kết hoàn tất thủ tục nhận xe trong 15 phút.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-slate-100 text-center">
+                <p class="text-xs text-on-surface-variant italic">
+                    Bằng việc sử dụng dịch vụ, quý khách đồng ý tuân thủ các quy định vận hành an toàn của Car Rental System.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* CTA *@
+<section class="py-20 px-8">
+    <div class="max-w-[1280px] mx-auto rounded-3xl overflow-hidden relative">
+        <img alt="CTA Background"
+             class="absolute inset-0 w-full h-full object-cover"
+             src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=80" />
+        <div class="relative z-10 bg-primary/80 backdrop-blur-sm p-12 md:p-24 text-center">
+            <h2 class="text-5xl font-black text-white mb-6 tracking-tight leading-tight">
+                Sẵn sàng cho chuyến đi của bạn?
+            </h2>
+            <p class="text-lg text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Đặt xe ngay hôm nay để nhận ưu đãi lên đến 15% cho các gói dịch vụ tuần và tháng.
+            </p>
+            <a href="/Vehicle/CustomerList"
+               class="inline-block px-12 py-5 bg-white text-primary font-bold text-lg rounded-full shadow-2xl hover:scale-105 transition-transform active:scale-95">
+                Đặt xe ngay
+            </a>
+        </div>
+    </div>
+</section>

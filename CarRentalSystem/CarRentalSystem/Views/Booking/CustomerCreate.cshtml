@@ -1,0 +1,348 @@
+﻿@model CarRentalSystem.Models.Vehicle
+@using Microsoft.AspNetCore.Http
+@using CarRentalSystem.Helpers
+@{
+    ViewData["Title"] = "Xác nhận đặt xe";
+    Layout = "_Layout";
+}
+
+<style>
+    body {
+        background-color: #f8f9ff;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .sticky-sidebar {
+        position: sticky;
+        top: 104px;
+        height: fit-content;
+    }
+
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .input-field {
+        width: 100%;
+        background: #f8f9ff;
+        border: 1px solid #c5c5d3;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        outline: none;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        color: #0b1c30;
+    }
+
+        .input-field:focus {
+            ring: 2px solid #0058be;
+            border-color: #0058be;
+            box-shadow: 0 0 0 3px rgba(0,88,190,0.12);
+        }
+
+    .input-readonly {
+        background: #eff4ff;
+        color: #757682;
+        cursor: not-allowed;
+        border: 1px solid #c5c5d3;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        width: 100%;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+    }
+
+    .label-field {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #444651;
+        letter-spacing: 0.01em;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<main class="mt-32 mb-20 max-w-[1280px] mx-auto px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        @* ===== CỘT TRÁI: Thông tin xe (STICKY) ===== *@
+        <div class="lg:col-span-5 sticky-sidebar space-y-5">
+
+            @* Card thông tin xe *@
+            <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(30,58,138,0.08)] overflow-hidden border border-slate-100">
+                <div class="p-6">
+                    <h2 class="text-[24px] font-semibold leading-[1.3] text-[#00236f] mb-6">
+                        Thông tin xe đã chọn
+                    </h2>
+
+                    @* Ảnh xe *@
+                    <div class="relative rounded-lg overflow-hidden mb-6 aspect-[16/10] bg-slate-100">
+                        <img class="w-full h-full object-cover"
+                             src="@(Model.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")"
+                             alt="@Model.VehicleName" />
+                    </div>
+
+                    @* Tên + trạng thái *@
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-[36px] font-bold leading-[1.2] tracking-[-0.01em] text-[#00236f]">
+                                @Model.VehicleName
+                            </h3>
+                            <p class="text-[#444651] text-[16px] leading-[1.6] mt-1">
+                                @(Model.Category?.CategoryName ?? "Phiên bản cao cấp")
+                            </p>
+                        </div>
+                        <span class="bg-[#dce9ff] text-[#0058be] px-3 py-1 rounded-full text-[14px] font-semibold whitespace-nowrap">
+                            @Model.Status
+                        </span>
+                    </div>
+
+                    @* 3 thông số xe *@
+                    <div class="grid grid-cols-3 gap-3 mb-8">
+                        <div class="flex flex-col items-center p-3 bg-[#f8f9ff] rounded-lg border border-slate-100">
+                            <span class="material-symbols-outlined text-[#0058be] mb-1">settings</span>
+                            <span class="text-[14px] font-semibold text-[#0b1c30]">@(Model.Transmission ?? "Tự động")</span>
+                        </div>
+                        <div class="flex flex-col items-center p-3 bg-[#f8f9ff] rounded-lg border border-slate-100">
+                            <span class="material-symbols-outlined text-[#0058be] mb-1">airline_seat_recline_extra</span>
+                            <span class="text-[14px] font-semibold text-[#0b1c30]">@Model.Seats Chỗ</span>
+                        </div>
+                        <div class="flex flex-col items-center p-3 bg-[#f8f9ff] rounded-lg border border-slate-100">
+                            <span class="material-symbols-outlined text-[#0058be] mb-1">local_gas_station</span>
+                            <span class="text-[14px] font-semibold text-[#0b1c30]">@(Model.FuelType ?? "Xăng")</span>
+                        </div>
+                    </div>
+
+                    @* Giá / ngày *@
+                    <div class="bg-[#1e3a8a] p-6 rounded-xl text-white">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[16px] leading-[1.6] opacity-90">Giá thuê mỗi ngày</span>
+                            <span class="text-[24px] font-semibold leading-[1.3]"
+                                  id="dailyPrice"
+                                  data-price="@Model.PricePerDay">
+                                @CurrencyHelper.FormatVnd(Model.PricePerDay)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Trust badges *@
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg border border-slate-100 flex items-center gap-3 shadow-sm">
+                    <span class="material-symbols-outlined text-[#0058be]"
+                          style="font-variation-settings:'FILL' 1">verified_user</span>
+                    <span class="text-sm font-medium text-[#0b1c30]">Bảo hiểm 100%</span>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-slate-100 flex items-center gap-3 shadow-sm">
+                    <span class="material-symbols-outlined text-[#0058be]"
+                          style="font-variation-settings:'FILL' 1">support_agent</span>
+                    <span class="text-sm font-medium text-[#0b1c30]">Hỗ trợ 24/7</span>
+                </div>
+            </div>
+        </div>
+
+        @* ===== CỘT PHẢI: Form đặt xe ===== *@
+        <div class="lg:col-span-7">
+
+            @* Error banner *@
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm">
+                    <div class="flex items-center">
+                        <span class="material-symbols-outlined text-red-500 mr-3">error</span>
+                        <p class="text-red-700 font-bold text-base">@TempData["ErrorMessage"]</p>
+                    </div>
+                    <p class="text-red-600 text-sm mt-1 ml-9 font-medium">
+                        Vui lòng thay đổi Ngày nhận/trả xe hoặc chọn một chiếc xe khác nhé!
+                    </p>
+                </div>
+            }
+
+            <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(30,58,138,0.08)] border border-slate-100 overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-[24px] font-semibold leading-[1.3] text-[#00236f] mb-8 border-b border-slate-100 pb-4">
+                        Thông tin đặt xe
+                    </h2>
+
+                    <form asp-controller="Booking" asp-action="Create" method="post" class="space-y-6" id="bookingForm">
+                        <input type="hidden" name="vehicleId" value="@Model.VehicleId" />
+
+                        @* 1. Thời gian thuê *@
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="label-field">Ngày nhận xe</label>
+                                <div class="relative">
+                                    <input name="pickupDateTime"
+                                           id="pickupDate"
+                                           type="datetime-local"
+                                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                           class="input-field pr-12"
+                                           required />
+                                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#757682] pointer-events-none">
+                                        calendar_today
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="label-field">Ngày trả xe</label>
+                                <div class="relative">
+                                    <input name="returnDateTime"
+                                           id="returnDate"
+                                           type="datetime-local"
+                                           class="input-field pr-12"
+                                           required />
+                                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#757682] pointer-events-none">
+                                        event
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-red-500 text-xs font-medium hidden -mt-2" id="dateError">
+                            Thời gian trả xe phải sau thời gian nhận xe ít nhất 1 ngày.
+                        </p>
+
+                        @* 2. Thông tin người thuê *@
+                        <div class="space-y-2">
+                            <label class="label-field">Họ và tên</label>
+                            <input class="input-readonly"
+                                   value="@Context.Session.GetString("FullName")"
+                                   type="text"
+                                   readonly />
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="label-field">
+                                    Số điện thoại liên hệ
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <input name="PhoneNumber"
+                                       type="tel"
+                                       placeholder="0xxx xxx xxx"
+                                       class="input-field"
+                                       required />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="label-field">Email</label>
+                                <input class="input-readonly"
+                                       value="@Context.Session.GetString("Email")"
+                                       type="email"
+                                       readonly />
+                            </div>
+                        </div>
+
+                        @* 3. Chi tiết thanh toán *@
+                        <div class="mt-2 bg-[#e5eeff] p-6 rounded-xl space-y-4">
+                            <h3 class="text-[14px] font-semibold text-[#00236f] uppercase tracking-wider">
+                                Chi tiết thanh toán
+                            </h3>
+                            <div class="space-y-3 border-b border-white/50 pb-4">
+                                <div class="flex justify-between items-center text-[#444651]">
+                                    <span class="text-[16px] leading-[1.6]">Giá thuê (<span id="lblDaysCount">0</span> ngày)</span>
+                                    <span class="text-[16px] leading-[1.6]" id="lblSubtotal">0 đ</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[#444651]">
+                                    <span class="text-[16px] leading-[1.6]">Tiền đặt cọc (10%)</span>
+                                    <span class="text-[16px] leading-[1.6]" id="lblDeposit">0 đ</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center pt-2">
+                                <span class="text-[24px] font-semibold text-[#00236f]">Tổng cộng</span>
+                                <span class="text-[24px] font-semibold text-[#0058be]" id="lblGrandTotal">0 đ</span>
+                            </div>
+                        </div>
+
+                        @* Nút submit *@
+                        <div class="pt-2">
+                            <button type="submit"
+                                    id="btnSubmit"
+                                    class="w-full bg-[#00236f] py-5 rounded-xl text-white text-[24px] font-semibold
+                                hover:bg-[#1e3a8a] transition-all shadow-lg shadow-blue-900/20
+                                active:scale-[0.98] flex items-center justify-center gap-3">
+                                <span class="material-symbols-outlined"
+                                      style="font-variation-settings:'FILL' 1">check_circle</span>
+                                Xác nhận đặt xe
+                            </button>
+                            <p class="text-center text-[12px] font-medium text-[#757682] mt-4">
+                                Bằng cách nhấn xác nhận, bạn đồng ý với các
+                                <a href="#" class="text-[#0058be] underline">Điều khoản sử dụng</a>
+                                của hệ thống.
+                            </p>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const pickupInput  = document.getElementById('pickupDate');
+            const returnInput  = document.getElementById('returnDate');
+            const dailyPrice   = parseFloat(document.getElementById('dailyPrice').getAttribute('data-price'));
+
+            const lblDaysCount = document.getElementById('lblDaysCount');
+            const lblSubtotal  = document.getElementById('lblSubtotal');
+            const lblDeposit   = document.getElementById('lblDeposit');
+            const lblGrandTotal= document.getElementById('lblGrandTotal');
+            const dateError    = document.getElementById('dateError');
+            const btnSubmit    = document.getElementById('btnSubmit');
+
+            const formatMoney = (amount) => new Intl.NumberFormat('vi-VN').format(Math.round(amount)) + ' đ';
+
+            const now = new Date();
+            now.setDate(now.getDate() + 1);
+            now.setHours(8, 0, 0, 0);
+            const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            const localISOPickup = (new Date(now - tzoffset)).toISOString().slice(0, 16);
+            if (!pickupInput.value) pickupInput.value = localISOPickup;
+
+            const returnDate = new Date(now);
+            returnDate.setDate(returnDate.getDate() + 2);
+            const localISOReturn = (new Date(returnDate - tzoffset)).toISOString().slice(0, 16);
+            if (!returnInput.value) returnInput.value = localISOReturn;
+
+            function calculatePrice() {
+                if (!pickupInput.value || !returnInput.value) return;
+                const start = new Date(pickupInput.value);
+                const end   = new Date(returnInput.value);
+                const diffTime = Math.abs(end - start);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (end <= start) {
+                    dateError.classList.remove('hidden');
+                    btnSubmit.disabled = true;
+                    btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+                    lblDaysCount.innerText = '0';
+                    lblSubtotal.innerText  = '0 đ';
+                    lblDeposit.innerText   = '0 đ';
+                    lblGrandTotal.innerText= '0 đ';
+                    return;
+                }
+                dateError.classList.add('hidden');
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                if (diffDays === 0) diffDays = 1;
+                const subtotal  = diffDays * dailyPrice;
+                const deposit   = subtotal * 0.1;
+                const grandTotal= subtotal + deposit;
+
+                lblDaysCount.innerText  = diffDays;
+                lblSubtotal.innerText   = formatMoney(subtotal);
+                lblDeposit.innerText    = formatMoney(deposit);
+                lblGrandTotal.innerText = formatMoney(grandTotal);
+            }
+
+            pickupInput.addEventListener('change', calculatePrice);
+            returnInput.addEventListener('change', calculatePrice);
+            calculatePrice();
+        });
+    </script>
+}

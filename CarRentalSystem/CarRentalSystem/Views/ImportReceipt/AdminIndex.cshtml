@@ -1,0 +1,127 @@
+﻿@model IEnumerable<CarRentalSystem.Models.ImportReceipt>
+@using CarRentalSystem.Constants
+@using CarRentalSystem.Helpers
+@{
+    ViewData["Title"] = "Phê duyệt phiếu nhập xe";
+    Layout = "_AdminLayout";
+}
+
+<header class="pt-8 pb-6">
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-h1 text-h1 text-on-surface mb-1">
+                Quản lý và Phê duyệt Phiếu nhập kho
+            </h2>
+            <p class="font-body-md text-on-surface-variant">
+                Kiểm duyệt xe mới nhập để tự động cập nhật vào hệ thống đội xe
+            </p>
+        </div>
+    </div>
+</header>
+
+<section class="mb-6">
+    <form method="get" action="/ImportReceipt/Index" class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/50 flex flex-wrap gap-4 items-center">
+        <div class="flex-1 min-w-[300px] relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+            <input name="search" value="@ViewBag.SearchString" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all" placeholder="Tìm theo mã phiếu hoặc nhà cung cấp..." type="text" />
+        </div>
+        <div class="flex items-center gap-3">
+            <select name="status" class="py-2.5 px-4 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-secondary/20 outline-none">
+                <option value="" selected="@(string.IsNullOrEmpty(ViewBag.CurrentStatus) ? "selected" : null)">Tất cả trạng thái</option>
+                <option value="@ImportReceiptStatus.Pending" selected="@(ViewBag.CurrentStatus == ImportReceiptStatus.Pending ? "selected" : null)">Chờ duyệt</option>
+                <option value="@ImportReceiptStatus.Approved" selected="@(ViewBag.CurrentStatus == ImportReceiptStatus.Approved ? "selected" : null)">Đã duyệt</option>
+                <option value="@ImportReceiptStatus.Rejected" selected="@(ViewBag.CurrentStatus == ImportReceiptStatus.Rejected ? "selected" : null)">Từ chối</option>
+            </select>
+
+            <button type="submit" class="px-6 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md hover:bg-slate-800 transition-all">Lọc</button>
+
+            @if (!string.IsNullOrEmpty(ViewBag.SearchString) || !string.IsNullOrEmpty(ViewBag.CurrentStatus))
+            {
+                <a href="/ImportReceipt/Index" class="px-4 py-2.5 text-slate-500 hover:text-slate-800 font-bold text-sm transition-colors">Xóa lọc</a>
+            }
+        </div>
+    </form>
+</section>
+
+<section class="bg-white rounded-2xl shadow-sm border border-outline-variant/50 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-6 py-4 text-[12px] font-bold text-slate-500 uppercase tracking-wider">Mã phiếu</th>
+                    <th class="px-6 py-4 text-[12px] font-bold text-slate-500 uppercase tracking-wider">Đối tác</th>
+                    <th class="px-6 py-4 text-[12px] font-bold text-slate-500 uppercase tracking-wider">Ngày lập</th>
+                    <th class="px-6 py-4 text-[12px] font-bold text-slate-500 uppercase tracking-wider">Tổng giá trị</th>
+                    <th class="px-6 py-4 text-[12px] font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
+                    <th class="px-6 py-4 text-[12px] font-bold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="px-6 py-10 text-center text-slate-500 font-medium">
+                            Không tìm thấy phiếu nhập nào phù hợp với bộ lọc.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-primary">@item.SoImportReceipt</td>
+                            <td class="px-6 py-4 font-medium text-slate-700">@(item.Supplier?.SupplierName ?? "Chưa rõ")</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">@item.ImportDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="px-6 py-4 font-bold text-slate-900">@CurrencyHelper.FormatVnd(item.TotalAmount)</td>
+                            <td class="px-6 py-4">
+                                @if (item.Status == ImportReceiptStatus.Pending)
+                                {
+                                    <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold border border-amber-200 flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">pending</span> Chờ duyệt
+                                    </span>
+                                }
+                                else if (item.Status == ImportReceiptStatus.Approved)
+                                {
+                                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200 flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">check_circle</span> Đã duyệt
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-bold border border-rose-200 flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">cancel</span> Từ chối
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                @if (item.Status == ImportReceiptStatus.Pending)
+                                {
+                                    <div class="flex items-center justify-end gap-2">
+                                        <form asp-controller="ImportReceipt" asp-action="Approve" method="post" class="m-0 p-0">
+                                            <input type="hidden" name="id" value="@item.ImportReceiptId" />
+                                            <button type="submit" class="px-3 py-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors font-bold flex items-center gap-1 text-[13px]" title="Phê duyệt">
+                                                <span class="material-symbols-outlined text-[18px]">check_circle</span> Duyệt
+                                            </button>
+                                        </form>
+
+                                        <form asp-controller="ImportReceipt" asp-action="Reject" method="post" class="m-0 p-0">
+                                            <input type="hidden" name="id" value="@item.ImportReceiptId" />
+                                            <button type="submit" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors font-bold flex items-center gap-1 text-[13px]" title="Từ chối">
+                                                <span class="material-symbols-outlined text-[18px]">cancel</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400 text-xs font-medium italic">Đã xử lý</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

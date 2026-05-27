@@ -1,0 +1,175 @@
+﻿@{
+    ViewData["Title"] = "Lập phiếu nhập xe";
+    Layout = "_StaffLayout";
+    var categories = ViewBag.Categories as IEnumerable<CarRentalSystem.Models.VehicleCategory>;
+    var suppliers = ViewBag.Suppliers as IEnumerable<CarRentalSystem.Models.Supplier>;
+}
+
+<div class="space-y-8 w-full">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3">
+            <span class="material-symbols-outlined text-red-500">error</span>
+            <p class="text-sm font-bold text-red-700">@TempData["ErrorMessage"]</p>
+        </div>
+    }
+
+    <form asp-controller="ImportReceipt" asp-action="Create" method="post" class="space-y-8">
+        @Html.AntiForgeryToken()
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-white p-8 rounded-2xl border border-outline-variant/50 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-secondary flex items-center justify-center">
+                            <span class="material-symbols-outlined">badge</span>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-primary">Thông tin chung</h3>
+                            <p class="text-xs text-on-surface-variant">Thông tin đối tác và nhân sự lập phiếu</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nhà cung cấp</label>
+                            <select name="SupplierId" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" required>
+                                <option value="">Chọn nhà cung cấp</option>
+                                @if (suppliers != null)
+                                {
+                                    @foreach (var sup in suppliers)
+                                    {
+                                        <option value="@sup.SupplierId">@sup.SupplierName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nhân viên lập phiếu</label>
+                            <input type="text" value="@Context.Session.GetString("FullName")" class="w-full bg-surface-container-low/60 border border-outline-variant/20 rounded-xl px-4 py-3 text-[14px] text-slate-500 font-medium outline-none" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl border border-outline-variant/50 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-secondary flex items-center justify-center">
+                            <span class="material-symbols-outlined">directions_car</span>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-primary">Thông tin phương tiện</h3>
+                            <p class="text-xs text-on-surface-variant">Chi tiết thông số dòng xe nhập kho</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Tên phương tiện</label>
+                            <input type="text" name="VehicleName" placeholder="Nhập tên xe (Ví dụ: Mercedes-Benz S450)" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" required />
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Hãng xe</label>
+                            <input type="text" name="Brand" placeholder="Ví dụ: Mercedes-Benz" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" required />
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Dòng xe</label>
+                            <input type="text" name="Model" placeholder="Ví dụ: S450" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" required />
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Năm sản xuất</label>
+                            <input type="number" name="ManufactureYear" placeholder="2024" value="2024" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" required />
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Biển kiểm soát</label>
+                            <input type="text" name="LicensePlate" placeholder="Ví dụ: 43A-123.45" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" required />
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Phân loại xe</label>
+                            <select name="CategoryId" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" required>
+                                <option value="">Chọn loại xe</option>
+                                @if (categories != null)
+                                {
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.CategoryId">@cat.CategoryName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Màu sơn</label>
+                            <input type="text" name="Color" placeholder="Ví dụ: Đen, Trắng" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" />
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Số ghế</label>
+                            <input type="number" name="Seats" placeholder="4" value="4" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium" />
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Hộp số</label>
+                            <select name="Transmission" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium">
+                                <option value="Tự động">Tự động</option>
+                                <option value="Số sàn">Số sàn</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Loại nhiên liệu</label>
+                            <select name="FuelType" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 text-[14px] focus:ring-1 focus:ring-secondary outline-none font-medium">
+                                <option value="Xăng">Xăng</option>
+                                <option value="Dầu">Dầu</option>
+                                <option value="Hybrid">Hybrid</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 flex flex-col justify-between bg-white p-8 rounded-2xl border border-outline-variant/50 shadow-sm h-fit space-y-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined">payments</span>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-primary">Giá trị hóa đơn</h3>
+                            <p class="text-xs text-on-surface-variant">Chi phí nhập mua phương tiện</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Tổng chi phí nhập (VNĐ)</label>
+                            <input type="number" id="inputPrice" name="TotalAmount" placeholder="0" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-4 text-xl font-bold text-primary focus:ring-1 focus:ring-secondary outline-none" required />
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-outline-variant/60">
+                            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Thành tiền hiển thị</p>
+                            <p class="text-2xl font-black text-secondary tracking-tight"><span id="displayPrice">0</span> <span class="text-xs font-bold text-slate-400">VNĐ</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 space-y-3">
+                    <button type="submit" class="w-full py-4 bg-secondary text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
+                        <span class="material-symbols-outlined text-[20px]">send</span>
+                        Gửi duyệt phiếu nhập
+                    </button>
+                    <a href="/Dashboard/Index" class="w-full py-3 bg-slate-50 text-center font-semibold text-xs text-slate-500 hover:text-slate-800 rounded-xl block transition-colors">
+                        Hủy yêu cầu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('inputPrice').addEventListener('input', function (e) {
+            var value = e.target.value;
+            if (value) {
+                document.getElementById('displayPrice').innerText = parseFloat(value).toLocaleString('vi-VN');
+            } else {
+                document.getElementById('displayPrice').innerText = '0';
+            }
+        });
+    </script>
+}

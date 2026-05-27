@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Đổi mật khẩu tài khoản";
+    Layout = "_Layout";
+}
+
+<main class="flex-grow flex items-center justify-center py-16 px-4 md:px-8">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-[0_20px_50px_rgba(30,58,138,0.08)] border border-slate-100 p-8 md:p-10 flex flex-col justify-center">
+        <div class="mb-8 text-center">
+            <h1 class="text-2xl font-black text-[#00236f] mb-2">Đổi mật khẩu</h1>
+            <p class="text-slate-500 font-medium text-sm">Vui lòng nhập mật khẩu cũ và mật khẩu mới để cập nhật bảo mật.</p>
+        </div>
+
+        <form class="space-y-6" method="post" asp-controller="Account" asp-action="DoiMatKhau">
+            @Html.AntiForgeryToken()
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="p-4 bg-red-50 text-red-600 border border-red-100 rounded-xl text-sm font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined">error</span>
+                    @ViewBag.Error
+                </div>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="p-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-sm font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-slate-700">Mật khẩu hiện tại</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
+                    <input name="oldPassword" class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-[#00236f] focus:ring-2 focus:ring-[#00236f]/20 outline-none transition-all bg-slate-50 hover:bg-white font-medium text-sm" placeholder="••••••••" type="password" required />
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-slate-700">Mật khẩu mới</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">lock_open</span>
+                    <input name="newPassword" class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-[#00236f] focus:ring-2 focus:ring-[#00236f]/20 outline-none transition-all bg-slate-50 hover:bg-white font-medium text-sm" placeholder="••••••••" type="password" required />
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-slate-700">Xác nhận mật khẩu mới</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">enhanced_encryption</span>
+                    <input name="confirmPassword" class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-[#00236f] focus:ring-2 focus:ring-[#00236f]/20 outline-none transition-all bg-slate-50 hover:bg-white font-medium text-sm" placeholder="••••••••" type="password" required />
+                </div>
+            </div>
+
+            <button class="w-full bg-[#00236f] text-white py-4 rounded-xl font-bold text-base hover:bg-blue-900 transition-all active:scale-[0.98] shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2" type="submit">
+                Cập nhật mật khẩu
+                <span class="material-symbols-outlined text-[20px]">vpn_key</span>
+            </button>
+        </form>
+    </div>
+</main>

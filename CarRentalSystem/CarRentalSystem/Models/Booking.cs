@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using CarRentalSystem.Validation;
 
 namespace CarRentalSystem.Models;
 
@@ -13,12 +15,18 @@ public partial class Booking
 
     public int? StaffId { get; set; }
 
+    [Required(ErrorMessage = "Vui lòng nhập địa điểm nhận xe")]
     public string PickupLocation { get; set; } = null!;
 
+    [Required(ErrorMessage = "Vui lòng nhập địa điểm trả xe")]
     public string ReturnLocation { get; set; } = null!;
 
+    [Required(ErrorMessage = "Vui lòng chọn ngày nhận xe")]
+    [FutureDate(ErrorMessage = "Ngày nhận xe không được lùi về quá khứ!")]
     public DateTime PickupDateTime { get; set; }
 
+    [Required(ErrorMessage = "Vui lòng chọn ngày trả xe")]
+    [DateGreaterThan("PickupDateTime", ErrorMessage = "Ngày trả xe bắt buộc phải sau ngày nhận xe!")]
     public DateTime ReturnDateTime { get; set; }
 
     public int? RentalDays { get; set; }

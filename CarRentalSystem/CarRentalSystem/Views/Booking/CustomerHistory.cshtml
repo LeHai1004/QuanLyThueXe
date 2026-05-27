@@ -1,0 +1,323 @@
+﻿@model IEnumerable<CarRentalSystem.Models.Booking>
+@using CarRentalSystem.Constants
+@using CarRentalSystem.Helpers
+@{
+    ViewData["Title"] = "Đơn đặt của tôi";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <style>
+        .booking-card-shadow {
+            box-shadow: 0 10px 30px -10px rgba(30, 58, 138, 0.08);
+        }
+
+        .booking-card {
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+            .booking-card.hidden {
+                display: none !important;
+            }
+
+            .booking-card.opacity-0 {
+                opacity: 0;
+            }
+
+            .booking-card.translate-y-2 {
+                transform: translateY(8px);
+            }
+
+            .booking-card.opacity-100 {
+                opacity: 1;
+            }
+
+            .booking-card.translate-y-0 {
+                transform: translateY(0);
+            }
+
+        .filter-btn {
+            transition: all 0.15s ease-in-out;
+        }
+
+            .filter-btn.active {
+                background-color: #00236f;
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 35, 111, 0.2);
+            }
+    </style>
+}
+
+<main class="flex-grow pt-12 pb-20">
+    <div class="max-w-[1280px] mx-auto px-8">
+        <div class="mb-10">
+            <h1 class="text-4xl font-bold text-[#00236f] mb-4">Đơn đặt của tôi</h1>
+            <p class="text-slate-500 max-w-2xl text-lg">
+                Quản lý các chuyến đi của bạn, xem chi tiết lịch trình và theo dõi
+                trạng thái thuê xe một cách dễ dàng.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 mb-8 bg-white p-2 rounded-xl border border-slate-200 shadow-sm overflow-x-auto whitespace-nowrap">
+            <button class="filter-btn px-6 py-2.5 rounded-lg font-semibold text-sm transition-all active bg-[#00236f] text-white shadow-md" data-filter="all">
+                Tất cả
+            </button>
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Pending">
+                Chờ xác nhận
+            </button>
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Confirmed">
+                Đã xác nhận
+            </button>
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Active">
+                Đang thuê
+            </button>
+            <button class="filter-btn px-6 py-2.5 rounded-lg text-slate-500 font-semibold text-sm hover:bg-slate-100 transition-all" data-filter="@BookingStatus.Completed">
+                Đã hoàn thành
+            </button>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="bg-white rounded-2xl border border-slate-200 py-20 flex flex-col items-center justify-center text-center shadow-sm">
+                <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-[40px] text-[#0058be]">car_rental</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">Bạn chưa có chuyến đi nào</h3>
+                <p class="text-slate-500 mb-8 max-w-md">Hãy bắt đầu lên kế hoạch cho hành trình tiếp theo của bạn cùng hàng trăm mẫu xe đời mới từ hệ thống của chúng tôi.</p>
+                <a href="/Vehicle/CustomerList" class="px-8 py-4 bg-[#00236f] text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 hover:bg-blue-900 transition-all active:scale-95">
+                    Đặt xe ngay
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="space-y-6" id="bookingsList">
+                @foreach (var item in Model)
+                {
+                    <div class="booking-card bg-white rounded-2xl border border-slate-200 overflow-hidden booking-card-shadow flex flex-col md:flex-row group" data-status="@item.Status">
+                        <div class="w-full md:w-72 h-56 md:h-auto relative overflow-hidden flex-shrink-0 bg-slate-100">
+                            <img src="@(item.Vehicle?.HinhAnh ?? "https://images.unsplash.com/photo-1550355291-bbee04a92027")" alt="@item.Vehicle?.VehicleName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <div class="absolute top-4 left-4">
+                                @if (item.Status == BookingStatus.Pending)
+                                {
+                                    <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-amber-200 flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">schedule</span> Chờ xác nhận
+                                    </span>
+                                }
+                                else if (item.Status == BookingStatus.Confirmed)
+                                {
+                                    <span class="bg-blue-100 text-[#0058be] px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-blue-200 flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">thumb_up</span> Đã xác nhận
+                                    </span>
+                                }
+                                else if (item.Status == BookingStatus.Active)
+                                {
+                                    <span class="bg-[#0058be] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">key</span> Đang thuê
+                                    </span>
+                                }
+                                else if (item.Status == BookingStatus.Completed)
+                                {
+                                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-emerald-200 flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">check_circle</span> Đã hoàn thành
+                                    </span>
+                                }
+                                else if (item.Status == BookingStatus.Cancelled)
+                                {
+                                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-slate-200 flex items-center gap-1 w-max">
+                                        <span class="material-symbols-outlined text-[14px]">cancel</span> Đã hủy
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="flex-1 p-6 flex flex-col justify-between">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Mã đơn: #RC-@item.BookingId.ToString("D4")</p>
+                                    <h3 class="text-2xl font-black text-[#00236f] mb-2">@item.Vehicle?.VehicleName</h3>
+                                    <p class="text-slate-500 font-medium">BKS: <strong class="text-slate-700">@item.Vehicle?.LicensePlate</strong></p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Tổng tiền</p>
+                                    <p class="text-2xl font-black text-[#0058be]">@CurrencyHelper.FormatVnd(item.TotalAmount)</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 mb-6 border border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
+                                        <span class="material-symbols-outlined">calendar_today</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-400 uppercase">Ngày nhận xe</p>
+                                        <p class="text-sm font-bold text-slate-800">@item.PickupDateTime.ToString("HH:mm - dd/MM/yyyy")</p>
+                                    </div>
+                                </div>
+                                <div class="hidden md:block w-px h-10 bg-slate-200"></div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
+                                        <span class="material-symbols-outlined">event</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-400 uppercase">Ngày trả xe</p>
+                                        <p class="text-sm font-bold text-slate-800">@item.ReturnDateTime.ToString("HH:mm - dd/MM/yyyy")</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-end gap-3 mt-auto pt-4 border-t border-slate-100">
+                                @if (item.Status == BookingStatus.Completed)
+                                {
+                                    <button class="px-6 py-2.5 rounded-lg border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-[18px]">star</span> Đánh giá
+                                    </button>
+                                    <button class="px-6 py-2.5 rounded-lg bg-[#00236f] text-white font-semibold text-sm hover:bg-blue-900 transition-all shadow-md active:scale-95">
+                                        Thuê lại
+                                    </button>
+                                }
+
+                                @if (item.Status == BookingStatus.Pending || item.Status == BookingStatus.Confirmed)
+                                {
+                                    <button type="button" onclick="openCancelModal(@item.BookingId)" class="px-6 py-2.5 rounded-lg text-red-600 font-semibold text-sm hover:bg-red-50 border border-transparent hover:border-red-200 transition-all flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[18px]">cancel</span>
+                                        Hủy đặt xe
+                                    </button>
+                                }
+
+                                @if (item.Status != BookingStatus.Cancelled)
+                                {
+                                    <a href="/Booking/CustomerDetails/@item.BookingId" class="px-6 py-2.5 rounded-lg border-2 border-[#00236f] text-[#00236f] font-semibold text-sm hover:bg-[#00236f] hover:text-white transition-all active:scale-95">
+                                        Xem chi tiết
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</main>
+
+@* ===== POPUP MODAL HỦY ĐƠN ===== *@
+<div id="cancelModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+    <div id="cancelBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closeCancelModal()"></div>
+
+    <div id="cancelModalContent" class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative z-10 scale-95 opacity-0 transition-all duration-300">
+        <button onclick="closeCancelModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+
+        <div class="text-center mb-6">
+            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-5 border-[6px] border-red-100/50">
+                <span class="material-symbols-outlined text-4xl text-red-500" style="font-variation-settings: 'FILL' 1">warning</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800 mb-2">Xác nhận hủy chuyến</h3>
+            <p class="text-slate-500 text-sm font-medium px-2">
+                Bạn có chắc chắn muốn hủy đơn đặt xe <strong id="cancelBookingTitle" class="text-[#00236f]"></strong> không?
+                Thao tác này không thể hoàn tác.
+            </p>
+        </div>
+
+        <form asp-controller="Booking" asp-action="Cancel" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="cancelBookingId" />
+
+            <div class="grid grid-cols-2 gap-3 mt-8">
+                <button type="button" onclick="closeCancelModal()" class="w-full py-3.5 bg-white border-2 border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all">
+                    Giữ lại đơn
+                </button>
+                <button type="submit" class="w-full py-3.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95">
+                    Đồng ý hủy
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Booking Filter Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const bookingCards = document.querySelectorAll('.booking-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const filterValue = btn.getAttribute('data-filter');
+
+                // Update active button style
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-[#00236f]', 'text-white', 'shadow-md', 'active');
+                    b.classList.add('text-slate-500', 'hover:bg-slate-100');
+                });
+                btn.classList.remove('text-slate-500', 'hover:bg-slate-100');
+                btn.classList.add('bg-[#00236f]', 'text-white', 'shadow-md', 'active');
+
+                // Filter cards with fast animation
+                bookingCards.forEach(card => {
+                    const cardStatus = card.getAttribute('data-status');
+                    const isMatch = filterValue === 'all' || cardStatus === filterValue;
+
+                    if (isMatch) {
+                        card.classList.remove('hidden', 'opacity-0', 'translate-y-2');
+                        // Trigger reflow to ensure animation plays
+                        void card.offsetHeight;
+                        card.classList.add('opacity-100', 'translate-y-0');
+                    } else {
+                        card.classList.add('opacity-0', 'translate-y-2');
+                        setTimeout(() => {
+                            card.classList.add('hidden');
+                        }, 200); // Reduced from 300ms
+                    }
+                });
+            });
+        });
+
+        // Initialize - show all on load
+        document.addEventListener('DOMContentLoaded', () => {
+            bookingCards.forEach(card => {
+                card.classList.add('opacity-100', 'translate-y-0');
+                card.classList.remove('opacity-0', 'translate-y-2', 'hidden');
+            });
+        });
+    </script>
+
+    <script>
+        const modal = document.getElementById('cancelModal');
+        const backdrop = document.getElementById('cancelBackdrop');
+        const content = document.getElementById('cancelModalContent');
+        const hiddenInputId = document.getElementById('cancelBookingId');
+        const displayTitle = document.getElementById('cancelBookingTitle');
+
+        function openCancelModal(bookingId) {
+            hiddenInputId.value = bookingId;
+            displayTitle.innerText = '#RC-' + bookingId.toString().padStart(4, '0');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeCancelModal() {
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+    </script>
+}

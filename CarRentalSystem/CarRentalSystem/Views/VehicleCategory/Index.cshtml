@@ -1,0 +1,330 @@
+﻿@model IEnumerable<CarRentalSystem.Models.VehicleCategory>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý Loại Xe";
+
+    int currentPage = (int?)ViewBag.CurrentPage ?? 1;
+    int totalPages = (int?)ViewBag.TotalPages ?? 1;
+    int totalCount = (int?)ViewBag.TotalCount ?? 0;
+    int pageSize = (int?)ViewBag.PageSize ?? 10;
+    string search = ViewBag.SearchString as string ?? "";
+
+    int startItem = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    int endItem = Math.Min(currentPage * pageSize, totalCount);
+}
+
+@section HeaderSearch {
+    <div class="relative hidden lg:block">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+        <form method="get" asp-action="Index">
+            <input type="text" name="search" value="@search" placeholder="Tìm kiếm loại xe..."
+                   class="pl-12 pr-6 py-2.5 bg-white border border-slate-200 rounded-full text-sm w-80 focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all shadow-sm" />
+        </form>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div id="toast" class="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 bg-white border border-green-200 rounded-xl shadow-xl text-sm text-green-700 font-bold animate-in slide-in-from-right-10">
+        <span class="material-symbols-outlined text-green-500">check_circle</span>
+        @TempData["Success"]
+    </div>
+}
+
+<div class="mb-8 flex justify-between items-center mt-4">
+    <div>
+        <h2 class="text-2xl font-extrabold text-[#1E293B]">Danh mục Phân loại Xe</h2>
+        <p class="text-sm font-medium text-slate-500 mt-1">Quản lý các nhóm xe và cấu hình hiển thị</p>
+    </div>
+    <button type="button" onclick="openCreateModal()" class="bg-secondary text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-secondary/25 hover:bg-primary transition-all duration-300 active:scale-95">
+        <span class="material-symbols-outlined">add</span>
+        <span>Thêm loại xe mới</span>
+    </button>
+</div>
+
+<div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden">
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr class="bg-slate-50/50 border-b border-slate-100">
+                <th class="px-8 py-6 text-[13px] font-bold text-slate-500 uppercase tracking-widest">Minh họa</th>
+                <th class="px-8 py-6 text-[13px] font-bold text-slate-500 uppercase tracking-widest">Tên loại xe</th>
+                <th class="px-8 py-6 text-[13px] font-bold text-slate-500 uppercase tracking-widest">Mô tả ngắn</th>
+                <th class="px-8 py-6 text-[13px] font-bold text-slate-500 uppercase tracking-widest text-center">Số lượng xe</th>
+                <th class="px-8 py-6 text-[13px] font-bold text-slate-500 uppercase tracking-widest text-center">Trạng thái</th>
+                <th class="px-8 py-6 text-[13px] font-bold text-slate-500 uppercase tracking-widest text-right">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+            @foreach (var item in Model)
+            {
+                <tr class="hover:bg-slate-50/30 transition-colors duration-200 group">
+                    <td class="px-8 py-6">
+                        <div class="w-28 h-16 rounded-xl bg-slate-100/50 flex items-center justify-center overflow-hidden border border-slate-200/50 p-2">
+                            <span class="material-symbols-outlined text-4xl text-slate-300 transform group-hover:scale-110 transition-transform duration-500">directions_car</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6">
+                        <span class="text-base font-bold text-[#1E293B]">@item.CategoryName</span>
+                    </td>
+                    <td class="px-8 py-6">
+                        <p class="text-slate-500 text-sm max-w-xs line-clamp-2">
+                            @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
+                        </p>
+                    </td>
+                    <td class="px-8 py-6 text-center">
+                        <span class="inline-block px-5 py-2 rounded-full bg-blue-50 text-secondary font-bold text-[12px]">
+                            @((item.Vehicles?.Count ?? 0)) xe
+                        </span>
+                    </td>
+                    <td class="px-8 py-6 text-center">
+                        @if (item.IsActive)
+                        {
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-bold text-[12px]">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Hoạt động
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-500 font-bold text-[12px]">
+                                <span class="w-2 h-2 rounded-full bg-slate-400"></span> Đã ẩn
+                            </span>
+                        }
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button type="button"
+                                    data-id="@item.CategoryId"
+                                    data-name="@item.CategoryName"
+                                    data-desc="@item.Description"
+                                    data-active="@item.IsActive.ToString().ToLower()"
+                                    onclick="openEditModal(this)"
+                                    class="p-2.5 text-secondary hover:bg-blue-50 rounded-lg transition-all" title="Chỉnh sửa">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </button>
+                            <button type="button"
+                                    data-id="@item.CategoryId"
+                                    data-name="@item.CategoryName"
+                                    onclick="openDeleteModal(this)"
+                                    class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Xóa">
+                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-8 flex justify-between items-center mb-8">
+    <p class="text-slate-500 text-sm font-medium">
+        Hiển thị @startItem - @endItem trong tổng số @totalCount loại xe
+    </p>
+    <div class="flex items-center gap-2">
+        <a href="?page=@(currentPage > 1 ? currentPage - 1 : 1)&search=@search"
+           class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold @(currentPage <= 1 ? "text-slate-300 pointer-events-none" : "text-slate-600 hover:bg-slate-50") transition-all">
+            Trước
+        </a>
+
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            if (i == currentPage)
+            {
+                <span class="w-11 h-11 flex items-center justify-center bg-secondary text-white rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 transition-transform active:scale-90">
+                    @i
+                </span>
+            }
+            else
+            {
+                <a href="?page=@i&search=@search" class="w-11 h-11 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+                    @i
+                </a>
+            }
+        }
+
+        <a href="?page=@(currentPage < totalPages ? currentPage + 1 : totalPages)&search=@search"
+           class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold @(currentPage >= totalPages ? "text-slate-300 pointer-events-none" : "text-slate-600 hover:bg-slate-50") transition-all">
+            Tiếp
+        </a>
+    </div>
+</div>
+
+<div id="createModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
+    <div class="mt-8 max-w-2xl mx-auto w-full animate-in zoom-in-95 duration-300">
+        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 overflow-hidden">
+            <div class="px-10 py-7 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-secondary text-2xl">add_box</span>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-[#1E293B]">Thêm loại xe mới</h2>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCreateModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+            <form action="/VehicleCategory/Create" method="post" class="px-10 py-8 space-y-6">
+                @Html.AntiForgeryToken()
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-widest">Tên loại xe <span class="text-red-500">*</span></label>
+                    <input type="text" name="CategoryName" required placeholder="VD: SUV, Sedan, Pickup..." class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-secondary/25 focus:border-secondary transition-all placeholder:text-slate-400 font-medium" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-widest">Mô tả</label>
+                    <textarea name="Description" rows="4" placeholder="Mô tả ngắn về loại xe này..." class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-secondary/25 focus:border-secondary transition-all resize-none placeholder:text-slate-400 font-medium"></textarea>
+                </div>
+                <div class="p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-700">Cho phép hoạt động</h4>
+                        <p class="text-xs font-medium text-slate-500 mt-0.5">Hiển thị loại xe này trên ứng dụng</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="IsActive" value="true" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-secondary after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                </div>
+                <div class="border-t border-slate-100 pt-8 mt-4 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeCreateModal()" class="px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Hủy bỏ</button>
+                    <button type="submit" class="px-8 py-3 bg-secondary text-white rounded-xl font-bold text-sm shadow-lg shadow-secondary/30 hover:bg-primary transition-all active:scale-95 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">save</span> Lưu loại xe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
+    <div class="mt-8 max-w-2xl mx-auto w-full animate-in zoom-in-95 duration-300">
+        <div class="mb-6 flex items-center gap-3 px-5 py-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm">
+            <span class="material-symbols-outlined text-amber-500">info</span>
+            <p class="text-sm font-medium text-amber-800">
+                Đang chỉnh sửa loại xe <strong id="editBannerName" class="font-bold text-amber-900"></strong>.
+                Lưu ý: Bất kỳ thay đổi nào cũng sẽ áp dụng lên toàn bộ danh sách xe thuộc phân loại này.
+            </p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 overflow-hidden">
+            <div class="px-10 py-7 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-100">
+                        <span class="material-symbols-outlined text-amber-500 text-2xl">edit_note</span>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-[#1E293B]">Chỉnh sửa loại xe</h2>
+                        <p class="text-sm font-medium text-slate-400 mt-0.5 tracking-wide">Cập nhật thông tin chi tiết bên dưới</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+            <form action="/VehicleCategory/Edit" method="post" class="px-10 py-8 space-y-6">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="CategoryId" id="editCategoryId" />
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-widest">Tên loại xe <span class="text-red-500">*</span></label>
+                    <input type="text" name="CategoryName" id="editCategoryName" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-secondary/25 focus:border-secondary transition-all font-medium" />
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-widest">Mô tả</label>
+                    <textarea name="Description" id="editDescription" rows="4" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-secondary/25 focus:border-secondary transition-all resize-none font-medium"></textarea>
+                </div>
+                <div class="p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-700">Cho phép hoạt động</h4>
+                        <p class="text-xs font-medium text-slate-500 mt-0.5">Bật để khách hàng có thể nhìn thấy loại xe này trên ứng dụng</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="IsActive" value="true" id="editIsActive" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+                    </label>
+                </div>
+                <div class="border-t border-slate-100 pt-8 mt-4 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeEditModal()" class="px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Hủy bỏ</button>
+                    <button type="submit" class="px-8 py-3 bg-secondary text-white rounded-xl font-bold text-sm shadow-lg shadow-secondary/30 hover:bg-primary transition-all duration-300 active:scale-95 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">save</span> Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
+    <div class="mt-8 max-w-xl mx-auto w-full animate-in zoom-in-95 duration-300">
+        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 overflow-hidden">
+            <div class="px-10 py-10 border-b border-slate-100 flex flex-col items-center text-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-red-500 text-3xl">delete_forever</span>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-[#1E293B]">Xác nhận xóa</h2>
+                    <p class="text-sm font-medium text-slate-500 mt-2">Bạn có chắc muốn xóa loại xe <strong id="deleteModalName" class="text-slate-800"></strong>?</p>
+                </div>
+            </div>
+            <div class="px-10 py-8 bg-slate-50/50 flex items-center justify-center gap-4">
+                <button type="button" onclick="closeDeleteModal()" class="px-8 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 bg-white hover:bg-slate-100 transition-all shadow-sm">Hủy bỏ</button>
+                <form action="/VehicleCategory/Delete" method="post" class="m-0">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteId" />
+                    <button type="submit" class="px-8 py-3 bg-secondary text-white rounded-xl font-bold text-sm shadow-lg shadow-secondary/30 hover:bg-primary transition-all duration-300 active:scale-95 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">delete</span> Xóa vĩnh viễn
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openEditModal(btn) {
+            document.getElementById('editCategoryId').value = btn.getAttribute('data-id');
+            document.getElementById('editCategoryName').value = btn.getAttribute('data-name');
+            document.getElementById('editBannerName').innerText = btn.getAttribute('data-name');
+            document.getElementById('editDescription').value = btn.getAttribute('data-desc');
+            document.getElementById('editIsActive').checked = btn.getAttribute('data-active') === 'true';
+            document.getElementById('editModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openDeleteModal(btn) {
+            document.getElementById('deleteId').value = btn.getAttribute('data-id');
+            document.getElementById('deleteModalName').innerText = btn.getAttribute('data-name');
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        setTimeout(() => {
+            const t = document.getElementById('toast');
+            if(t) {
+                t.style.transition = 'opacity 0.5s';
+                t.style.opacity = '0';
+                setTimeout(() => t.remove(), 500);
+            }
+        }, 3000);
+    </script>
+}

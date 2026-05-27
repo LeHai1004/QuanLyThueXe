@@ -1,0 +1,51 @@
+﻿@model CarRentalSystem.Models.VehicleCategory
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xác nhận Xóa Loại Xe";
+}
+
+@section HeaderSearch {
+    <nav class="flex items-center gap-2 text-sm text-slate-400 font-medium">
+        <a asp-controller="VehicleCategory" asp-action="Index"
+           class="hover:text-secondary transition-colors">Loại xe</a>
+        <span class="material-symbols-outlined text-base">chevron_right</span>
+        <span class="text-secondary font-bold">Xóa</span>
+    </nav>
+}
+
+<div class="mt-8 max-w-xl mx-auto w-full">
+    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 overflow-hidden">
+
+        @* Header: Tập trung vào tiêu đề và icon cảnh báo *@
+        <div class="px-10 py-10 border-b border-slate-100 flex flex-col items-center text-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-500 text-3xl">delete_forever</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-extrabold text-[#1E293B]">Xác nhận xóa</h2>
+                <p class="text-sm font-medium text-slate-500 mt-2">Bạn có chắc muốn xóa loại xe <strong class="text-slate-800">@Model.CategoryName</strong>?</p>
+            </div>
+        </div>
+
+        @* Footer: Căn giữa tuyệt đối với màu xanh chủ đạo *@
+        <div class="px-10 py-8 bg-slate-50/50 flex items-center justify-center gap-4">
+            <a asp-controller="VehicleCategory" asp-action="Index"
+               class="px-8 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 bg-white
+                hover:bg-slate-100 transition-all shadow-sm">
+                Hủy bỏ
+            </a>
+
+            <form asp-action="Delete" asp-route-id="@Model.CategoryId" method="post" class="m-0">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="px-8 py-3 bg-secondary text-white rounded-xl font-bold text-sm
+                    shadow-lg shadow-secondary/30 hover:bg-primary transition-all duration-300
+                    active:scale-95 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                    Xóa vĩnh viễn
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

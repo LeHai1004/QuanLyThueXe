@@ -1,0 +1,160 @@
+﻿@model IEnumerable<CarRentalSystem.Models.Supplier>
+@{
+    ViewData["Title"] = "Quản lý Nhà cung cấp";
+    Layout = "_AdminLayout";
+}
+
+<div class="space-y-8 mt-4">
+    <section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="space-y-1">
+            <h1 class="font-h1 text-2xl font-bold text-primary">
+                Quản lý Đối tác / Nhà cung cấp
+            </h1>
+            <p class="text-on-surface-variant font-body-md text-sm">
+                Danh sách các đối tác cung cấp xe và linh kiện chính thức.
+            </p>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative group">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">search</span>
+                <input class="pl-10 pr-4 py-2.5 w-72 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 font-body-md text-sm outline-none transition-all shadow-sm" placeholder="Tìm tên NCC, MST..." type="text" />
+            </div>
+            <button class="flex items-center gap-2 px-6 py-2.5 bg-secondary text-white text-sm font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                Thêm nhà cung cấp mới
+            </button>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Tổng nhà cung cấp</span>
+                <div class="p-2 bg-blue-50 text-blue-700 rounded-lg">
+                    <span class="material-symbols-outlined text-xl">inventory</span>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-black text-slate-800">@ViewBag.TotalSuppliers</span>
+                <span class="text-emerald-600 text-[11px] font-bold pb-1">Hệ thống</span>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Đang hợp tác</span>
+                <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                    <span class="material-symbols-outlined text-xl">handshake</span>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-black text-slate-800">@ViewBag.ActiveSuppliers</span>
+                <span class="text-slate-500 text-[11px] font-bold pb-1">Đối tác tích cực</span>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Tạm dừng</span>
+                <div class="p-2 bg-rose-50 text-rose-600 rounded-lg">
+                    <span class="material-symbols-outlined text-xl">block</span>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-black text-slate-800">@ViewBag.InactiveSuppliers</span>
+                <span class="text-slate-500 text-[11px] font-bold pb-1">Cần xem xét</span>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Lượt nhập kho</span>
+                <div class="p-2 bg-blue-50 text-secondary rounded-lg">
+                    <span class="material-symbols-outlined text-xl">local_shipping</span>
+                </div>
+            </div>
+            <div class="flex items-end gap-2">
+                <span class="text-3xl font-black text-slate-800">@ViewBag.MonthlyImports</span>
+                <span class="text-slate-500 text-[11px] font-bold pb-1">Trong tháng @DateTime.Now.Month</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-5 border-b border-slate-100">Mã NCC</th>
+                        <th class="px-6 py-5 border-b border-slate-100">Tên Nhà cung cấp</th>
+                        <th class="px-6 py-5 border-b border-slate-100">Mã số thuế</th>
+                        <th class="px-6 py-5 border-b border-slate-100">Liên hệ</th>
+                        <th class="px-6 py-5 border-b border-slate-100">Người đại diện</th>
+                        <th class="px-6 py-5 border-b border-slate-100">Trạng thái</th>
+                        <th class="px-6 py-5 border-b border-slate-100 text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-6 py-4 text-[#316bf3] font-bold font-mono">
+                                NCC-@item.SupplierId.ToString("D3")
+                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-800">
+                                @item.SupplierName
+                            </td>
+                            <td class="px-6 py-4 font-mono text-slate-600">
+                                @(item.TaxCode ?? "N/A")
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-slate-700">@(item.PhoneNumber ?? "N/A")</span>
+                                    <span class="text-[12px] text-slate-500">@(item.Email ?? "N/A")</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-700">
+                                @(item.ContactPerson ?? "N/A")
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (item.IsActive)
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200 whitespace-nowrap">
+                                        Đang hợp tác
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-bold text-[11px] border border-slate-200 whitespace-nowrap">
+                                        Ngừng giao dịch
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa">
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    </button>
+                                    <button class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Xóa">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="px-6 py-4 flex items-center justify-between bg-white border-t border-slate-100">
+            <span class="text-sm font-medium text-slate-500">Danh sách dữ liệu trực tiếp</span>
+            <div class="flex items-center gap-2">
+                <button class="p-2 border border-slate-200 rounded-lg text-slate-400 cursor-not-allowed transition-all">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button class="w-9 h-9 flex items-center justify-center bg-secondary text-white rounded-lg font-bold shadow-md shadow-blue-500/20">
+                    1
+                </button>
+                <button class="p-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </section>
+</div>
