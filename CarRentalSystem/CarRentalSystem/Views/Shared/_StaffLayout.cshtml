@@ -1,9 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"] - RoyalCar Staff</title>
+    @using CarRentalSystem.Data
+    @inject CarRentalContext _context
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -141,9 +143,9 @@
                 <span class="material-symbols-outlined">description</span>
                 <span class="font-body-md">Lập phiếu nhập</span>
             </a>
-            <a class="@NavClass("Maintenance", "Index")" asp-controller="Maintenance" asp-action="Index">
-                <span class="material-symbols-outlined">build</span>
-                <span class="font-body-md">Bảo dưỡng xe</span>
+            <a class="@NavClass("Maintenance", "MyTasks")" asp-controller="Maintenance" asp-action="MyTasks">
+                <span class="material-symbols-outlined">task_alt</span>
+                <span class="font-body-md">Nhiệm vụ của tôi</span>
             </a>
         </nav>
         <div class="px-4 py-4 space-y-1 border-t border-white/10 mt-auto">
@@ -169,11 +171,27 @@
             </div>
             <div class="flex items-center gap-4">
                 @await RenderSectionAsync("HeaderSearch", required: false)
-                <button class="p-2.5 bg-surface-container-low hover:bg-surface-container-high rounded-full transition-colors relative">
+                @{
+                    int pendingCount = 0;
+                    var accountIdStr = Context.Session.GetString("AccountId");
+                    if (!string.IsNullOrEmpty(accountIdStr))
+                    {
+                        int accountId = int.Parse(accountIdStr);
+                        var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
+                        if (staff != null)
+                        {
+                            pendingCount = _context.MaintenanceLogs.Count(m => m.StaffId == staff.StaffId && m.Status == CarRentalSystem.Constants.MaintenanceStatus.Pending);
+                        }
+                    }
+                }
+                <a href="/Maintenance/MyTasks" class="p-2.5 bg-surface-container-low hover:bg-surface-container-high rounded-full transition-colors relative flex items-center">
                     <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-                    <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
-                </button>
-                <button class="p-2.5 bg-surface-container-low hover:bg-surface-container-high rounded-full transition-colors">
+                    @if (pendingCount > 0)
+                    {
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-error text-white text-[11px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-sm leading-none">@pendingCount</span>
+                    }
+                </a>
+                <button class="p-2.5 bg-surface-container-low hover:bg-surface-container-high rounded-full transition-colors flex items-center">
                     <span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
                 </button>
             </div>

@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html class="light" lang="vi">
+@using CarRentalSystem.Data
+@inject CarRentalContext _context
+@{
+    int pendingRequestsCount = _context.MaintenanceLogs.Count(m => m.Status == CarRentalSystem.Constants.MaintenanceStatus.Requested);
+}
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -135,6 +140,14 @@
                 <span class="material-symbols-outlined text-[20px]">category</span>
                 <span class="font-body-md">Quản lý loại xe</span>
             </a>
+            <a class="@NavClass("Maintenance", "Requests")" asp-controller="Maintenance" asp-action="Requests">
+                <span class="material-symbols-outlined text-[20px]">build_circle</span>
+                <span class="font-body-md flex-1">Duyệt bảo dưỡng</span>
+                @if (pendingRequestsCount > 0)
+                {
+                    <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">@pendingRequestsCount</span>
+                }
+            </a>
             <a class="@NavClass("Customer", "Index")" asp-controller="Customer" asp-action="Index">
                 <span class="material-symbols-outlined text-[20px]">person</span>
                 <span class="font-body-md">Khách hàng</span>
@@ -167,10 +180,14 @@
             <div class="flex items-center gap-6">
                 @await RenderSectionAsync("HeaderSearch", required: false)
                 <div class="flex items-center gap-2">
-                    <button class="p-2.5 text-slate-500 hover:bg-white hover:shadow-sm rounded-full transition-all">
+                    <a href="/Maintenance/Requests" class="p-2.5 text-slate-500 hover:bg-white hover:shadow-sm rounded-full transition-all relative flex items-center">
                         <span class="material-symbols-outlined">notifications</span>
-                    </button>
-                    <button class="p-2.5 text-slate-500 hover:bg-white hover:shadow-sm rounded-full transition-all">
+                        @if (pendingRequestsCount > 0)
+                        {
+                            <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-sm leading-none">@pendingRequestsCount</span>
+                        }
+                    </a>
+                    <button class="p-2.5 text-slate-500 hover:bg-white hover:shadow-sm rounded-full transition-all flex items-center">
                         <span class="material-symbols-outlined">help</span>
                     </button>
                 </div>
