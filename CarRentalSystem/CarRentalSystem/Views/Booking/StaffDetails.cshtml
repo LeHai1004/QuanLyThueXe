@@ -1,9 +1,12 @@
-﻿@model CarRentalSystem.Models.Booking
+@model CarRentalSystem.Models.Booking
 @using CarRentalSystem.Constants
 @using CarRentalSystem.Helpers
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Chi tiết đơn đặt xe";
-    Layout = "_StaffLayout";
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("RoleName");
+    Layout = role == "Admin" ? "_AdminLayout" : "_StaffLayout";
 }
 
 <div class="p-8">

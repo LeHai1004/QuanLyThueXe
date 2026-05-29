@@ -32,9 +32,12 @@ namespace CarRentalSystem.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
+                string searchNum = search.Replace("NV-", "").Replace("nv-", "");
+                bool isIdSearch = int.TryParse(searchNum, out int parsedId);
+
                 query = query.Where(s => s.UserProfile.FullName.Contains(search) 
                                       || s.UserProfile.Account.Email.Contains(search)
-                                      || ("NV-" + s.StaffId.ToString("D4")).Contains(search));
+                                      || (isIdSearch && s.StaffId == parsedId));
             }
 
             if (!string.IsNullOrEmpty(department) && department != "Tất cả")
@@ -124,6 +127,27 @@ namespace CarRentalSystem.Controllers
 
             TempData["SuccessMessage"] = "Thêm nhân viên thành công!";
             return RedirectToAction("Index");
+        }
+
+        public IActionResult Details(int id)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var staff = _context.Staff
+                .Include(s => s.UserProfile)
+                    .ThenInclude(u => u.Account)
+                .FirstOrDefault(s => s.StaffId == id);
+
+            if (staff == null)
+            {
+                return NotFound();
+            }
+
+            return View("Details", staff);
         }
     }
 }

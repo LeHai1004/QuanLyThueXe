@@ -1,12 +1,12 @@
 @using CarRentalSystem.Constants
 @using Microsoft.AspNetCore.Http
 @{
+    var role = Context.Session.GetString("RoleName");
     ViewData["Title"] = "Bảo dưỡng xe";
-    Layout = "_StaffLayout";
+    Layout = role == RoleConstants.Admin ? "_AdminLayout" : "_StaffLayout";
     var vehicles = ViewBag.Vehicles as IEnumerable<CarRentalSystem.Models.Vehicle>;
     var staffs = ViewBag.Staffs as IEnumerable<CarRentalSystem.Models.Staff>;
     int? selectedVehicleId = ViewBag.SelectedVehicleId as int?;
-    var role = Context.Session.GetString("RoleName");
 }
 
 <div class="space-y-10">

@@ -30,10 +30,13 @@ namespace CarRentalSystem.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
+                string searchNum = search.Replace("NCC-", "").Replace("ncc-", "");
+                bool isIdSearch = int.TryParse(searchNum, out int parsedId);
+
                 query = query.Where(s => s.SupplierName.Contains(search) 
                                       || (s.TaxCode != null && s.TaxCode.Contains(search))
                                       || (s.PhoneNumber != null && s.PhoneNumber.Contains(search))
-                                      || ("NCC-" + s.SupplierId.ToString("D3")).Contains(search));
+                                      || (isIdSearch && s.SupplierId == parsedId));
             }
 
             var suppliers = query.OrderByDescending(s => s.SupplierId).ToList();
