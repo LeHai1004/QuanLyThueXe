@@ -1,4 +1,4 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using CarRentalSystem.Constants;
 using Microsoft.AspNetCore.Http;
@@ -197,6 +197,77 @@ namespace CarRentalSystem.Controllers
                 ViewBag.Error = $"Lỗi khi lưu dữ liệu: {ex.Message}";
                 ViewBag.Categories = await _context.VehicleCategories.Where(c => c.IsActive).ToListAsync();
                 return View("AdminStaffCreate", vehicle);
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+
+            var vehicle = await _context.Vehicles.FindAsync(id);
+            if (vehicle == null) return NotFound();
+
+            ViewBag.Categories = await _context.VehicleCategories.Where(c => c.IsActive).ToListAsync();
+            return View("AdminStaffEdit", vehicle);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Vehicle vehicle)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+
+            if (id != vehicle.VehicleId) return NotFound();
+
+            if (string.IsNullOrEmpty(vehicle.VehicleName) || string.IsNullOrEmpty(vehicle.LicensePlate))
+            {
+                ViewBag.Error = "Vui lòng nhập tên xe và biển kiểm soát!";
+                ViewBag.Categories = await _context.VehicleCategories.Where(c => c.IsActive).ToListAsync();
+                return View("AdminStaffEdit", vehicle);
+            }
+
+            var existingVehicle = await _context.Vehicles.FirstOrDefaultAsync(v => v.LicensePlate == vehicle.LicensePlate && v.VehicleId != id);
+            if (existingVehicle != null)
+            {
+                ViewBag.Error = "Biển kiểm soát này đã thuộc về xe khác!";
+                ViewBag.Categories = await _context.VehicleCategories.Where(c => c.IsActive).ToListAsync();
+                return View("AdminStaffEdit", vehicle);
+            }
+
+            try
+            {
+                var vehicleToUpdate = await _context.Vehicles.FindAsync(id);
+                if (vehicleToUpdate == null) return NotFound();
+
+                vehicleToUpdate.VehicleName = vehicle.VehicleName;
+                vehicleToUpdate.LicensePlate = vehicle.LicensePlate;
+                vehicleToUpdate.Brand = vehicle.Brand;
+                vehicleToUpdate.Model = vehicle.Model;
+                vehicleToUpdate.CategoryId = vehicle.CategoryId;
+                vehicleToUpdate.FuelType = vehicle.FuelType;
+                vehicleToUpdate.Transmission = vehicle.Transmission;
+                vehicleToUpdate.Seats = vehicle.Seats;
+                vehicleToUpdate.ManufactureYear = vehicle.ManufactureYear;
+                vehicleToUpdate.Color = vehicle.Color;
+                vehicleToUpdate.VehicleDesc = vehicle.VehicleDesc;
+                vehicleToUpdate.PricePerDay = vehicle.PricePerDay;
+                vehicleToUpdate.Status = string.IsNullOrEmpty(vehicle.Status) ? VehicleStatus.Available : vehicle.Status;
+                
+                if (!string.IsNullOrEmpty(vehicle.HinhAnh))
+                    vehicleToUpdate.HinhAnh = vehicle.HinhAnh;
+
+                vehicleToUpdate.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index", "Vehicle");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Lỗi khi lưu dữ liệu: {ex.Message}";
+                ViewBag.Categories = await _context.VehicleCategories.Where(c => c.IsActive).ToListAsync();
+                return View("AdminStaffEdit", vehicle);
             }
         }
     }

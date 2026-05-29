@@ -1,4 +1,4 @@
-﻿namespace CarRentalSystem.Constants
+namespace CarRentalSystem.Constants
 {
     public static class VehicleStatus
     {
@@ -58,7 +58,10 @@
     }
     public static class MaintenanceStatus
     {
-        public const string Completed = "Hoan thanh";
+        public const string Requested = "Yeu cau";
+        public const string Pending = "Cho xu ly";
         public const string InProgress = "Dang thuc hien";
+        public const string Completed = "Hoan thanh";
+        public const string Rejected = "Tu choi";
     }
 }

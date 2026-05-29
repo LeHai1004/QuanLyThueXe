@@ -108,5 +108,79 @@ namespace CarRentalSystem.Controllers
             TempData["SuccessMessage"] = "Thêm nhà cung cấp thành công!";
             return RedirectToAction("Index");
         }
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+
+            var supplier = await _context.Suppliers.FindAsync(id);
+            if (supplier == null) return NotFound();
+
+            return View(supplier);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Supplier supplier)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+
+            if (id != supplier.SupplierId) return NotFound();
+
+            if (string.IsNullOrEmpty(supplier.SupplierName))
+            {
+                ViewBag.Error = "Tên nhà cung cấp không được để trống.";
+                return View(supplier);
+            }
+
+            if (await _context.Suppliers.AnyAsync(s => s.TaxCode == supplier.TaxCode && s.SupplierId != id && !string.IsNullOrEmpty(supplier.TaxCode)))
+            {
+                ViewBag.Error = "Mã số thuế này đã thuộc về nhà cung cấp khác.";
+                return View(supplier);
+            }
+
+            try
+            {
+                var sToUpdate = await _context.Suppliers.FindAsync(id);
+                if (sToUpdate == null) return NotFound();
+
+                sToUpdate.SupplierName = supplier.SupplierName;
+                sToUpdate.TaxCode = supplier.TaxCode;
+                sToUpdate.PhoneNumber = supplier.PhoneNumber;
+                sToUpdate.Email = supplier.Email;
+                sToUpdate.ContactPerson = supplier.ContactPerson;
+                sToUpdate.Address = supplier.Address;
+                sToUpdate.IsActive = supplier.IsActive;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật nhà cung cấp thành công!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Lỗi: {ex.Message}";
+                return View(supplier);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+
+            var supplier = await _context.Suppliers.FindAsync(id);
+            if (supplier == null) return NotFound();
+
+            // Soft delete because Supplier might be referenced in ImportReceipts
+            supplier.IsActive = false;
+            await _context.SaveChangesAsync();
+            
+            TempData["SuccessMessage"] = "Đã tạm dừng hợp tác với nhà cung cấp này.";
+            return RedirectToAction("Index");
+        }
     }
 }
