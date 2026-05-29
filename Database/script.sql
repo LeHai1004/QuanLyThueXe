@@ -9,7 +9,10 @@ USE master;
 GO
 
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'QuanLyThueXe')
+BEGIN
+    ALTER DATABASE QuanLyThueXe SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
     DROP DATABASE QuanLyThueXe;
+END
 GO
 
 CREATE DATABASE QuanLyThueXe
@@ -17,6 +20,9 @@ CREATE DATABASE QuanLyThueXe
 GO
 
 USE QuanLyThueXe;
+GO
+
+SET QUOTED_IDENTIFIER ON;
 GO
 
 -- ============================================================
@@ -430,12 +436,12 @@ GO
 
 -- Account (mat khau mau: "123456" - trong thuc te phai hash)
 INSERT INTO Account (RoleId, Email, PasswordHash) VALUES
-(1, N'admin@thuexe.vn',    N'$2a$10$hashedpassword_admin'),
-(2, N'nv001@thuexe.vn',    N'$2a$10$hashedpassword_nv001'),
-(2, N'nv002@thuexe.vn',    N'$2a$10$hashedpassword_nv002'),
-(3, N'khach001@gmail.com', N'$2a$10$hashedpassword_kh001'),
-(3, N'khach002@gmail.com', N'$2a$10$hashedpassword_kh002'),
-(3, N'khach003@gmail.com', N'$2a$10$hashedpassword_kh003');
+(1, N'admin@thuexe.vn',    N'$2a$11$qX0VB7q/tbOQxAk2Kqozku/mxtMxkEPVbShjOrfyqdbaaPvbDC7qS'),
+(2, N'nv001@thuexe.vn',    N'$2a$11$qX0VB7q/tbOQxAk2Kqozku/mxtMxkEPVbShjOrfyqdbaaPvbDC7qS'),
+(2, N'nv002@thuexe.vn',    N'$2a$11$qX0VB7q/tbOQxAk2Kqozku/mxtMxkEPVbShjOrfyqdbaaPvbDC7qS'),
+(3, N'khach001@gmail.com', N'$2a$11$qX0VB7q/tbOQxAk2Kqozku/mxtMxkEPVbShjOrfyqdbaaPvbDC7qS'),
+(3, N'khach002@gmail.com', N'$2a$11$qX0VB7q/tbOQxAk2Kqozku/mxtMxkEPVbShjOrfyqdbaaPvbDC7qS'),
+(3, N'khach003@gmail.com', N'$2a$11$qX0VB7q/tbOQxAk2Kqozku/mxtMxkEPVbShjOrfyqdbaaPvbDC7qS');
 GO
 
 -- UserProfile - Dữ liệu mẫu đã tách địa chỉ

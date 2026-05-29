@@ -1,4 +1,4 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using CarRentalSystem.Constants;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +46,7 @@ namespace CarRentalSystem.Controllers
                 .Include(a => a.UserProfile)
                 .FirstOrDefaultAsync(a => a.Email == email);
 
-            if (account == null || account.PasswordHash != password)
+            if (account == null || !BCrypt.Net.BCrypt.Verify(password, account.PasswordHash))
             {
                 ViewBag.LoginError = "Email hoặc mật khẩu không chính xác.";
                 return View();
@@ -88,7 +88,7 @@ namespace CarRentalSystem.Controllers
             var newAccount = new Account
             {
                 Email = email,
-                PasswordHash = password,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                 RoleId = 3,
                 IsActive = true,
                 CreatedAt = DateTime.Now,
@@ -237,13 +237,13 @@ namespace CarRentalSystem.Controllers
             int accountId = int.Parse(accountIdStr);
             var account = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountId == accountId);
 
-            if (account == null || account.PasswordHash != oldPassword)
+            if (account == null || !BCrypt.Net.BCrypt.Verify(oldPassword, account.PasswordHash))
             {
                 ViewBag.Error = "Mật khẩu hiện tại không chính xác.";
                 return View();
             }
 
-            account.PasswordHash = newPassword;
+            account.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             account.UpdatedAt = DateTime.Now;
             await _db.SaveChangesAsync();
 
