@@ -247,8 +247,9 @@ namespace CarRentalSystem.Controllers
             account.UpdatedAt = DateTime.Now;
             await _db.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Thay đổi mật khẩu hệ thống thành công!";
-            return View();
+            HttpContext.Session.Clear();
+            TempData["SuccessMessage"] = "Thay đổi mật khẩu thành công! Vui lòng đăng nhập lại.";
+            return RedirectToAction("Login", "Account");
         }
     }
 }
