@@ -37,4 +37,11 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Ensure database is created in development to avoid login/database missing errors
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<CarRentalContext>();
+    db.Database.EnsureCreated();
+}
+
 app.Run();
