@@ -73,6 +73,12 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(string fullName, string email, string phoneNumber, string nationalId, string password, string confirmPassword)
         {
+            if (string.IsNullOrEmpty(nationalId) || !System.Text.RegularExpressions.Regex.IsMatch(nationalId, @"^\d{12}$"))
+            {
+                ViewBag.RegisterError = "CCCD bắt buộc phải đủ 12 chữ số.";
+                return View("Login");
+            }
+
             if (password != confirmPassword)
             {
                 ViewBag.RegisterError = "Mật khẩu xác nhận không khớp.";
