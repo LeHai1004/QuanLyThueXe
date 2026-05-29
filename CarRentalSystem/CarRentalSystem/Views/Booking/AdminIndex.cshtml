@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CarRentalSystem.Models.Booking>
+@model IEnumerable<CarRentalSystem.Models.Booking>
 @using CarRentalSystem.Constants
 @{
     ViewData["Title"] = "Quản lý đơn đặt xe";
@@ -14,11 +14,6 @@
             <p class="font-body-md text-on-surface-variant">
                 Giám sát và điều phối hoạt động thuê xe thời gian thực
             </p>
-        </div>
-        <button class="bg-secondary hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-label-md transition-all active:scale-[0.98]">
-            <span class="material-symbols-outlined text-[20px]">add</span>
-            Tạo đơn mới
-        </button>
     </div>
 </header>
 
@@ -37,8 +32,7 @@
                 <option value="@BookingStatus.Completed" selected="@(ViewBag.CurrentStatus == BookingStatus.Completed ? "selected" : null)">Hoàn thành</option>
                 <option value="@BookingStatus.Cancelled" selected="@(ViewBag.CurrentStatus == BookingStatus.Cancelled ? "selected" : null)">Đã hủy</option>
             </select>
-
-            <button type="submit" class="px-5 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:bg-blue-900 transition-all">Lọc</button>
+            <button type="submit" class="px-5 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm hover:bg-slate-900 shadow-md transition-all">Lọc</button>
 
             @if (!string.IsNullOrEmpty(ViewBag.SearchString) || !string.IsNullOrEmpty(ViewBag.CurrentStatus))
             {

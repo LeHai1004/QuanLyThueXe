@@ -1,4 +1,4 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ namespace CarRentalSystem.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string search, string department)
         {
             var role = HttpContext.Session.GetString("RoleName");
             if (role != RoleConstants.Admin)
@@ -25,17 +25,105 @@ namespace CarRentalSystem.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var staffs = _context.Staff
+            var query = _context.Staff
                 .Include(s => s.UserProfile)
                     .ThenInclude(u => u.Account)
-                .OrderByDescending(s => s.StaffId)
-                .ToList();
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s => s.UserProfile.FullName.Contains(search) 
+                                      || s.UserProfile.Account.Email.Contains(search)
+                                      || ("NV-" + s.StaffId.ToString("D4")).Contains(search));
+            }
+
+            if (!string.IsNullOrEmpty(department) && department != "Tất cả")
+            {
+                query = query.Where(s => s.Department != null && s.Department.Contains(department));
+            }
+
+            var staffs = query.OrderByDescending(s => s.StaffId).ToList();
+
+            ViewBag.SearchString = search;
+            ViewBag.CurrentDepartment = department;
 
             ViewBag.TotalRevenue = _context.Invoices
                 .Where(i => i.Status == InvoiceStatus.Paid)
                 .Sum(i => (decimal?)i.GrandTotal) ?? 0;
 
             return View("AdminIndex", staffs);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(string fullName, string email, string phoneNumber, string password, string confirmPassword, string position, string department, string branch)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (password != confirmPassword)
+            {
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                return View();
+            }
+
+            if (await _context.Accounts.AnyAsync(a => a.Email == email))
+            {
+                ViewBag.Error = "Email này đã được sử dụng.";
+                return View();
+            }
+
+            var newAccount = new Account
+            {
+                Email = email,
+                PasswordHash = password,
+                RoleId = 2, // 2 is Staff
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+            _context.Accounts.Add(newAccount);
+            await _context.SaveChangesAsync();
+
+            var newProfile = new UserProfile
+            {
+                AccountId = newAccount.AccountId,
+                FullName = fullName,
+                PhoneNumber = phoneNumber,
+                CreatedAt = DateTime.Now
+            };
+            _context.UserProfiles.Add(newProfile);
+            await _context.SaveChangesAsync();
+
+            var newStaff = new Staff
+            {
+                UserProfileId = newProfile.UserProfileId,
+                StaffCode = "NV-" + DateTime.Now.ToString("yyMMddHHmmss"),
+                Position = position,
+                Department = department,
+                Branch = branch,
+                HireDate = DateOnly.FromDateTime(DateTime.Now),
+                IsActive = true
+            };
+            _context.Staff.Add(newStaff);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Thêm nhân viên thành công!";
+            return RedirectToAction("Index");
         }
     }
 }

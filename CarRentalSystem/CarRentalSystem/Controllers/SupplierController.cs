@@ -1,4 +1,4 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ namespace CarRentalSystem.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string search)
         {
             var role = HttpContext.Session.GetString("RoleName");
             if (role != RoleConstants.Admin && role != RoleConstants.Staff)
@@ -26,7 +26,19 @@ namespace CarRentalSystem.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var suppliers = _context.Suppliers.OrderByDescending(s => s.SupplierId).ToList();
+            var query = _context.Suppliers.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s => s.SupplierName.Contains(search) 
+                                      || (s.TaxCode != null && s.TaxCode.Contains(search))
+                                      || (s.PhoneNumber != null && s.PhoneNumber.Contains(search))
+                                      || ("NCC-" + s.SupplierId.ToString("D3")).Contains(search));
+            }
+
+            var suppliers = query.OrderByDescending(s => s.SupplierId).ToList();
+            
+            ViewBag.SearchString = search;
 
             if (role == RoleConstants.Admin)
             {
@@ -43,6 +55,58 @@ namespace CarRentalSystem.Controllers
             }
 
             return View("StaffIndex", suppliers);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(string supplierName, string taxCode, string phoneNumber, string email, string contactPerson, string address)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (string.IsNullOrEmpty(supplierName))
+            {
+                ViewBag.Error = "Tên nhà cung cấp không được để trống.";
+                return View();
+            }
+
+            if (await _context.Suppliers.AnyAsync(s => s.TaxCode == taxCode && !string.IsNullOrEmpty(taxCode)))
+            {
+                ViewBag.Error = "Mã số thuế này đã tồn tại trong hệ thống.";
+                return View();
+            }
+
+            var newSupplier = new Supplier
+            {
+                SupplierName = supplierName,
+                TaxCode = taxCode,
+                PhoneNumber = phoneNumber,
+                Email = email,
+                ContactPerson = contactPerson,
+                Address = address,
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Suppliers.Add(newSupplier);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Thêm nhà cung cấp thành công!";
+            return RedirectToAction("Index");
         }
     }
 }

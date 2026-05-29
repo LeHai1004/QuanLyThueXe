@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CarRentalSystem.Models.ImportReceipt>
+@model IEnumerable<CarRentalSystem.Models.ImportReceipt>
 @using CarRentalSystem.Constants
 @using CarRentalSystem.Helpers
 @{
@@ -32,8 +32,7 @@
                 <option value="@ImportReceiptStatus.Approved" selected="@(ViewBag.CurrentStatus == ImportReceiptStatus.Approved ? "selected" : null)">Đã duyệt</option>
                 <option value="@ImportReceiptStatus.Rejected" selected="@(ViewBag.CurrentStatus == ImportReceiptStatus.Rejected ? "selected" : null)">Từ chối</option>
             </select>
-
-            <button type="submit" class="px-6 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md hover:bg-slate-800 transition-all">Lọc</button>
+            <button type="submit" class="px-5 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm shadow-md hover:bg-slate-900 transition-all">Lọc</button>
 
             @if (!string.IsNullOrEmpty(ViewBag.SearchString) || !string.IsNullOrEmpty(ViewBag.CurrentStatus))
             {
