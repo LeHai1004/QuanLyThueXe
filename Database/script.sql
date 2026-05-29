@@ -490,15 +490,15 @@ INSERT INTO VehicleCategory (CategoryName, Description) VALUES
 GO
 
 -- Vehicle
-INSERT INTO Vehicle (CategoryId, LicensePlate, VehicleName, Brand, Model, ManufactureYear, Color, FuelType, Transmission, Seats, PricePerDay, VehicleDesc) VALUES
-(1, N'43A-12345', N'Toyota Camry 2022',    N'Toyota',  N'Camry',       2022, N'Trang',  N'Xang',   N'So tu dong', 5, 1200000, N'Vehicle sang trong, tiet kiem, phu hop di cong tac'),
-(1, N'43B-23456', N'Honda Accord 2021',    N'Honda',   N'Accord',      2021, N'Den',    N'Xang',   N'So tu dong', 5, 1100000, N'Dong co manh me, noi that cao cap'),
-(2, N'43C-34567', N'Toyota Fortuner 2023', N'Toyota',  N'Fortuner',    2023, N'Bac',    N'Dau',    N'So tu dong', 7, 1800000, N'SUV gam cao, phu hop di phuot'),
-(2, N'43D-45678', N'Hyundai SantaFe 2022', N'Hyundai', N'SantaFe',     2022, N'Xanh',   N'Xang',   N'So tu dong', 7, 1600000, N'Thiet ke hien dai, nhieu tien nghi'),
-(3, N'43E-56789', N'Ford Ranger 2023',     N'Ford',    N'Ranger',      2023, N'Trang',  N'Dau',    N'So tu dong', 5, 1400000, N'Vehicle ban tai manh, phu hop dia hinh khó'),
-(4, N'43F-67890', N'Toyota Innova 2022',   N'Toyota',  N'Innova',      2022, N'Bac',    N'Xang',   N'So tu dong', 7, 1000000, N'Vehicle gia dinh tiet kiem, khong gian rong'),
-(5, N'43G-78901', N'Kia Morning 2023',     N'Kia',     N'Morning',     2023, N'Do',     N'Xang',   N'So tu dong', 5,  500000, N'Vehicle nho gon, de do xe, phu hop noi thanh'),
-(1, N'43H-89012', N'Mazda 6 2022',         N'Mazda',   N'Mazda 6',     2022, N'Xam',    N'Xang',   N'So tu dong', 5, 1300000, N'Thiet ke the thao, lai dep');
+INSERT INTO Vehicle (CategoryId, LicensePlate, VehicleName, Brand, Model, ManufactureYear, Color, FuelType, Transmission, Seats, PricePerDay, VehicleDesc, HinhAnh) VALUES
+(1, N'43A-12345', N'Toyota Camry 2022',    N'Toyota',  N'Camry',       2022, N'Trang',  N'Xang',   N'So tu dong', 5, 1200000, N'Vehicle sang trong, tiet kiem, phu hop di cong tac', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034512/unnamed_6_u4psh4.png'),
+(1, N'43B-23456', N'Honda Accord 2021',    N'Honda',   N'Accord',      2021, N'Den',    N'Xang',   N'So tu dong', 5, 1100000, N'Dong co manh me, noi that cao cap', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034512/unnamed_4_gj4dy7.png'),
+(2, N'43C-34567', N'Toyota Fortuner 2023', N'Toyota',  N'Fortuner',    2023, N'Bac',    N'Dau',    N'So tu dong', 7, 1800000, N'SUV gam cao, phu hop di phuot', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034512/unnamed_3_azif0p.png'),
+(2, N'43D-45678', N'Hyundai SantaFe 2022', N'Hyundai', N'SantaFe',     2022, N'Xanh',   N'Xang',   N'So tu dong', 7, 1600000, N'Thiet ke hien dai, nhieu tien nghi', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034512/unnamed_2_dryrrq.png'),
+(3, N'43E-56789', N'Ford Ranger 2023',     N'Ford',    N'Ranger',      2023, N'Trang',  N'Dau',    N'So tu dong', 5, 1400000, N'Vehicle ban tai manh, phu hop dia hinh khó', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034512/unnamed_5_hkk6np.png'),
+(4, N'43F-67890', N'Toyota Innova 2022',   N'Toyota',  N'Innova',      2022, N'Bac',    N'Xang',   N'So tu dong', 7, 1000000, N'Vehicle gia dinh tiet kiem, khong gian rong', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034512/unnamed_7_wz9eog.png'),
+(5, N'43G-78901', N'Kia Morning 2023',     N'Kia',     N'Morning',     2023, N'Do',     N'Xang',   N'So tu dong', 5,  500000, N'Vehicle nho gon, de do xe, phu hop noi thanh', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034513/unnamed_1_vsd69x.png'),
+(1, N'43H-89012', N'Mazda 6 2022',         N'Mazda',   N'Mazda 6',     2022, N'Xam',    N'Xang',   N'So tu dong', 5, 1300000, N'Thiet ke the thao, lai dep', N'https://res.cloudinary.com/do74xevxv/image/upload/v1780034514/unnamed_p8b4zw.png');
 GO
 
 -- Supplier
