@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Đăng nhập & Đăng ký";
     Layout = "_Layout";
 }
@@ -60,6 +60,13 @@
 
             <!-- Login Form -->
             <form id="loginForm" asp-action="Login" method="post" class="space-y-6 block">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="p-4 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-2xl text-sm flex items-center gap-3">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
                 @if (ViewBag.LoginError != null)
                 {
                     <div class="p-4 bg-red-50 text-red-600 border border-red-200 rounded-2xl text-sm flex items-center gap-3">
