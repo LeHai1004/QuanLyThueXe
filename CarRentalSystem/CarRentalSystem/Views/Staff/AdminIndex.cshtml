@@ -1,4 +1,4 @@
-﻿@using CarRentalSystem.Helpers
+@using CarRentalSystem.Helpers
 @model IEnumerable<CarRentalSystem.Models.Staff>
 @{
     ViewData["Title"] = "Danh sách Nhân viên";
@@ -87,21 +87,26 @@
     </div>
 
     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-4">
+        <form method="get" action="/Staff/Index" class="flex flex-wrap items-center gap-3">
             <div class="relative w-72">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
-                <input class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" placeholder="Tìm tên, mã NV hoặc Email..." type="text" />
+                <input name="search" value="@ViewBag.SearchString" class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" placeholder="Tìm tên, mã NV hoặc Email..." type="text" />
             </div>
-            <select class="bg-slate-50 border border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-2 focus:ring-secondary/20 outline-none">
-                <option>Phòng ban: Tất cả</option>
-                <option>Vận hành</option>
-                <option>Kỹ thuật</option>
+            <select name="department" class="bg-slate-50 border border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-2 focus:ring-secondary/20 outline-none cursor-pointer">
+                <option value="Tất cả" selected="@(ViewBag.CurrentDepartment == "Tất cả" || string.IsNullOrEmpty(ViewBag.CurrentDepartment) ? "selected" : null)">Phòng ban: Tất cả</option>
+                <option value="Vận hành" selected="@(ViewBag.CurrentDepartment == "Vận hành" ? "selected" : null)">Vận hành</option>
+                <option value="Kỹ thuật" selected="@(ViewBag.CurrentDepartment == "Kỹ thuật" ? "selected" : null)">Kỹ thuật</option>
             </select>
-        </div>
-        <button class="bg-secondary text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/20">
-            <span class="material-symbols-outlined text-[20px]">person_add</span>
+            <button type="submit" class="px-5 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm hover:bg-slate-900 transition-all shadow-md">Lọc</button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchString) || !string.IsNullOrEmpty(ViewBag.CurrentDepartment))
+            {
+                <a href="/Staff/Index" class="px-3 py-2 text-slate-500 hover:text-slate-800 font-bold text-sm transition-colors">Xóa lọc</a>
+            }
+        </form>
+        <a href="/Staff/Create" class="bg-secondary text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-1.5 hover:bg-blue-700 transition-all active:scale-95 shadow-md shadow-secondary/20">
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
             Thêm nhân viên mới
-        </button>
+        </a>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

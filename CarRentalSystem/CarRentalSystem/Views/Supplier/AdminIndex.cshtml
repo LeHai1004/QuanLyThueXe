@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CarRentalSystem.Models.Supplier>
+@model IEnumerable<CarRentalSystem.Models.Supplier>
 @{
     ViewData["Title"] = "Quản lý Nhà cung cấp";
     Layout = "_AdminLayout";
@@ -14,15 +14,22 @@
                 Danh sách các đối tác cung cấp xe và linh kiện chính thức.
             </p>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="relative group">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">search</span>
-                <input class="pl-10 pr-4 py-2.5 w-72 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 font-body-md text-sm outline-none transition-all shadow-sm" placeholder="Tìm tên NCC, MST..." type="text" />
-            </div>
-            <button class="flex items-center gap-2 px-6 py-2.5 bg-secondary text-white text-sm font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95 transition-all">
-                <span class="material-symbols-outlined text-[20px]">add</span>
-                Thêm nhà cung cấp mới
-            </button>
+        <div class="flex flex-wrap items-center gap-4">
+            <form method="get" action="/Supplier/Index" class="flex gap-2 items-center">
+                <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors text-lg">search</span>
+                    <input name="search" value="@ViewBag.SearchString" class="pl-10 pr-4 py-2 w-72 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 font-body-md text-sm outline-none transition-all shadow-sm" placeholder="Tìm tên NCC, MST..." type="text" />
+                </div>
+                <button type="submit" class="px-5 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm hover:bg-slate-900 transition-all shadow-md">Lọc</button>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchString))
+                {
+                    <a href="/Supplier/Index" class="px-3 py-2 text-slate-500 hover:text-slate-800 font-bold text-sm transition-colors">Xóa</a>
+                }
+            </form>
+            <a href="/Supplier/Create" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white text-sm font-bold rounded-lg hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+                Thêm mới
+            </a>
         </div>
     </section>
 

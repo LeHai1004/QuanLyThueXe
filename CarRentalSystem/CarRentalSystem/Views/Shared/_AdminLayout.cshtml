@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -99,8 +99,13 @@
                 var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
                 string NavClass(string controller, string action = "Index")
                 {
-                    bool isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
-                                 && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+                    bool isActive;
+                    if (controller == "Dashboard") {
+                        isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+                                && string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+                    } else {
+                        isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+                    }
                     return isActive
                         ? "sidebar-active-tab active-link flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg shadow-secondary/20 transition-all duration-200"
                         : "flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all duration-200";
