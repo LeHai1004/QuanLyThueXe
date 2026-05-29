@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CarRentalSystem.Models.Invoice>
+@model IEnumerable<CarRentalSystem.Models.Invoice>
 @using CarRentalSystem.Constants
 @using CarRentalSystem.Helpers
 @{
@@ -15,13 +15,13 @@
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-[#c5c5d3]/30 overflow-hidden">
         <div class="flex border-b border-[#c5c5d3]/30 px-6 pt-6 gap-6">
-            <button class="pb-4 text-sm font-semibold text-[#00236f] border-b-2 border-[#00236f]">
+            <button class="invoice-filter-btn pb-4 text-sm font-semibold text-[#00236f] border-b-2 border-[#00236f]" data-filter="all">
                 Tất cả
             </button>
-            <button class="pb-4 text-sm font-semibold text-[#444651] hover:text-[#00236f] transition-colors">
+            <button class="invoice-filter-btn pb-4 text-sm font-semibold text-[#444651] hover:text-[#00236f] transition-colors border-b-2 border-transparent" data-filter="@InvoiceStatus.Paid">
                 Đã thanh toán
             </button>
-            <button class="pb-4 text-sm font-semibold text-[#444651] hover:text-[#00236f] transition-colors">
+            <button class="invoice-filter-btn pb-4 text-sm font-semibold text-[#444651] hover:text-[#00236f] transition-colors border-b-2 border-transparent" data-filter="@InvoiceStatus.Unpaid">
                 Chưa thanh toán
             </button>
         </div>
@@ -36,7 +36,7 @@
         else
         {
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
+                <table class="w-full text-left" id="invoiceTable">
                     <thead>
                         <tr class="bg-[#f8f9ff] border-b border-[#c5c5d3]/30">
                             <th class="py-4 px-6 text-xs font-bold text-[#757682] uppercase tracking-wider">Số Hóa Đơn</th>
@@ -50,7 +50,7 @@
                     <tbody class="divide-y divide-[#c5c5d3]/20">
                         @foreach (var item in Model)
                         {
-                            <tr class="hover:bg-[#f8f9ff] transition-colors">
+                            <tr class="invoice-row hover:bg-[#f8f9ff] transition-colors" data-status="@item.Status">
                                 <td class="py-5 px-6 font-bold text-[#0b1c30]">
                                     #@item.InvoiceNumber
                                 </td>
@@ -86,3 +86,34 @@
         }
     </div>
 </main>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterBtns = document.querySelectorAll('.invoice-filter-btn');
+            const rows = document.querySelectorAll('.invoice-row');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    // Update active button styles
+                    filterBtns.forEach(b => {
+                        b.classList.remove('text-[#00236f]', 'border-[#00236f]');
+                        b.classList.add('text-[#444651]', 'border-transparent');
+                    });
+                    this.classList.remove('text-[#444651]', 'border-transparent');
+                    this.classList.add('text-[#00236f]', 'border-[#00236f]');
+
+                    const filter = this.dataset.filter;
+
+                    rows.forEach(row => {
+                        if (filter === 'all' || row.dataset.status === filter) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

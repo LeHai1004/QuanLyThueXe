@@ -1,4 +1,4 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -331,6 +331,26 @@ namespace CarRentalSystem.Controllers
                     booking.Vehicle.Status = VehicleStatus.Available;
                     booking.Vehicle.UpdatedAt = DateTime.Now;
                 }
+
+                // Tự động tạo hóa đơn khi hoàn thành chuyến đi
+                var existingInvoice = await _context.Invoices.FirstOrDefaultAsync(i => i.BookingId == id);
+                if (existingInvoice == null)
+                {
+                    var invoice = new Invoice
+                    {
+                        InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
+                        BookingId = id,
+                        CustomerId = booking.CustomerId,
+                        SubTotal = booking.BasePrice,
+                        TaxRate = 10,
+                        DiscountAmount = booking.DiscountAmount,
+                        GrandTotal = booking.TotalAmount,
+                        Status = InvoiceStatus.Unpaid,
+                        IssueDate = DateTime.Now
+                    };
+                    _context.Invoices.Add(invoice);
+                }
+
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
