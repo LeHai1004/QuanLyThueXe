@@ -61,5 +61,22 @@ namespace CarRentalSystem.Controllers
 
             return View("StaffIndex", customers);
         }
+
+        public IActionResult Details(int id)
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+
+            var customer = _context.Customers
+                .Include(c => c.UserProfile)
+                    .ThenInclude(u => u.Account)
+                .Include(c => c.Bookings)
+                    .ThenInclude(b => b.Vehicle)
+                .FirstOrDefault(c => c.CustomerId == id);
+
+            if (customer == null) return NotFound();
+
+            return View("Details", customer);
+        }
     }
 }

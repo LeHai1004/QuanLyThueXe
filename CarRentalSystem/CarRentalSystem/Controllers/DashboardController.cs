@@ -1,4 +1,4 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -118,6 +118,37 @@ namespace CarRentalSystem.Controllers
                 .ToList();
 
             return View(customers); // ✅ truyền customers thay vì View()
+        }
+
+        [HttpGet]
+        public IActionResult ExportReport()
+        {
+            var role = HttpContext.Session.GetString("RoleName");
+            if (role != RoleConstants.Admin) return Unauthorized();
+
+            var bookings = _context.Bookings
+                .Include(b => b.Customer)
+                    .ThenInclude(c => c.UserProfile)
+                .Include(b => b.Vehicle)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToList();
+
+            var builder = new System.Text.StringBuilder();
+            builder.AppendLine("Mã Đơn,Khách Hàng,Phương Tiện,Thời Gian Nhận,Thời Gian Trả,Tổng Tiền,Trạng Thái");
+
+            foreach (var item in bookings)
+            {
+                var customerName = item.Customer?.UserProfile?.FullName ?? "Khách vãng lai";
+                var vehicleName = item.Vehicle?.VehicleName ?? "N/A";
+                // Escape commas by quoting
+                builder.AppendLine($"RC-{item.BookingId.ToString("D4")},\"{customerName}\",\"{vehicleName}\",{item.PickupDateTime:dd/MM/yyyy HH:mm},{item.ReturnDateTime:dd/MM/yyyy HH:mm},{item.TotalAmount},{item.Status}");
+            }
+
+            byte[] preamble = System.Text.Encoding.UTF8.GetPreamble();
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(builder.ToString());
+            byte[] result = preamble.Concat(data).ToArray();
+
+            return File(result, "text/csv", $"BaoCao_DonDatXe_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         }
     }
 }

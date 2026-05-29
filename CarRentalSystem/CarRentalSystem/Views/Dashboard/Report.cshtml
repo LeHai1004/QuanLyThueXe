@@ -1,9 +1,29 @@
-﻿﻿@{
-ViewData["Title"] = "Báo cáo thống kê";
-Layout = "_AdminLayout";
+@{
+    ViewData["Title"] = "Báo cáo thống kê";
+    Layout = "_AdminLayout";
+}
+@section Styles {
+    <style>
+        @@media print {
+            /* Hide sidebar, header, and buttons when printing */
+            aside, header, button {
+                display: none !important;
+            }
+            /* Remove left margin of main content */
+            main {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            /* Ensure background colors are printed */
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
 }
 
-<div class="space-y-8 flex-1 overflow-y-auto">
+<div id="report-content" class="space-y-8 flex-1 overflow-y-auto bg-[#F8FAFC] p-4 rounded-xl">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
             <h1 class="font-h1 text-h1 text-[#0F172A]">Báo cáo & Thống kê</h1>
@@ -17,7 +37,7 @@ Layout = "_AdminLayout";
                 <span class="material-symbols-outlined text-slate-400 mr-2">date_range</span>
                 <span class="font-body-md text-on-surface">01/@DateTime.Now.ToString("MM/yyyy") - @DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)/@DateTime.Now.ToString("MM/yyyy")</span>
             </div>
-            <button class="bg-secondary text-white px-6 py-2.5 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md active:scale-95 font-semibold">
+            <button onclick="downloadPDF()" class="bg-secondary text-white px-6 py-2.5 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md active:scale-95 font-semibold">
                 <span class="material-symbols-outlined">picture_as_pdf</span>
                 <span class="font-label-md">Xuất báo cáo PDF</span>
             </button>
@@ -177,3 +197,29 @@ Layout = "_AdminLayout";
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadPDF() {
+            var element = document.getElementById('report-content');
+            
+            // Tạm thời ẩn nút xuất PDF trước khi chụp ảnh
+            var btnExport = element.querySelector('button[onclick="downloadPDF()"]');
+            if (btnExport) btnExport.style.display = 'none';
+
+            var opt = {
+                margin:       10,
+                filename:     'BaoCaoThongKe_@(DateTime.Now.ToString("MMyyyy")).pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save().then(function() {
+                // Hiển thị lại nút xuất PDF
+                if (btnExport) btnExport.style.display = 'flex';
+            });
+        }
+    </script>
+}

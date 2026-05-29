@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CarRentalSystem.Models.Booking>
+@model IEnumerable<CarRentalSystem.Models.Booking>
 @using CarRentalSystem.Constants
 @using CarRentalSystem.Helpers
 @using Microsoft.AspNetCore.Http
@@ -21,10 +21,10 @@
             <button class="bg-white border border-slate-200 p-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-[#00236f] transition-colors shadow-sm">
                 <span class="material-symbols-outlined text-[22px]">notifications</span>
             </button>
-            <button class="bg-[#00236f] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/20 hover:bg-blue-900 hover:-translate-y-0.5 transition-all flex items-center gap-2 active:scale-95">
+            <a href="/Dashboard/ExportReport" class="bg-[#00236f] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/20 hover:bg-blue-900 hover:-translate-y-0.5 transition-all flex items-center gap-2 active:scale-95">
                 <span class="material-symbols-outlined text-[20px]">download</span>
                 Tải báo cáo
-            </button>
+            </a>
         </div>
     </div>
 

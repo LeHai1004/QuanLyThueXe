@@ -1,0 +1,203 @@
+@model CarRentalSystem.Models.Customer
+@using CarRentalSystem.Constants
+@using CarRentalSystem.Helpers
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Chi tiết Khách hàng";
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("RoleName");
+    Layout = role == "Admin" ? "_AdminLayout" : "_StaffLayout";
+
+    decimal totalSpent = Model.Bookings?.Where(b => b.Status == BookingStatus.Completed).Sum(b => (decimal?)b.TotalAmount) ?? 0;
+    string tier = "Member";
+    string tierClass = "bg-slate-100 text-slate-600";
+    if (totalSpent >= 50000000)
+    {
+        tier = "VIP Gold";
+        tierClass = "bg-amber-100 text-amber-800 border border-amber-200";
+    }
+    else if (totalSpent >= 20000000)
+    {
+        tier = "VIP Silver";
+        tierClass = "bg-slate-200 text-slate-800 border border-slate-300";
+    }
+    else if (totalSpent >= 5000000)
+    {
+        tier = "VIP Bronze";
+        tierClass = "bg-orange-100 text-orange-800 border border-orange-200";
+    }
+}
+
+<div class="space-y-8 mt-4">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <a href="/Customer/Index" class="flex items-center text-sm font-bold text-slate-500 hover:text-[#316bf3] transition-colors mb-2 w-max">
+                <span class="material-symbols-outlined text-[16px] mr-1">arrow_back</span>
+                Quay lại danh sách
+            </a>
+            <h2 class="font-h1 text-2xl font-bold text-[#1E293B] mb-1">
+                Chi tiết Khách hàng KH-@Model.CustomerId.ToString("D4")
+            </h2>
+        </div>
+        <span class="inline-flex items-center px-4 py-2 rounded-full text-[13px] font-bold @tierClass">
+            @tier
+        </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Thông tin cá nhân -->
+        <div class="col-span-1 bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
+            <div class="p-8 flex flex-col items-center border-b border-slate-100 bg-slate-50/50">
+                <div class="w-24 h-24 rounded-full overflow-hidden mb-4 border-4 border-white shadow-md">
+                    <img src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(Model.UserProfile?.FullName ?? "KH"))&background=f8fafc&color=316bf3&size=200" class="w-full h-full object-cover" alt="Avatar" />
+                </div>
+                <h3 class="font-bold text-xl text-[#1E293B] text-center">@(Model.UserProfile?.FullName ?? "Khách ẩn danh")</h3>
+                <p class="text-sm font-medium text-slate-500 mt-1">@(Model.UserProfile?.Account?.Email ?? "Chưa cập nhật Email")</p>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Số điện thoại</p>
+                    <p class="text-[15px] font-semibold text-slate-800">@(Model.UserProfile?.PhoneNumber ?? "Chưa cập nhật")</p>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Giới tính & Sinh nhật</p>
+                    <p class="text-[15px] font-semibold text-slate-800">
+                        @(Model.UserProfile?.Gender ?? "N/A") 
+                        @if(Model.UserProfile?.DateOfBirth != null)
+                        {
+                            <span> - @Model.UserProfile.DateOfBirth.Value.ToString("dd/MM/yyyy")</span>
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Địa chỉ</p>
+                    <p class="text-[15px] font-semibold text-slate-800 leading-relaxed">
+                        @(Model.UserProfile?.StreetAddress ?? "")
+                        @(Model.UserProfile?.Ward != null ? ", " + Model.UserProfile.Ward : "")
+                        @(Model.UserProfile?.District != null ? ", " + Model.UserProfile.District : "")
+                        @(Model.UserProfile?.City != null ? ", " + Model.UserProfile.City : "")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin hồ sơ & Thống kê -->
+        <div class="col-span-1 md:col-span-2 space-y-8">
+            <div class="grid grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#316bf3] flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[24px]">payments</span>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tổng chi tiêu</p>
+                        <p class="text-xl font-bold text-[#1E293B]">@CurrencyHelper.FormatVnd(totalSpent)</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[24px]">check_circle</span>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Đơn hoàn thành</p>
+                        <p class="text-xl font-bold text-[#1E293B]">@(Model.Bookings?.Count(b => b.Status == BookingStatus.Completed) ?? 0)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-bold text-[#1E293B]">Giấy tờ tùy thân & Bằng lái</h3>
+                </div>
+                <div class="p-6 grid grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Căn cước công dân</p>
+                        <p class="text-[15px] font-semibold text-slate-800">@(Model.NationalId ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Giấy phép lái xe</p>
+                        <p class="text-[15px] font-semibold text-slate-800">@(Model.LicenseNumber ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hạng bằng</p>
+                        <p class="text-[15px] font-semibold text-slate-800">@(Model.LicenseClass ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ngày cấp bằng</p>
+                        <p class="text-[15px] font-semibold text-slate-800">@(Model.LicenseIssueDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch sử thuê xe -->
+    <div class="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden mt-8">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+            <h3 class="font-bold text-[#1E293B]">Lịch sử Thuê xe</h3>
+            <span class="text-sm font-semibold text-slate-500">@(Model.Bookings?.Count() ?? 0) giao dịch</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white border-b border-slate-100">
+                        <th class="px-6 py-4 text-[11px] text-slate-400 uppercase font-bold tracking-widest">Mã Đơn</th>
+                        <th class="px-6 py-4 text-[11px] text-slate-400 uppercase font-bold tracking-widest">Xe Thuê</th>
+                        <th class="px-6 py-4 text-[11px] text-slate-400 uppercase font-bold tracking-widest">Thời gian</th>
+                        <th class="px-6 py-4 text-[11px] text-slate-400 uppercase font-bold tracking-widest text-right">Tổng tiền</th>
+                        <th class="px-6 py-4 text-[11px] text-slate-400 uppercase font-bold tracking-widest text-center">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (Model.Bookings == null || !Model.Bookings.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-medium">Khách hàng chưa có giao dịch nào.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var booking in Model.Bookings.OrderByDescending(b => b.CreatedAt))
+                        {
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-[#316bf3]">#RC-@booking.BookingId.ToString("D4")</td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm font-semibold text-[#1E293B]">@(booking.Vehicle?.VehicleName ?? "N/A")</p>
+                                    <p class="text-[12px] text-slate-500">Biển số: @(booking.Vehicle?.LicensePlate ?? "N/A")</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm text-[#1E293B]">@booking.PickupDateTime.ToString("dd/MM/yyyy")</p>
+                                    <p class="text-[12px] text-slate-500">đến @booking.ReturnDateTime.ToString("dd/MM/yyyy")</p>
+                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-[#1E293B]">
+                                    @CurrencyHelper.FormatVnd(booking.TotalAmount)
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if (booking.Status == BookingStatus.Pending)
+                                    {
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Chờ xác nhận</span>
+                                    }
+                                    else if (booking.Status == BookingStatus.Confirmed)
+                                    {
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-[#1e3a8a] text-blue-200">Đã xác nhận</span>
+                                    }
+                                    else if (booking.Status == BookingStatus.Active)
+                                    {
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-[#0058be] text-white">Đang thuê</span>
+                                    }
+                                    else if (booking.Status == BookingStatus.Completed)
+                                    {
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Hoàn thành</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">Đã hủy</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
