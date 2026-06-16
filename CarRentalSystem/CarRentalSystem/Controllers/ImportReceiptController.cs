@@ -1,11 +1,12 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 using CarRentalSystem.Helpers;
 
 namespace CarRentalSystem.Controllers
@@ -23,8 +24,8 @@ namespace CarRentalSystem.Controllers
         public async Task<IActionResult> Index(string search, string status)
         {
             // 1. Kiểm tra phân quyền giống hệt code cũ của bạn
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -53,7 +54,7 @@ namespace CarRentalSystem.Controllers
             var receipts = await query.OrderByDescending(r => r.ImportReceiptId).ToListAsync();
 
             // 6. Trả về View tương ứng theo Role
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
             {
                 return View("AdminIndex", receipts);
             }
@@ -64,8 +65,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -80,24 +81,23 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(IFormCollection form)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int accountId = int.Parse(accountIdStr);
 
             // Đã thêm Include để tránh lỗi Null Reference
             var staff = _context.Staff
                 .Include(s => s.UserProfile)
-                .FirstOrDefault(s => s.UserProfile.AccountId == accountId);
+                .FirstOrDefault(s => s.UserProfile.AccountId == accountId.Value);
 
             if (staff == null)
             {
@@ -179,7 +179,7 @@ namespace CarRentalSystem.Controllers
                     UnitPrice = totalAmount,
                     LineTotal = totalAmount,                // BỔ SUNG: Tổng tiền dòng này
                     CurrentKm = 0,                          // BỔ SUNG: Xe mới nhập Km = 0
-                    VehicleCondition = "Bình thường"        // BỔ SUNG: Tình trạng xe
+                    VehicleCondition = VehicleDefaults.DefaultCondition        // BỔ SUNG: Tình trạng xe
                 };
 
                 _context.ImportReceiptDetails.Add(detail);
@@ -212,8 +212,8 @@ namespace CarRentalSystem.Controllers
         [HttpPost]
         public IActionResult Approve(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -243,8 +243,8 @@ namespace CarRentalSystem.Controllers
         [HttpPost]
         public IActionResult Reject(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }

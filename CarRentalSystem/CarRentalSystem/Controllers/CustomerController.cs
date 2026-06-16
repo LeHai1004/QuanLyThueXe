@@ -1,6 +1,7 @@
 using CarRentalSystem.Data;
 using CarRentalSystem.Models;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,8 +20,8 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Index(string tier, string status)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var query = _context.Customers
                 .Include(c => c.UserProfile)
@@ -43,10 +44,10 @@ namespace CarRentalSystem.Controllers
                 customers = customers.Where(item => 
                 {
                     decimal totalSpent = item.Bookings?.Where(b => b.Status == BookingStatus.Completed).Sum(b => (decimal?)b.TotalAmount) ?? 0;
-                    if (tier == "VIP Gold") return totalSpent >= 50000000;
-                    if (tier == "VIP Silver") return totalSpent >= 20000000 && totalSpent < 50000000;
-                    if (tier == "VIP Bronze") return totalSpent >= 5000000 && totalSpent < 20000000;
-                    if (tier == "Member") return totalSpent < 5000000;
+                    if (tier == "VIP Gold") return totalSpent >= CustomerTierThreshold.Gold;
+                    if (tier == "VIP Silver") return totalSpent >= CustomerTierThreshold.Silver && totalSpent < CustomerTierThreshold.Gold;
+                    if (tier == "VIP Bronze") return totalSpent >= CustomerTierThreshold.Bronze && totalSpent < CustomerTierThreshold.Silver;
+                    if (tier == "Member") return totalSpent < CustomerTierThreshold.Bronze;
                     return true;
                 }).ToList();
             }
@@ -54,7 +55,7 @@ namespace CarRentalSystem.Controllers
             ViewBag.CurrentTier = tier;
             ViewBag.CurrentStatus = status;
 
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
             {
                 return View("AdminIndex", customers);
             }
@@ -64,8 +65,8 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Details(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var customer = _context.Customers
                 .Include(c => c.UserProfile)

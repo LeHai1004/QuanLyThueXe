@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 using CarRentalSystem.Business;
 using CarRentalSystem.Helpers;
 using System;
@@ -24,7 +25,7 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Create(int vehicleId)
         {
-            if (HttpContext.Session.GetString("AccountId") == null)
+            if (HttpContext.Session.GetAccountId() == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -41,8 +42,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string search, string status, string fromDate, string toDate)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -86,7 +87,7 @@ namespace CarRentalSystem.Controllers
             var bookings = await query.OrderByDescending(b => b.CreatedAt).ToListAsync();
 
             // Điều hướng theo Role
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
             {
                 return View("AdminIndex", bookings);
             }
@@ -103,7 +104,7 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(int vehicleId, DateTime pickupDateTime, DateTime returnDateTime)
         {
-            if (HttpContext.Session.GetString("AccountId") == null)
+            if (HttpContext.Session.GetAccountId() == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -136,7 +137,7 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Payment()
         {
-            if (HttpContext.Session.GetString("AccountId") == null)
+            if (HttpContext.Session.GetAccountId() == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -148,12 +149,12 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult PaymentProcessing(string method)
         {
-            if (HttpContext.Session.GetString("AccountId") == null)
+            if (HttpContext.Session.GetAccountId() == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            if (method == "Cash")
+            if (method == BookingDefaults.PaymentCash)
             {
                 int bookingId = ProcessBookingToDB();
                 if (bookingId > 0)
@@ -162,7 +163,7 @@ namespace CarRentalSystem.Controllers
                 }
                 return RedirectToAction("CustomerList", "Vehicle");
             }
-            else if (method == "Transfer")
+            else if (method == BookingDefaults.PaymentTransfer)
             {
                 return RedirectToAction("QRCode");
             }
@@ -173,7 +174,7 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult QRCode()
         {
-            if (HttpContext.Session.GetString("AccountId") == null)
+            if (HttpContext.Session.GetAccountId() == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -195,7 +196,7 @@ namespace CarRentalSystem.Controllers
 
         private int ProcessBookingToDB()
         {
-            var accountId = int.Parse(HttpContext.Session.GetString("AccountId")!);
+            var accountId = HttpContext.Session.GetAccountId()!.Value;
             var customer = _context.Customers.Include(c => c.UserProfile).FirstOrDefault(c => c.UserProfile.AccountId == accountId);
 
             if (customer == null)
@@ -212,14 +213,14 @@ namespace CarRentalSystem.Controllers
             {
                 CustomerId = customer.CustomerId,
                 VehicleId = vehicleId,
-                PickupLocation = "Tại cửa hàng",
-                ReturnLocation = "Tại cửa hàng",
+                PickupLocation = BookingDefaults.DefaultPickupLocation,
+                ReturnLocation = BookingDefaults.DefaultReturnLocation,
                 PickupDateTime = pickup,
                 ReturnDateTime = returnDt,
                 BasePrice = total,
                 TotalAmount = total,
                 Status = BookingStatus.Pending,
-                BookingChannel = "Online",
+                BookingChannel = BookingDefaults.OnlineChannel,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -252,8 +253,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var booking = await _context.Bookings
                 .Include(b => b.Vehicle)
@@ -279,8 +280,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var booking = await _context.Bookings.FindAsync(id);
             if (booking != null && booking.Status == BookingStatus.Pending)
@@ -296,8 +297,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> HandoverVehicle(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var booking = await _context.Bookings.FindAsync(id);
             if (booking != null && booking.Status == BookingStatus.Confirmed)
@@ -313,8 +314,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReturnVehicle(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var booking = await _context.Bookings
                 .Include(b => b.Vehicle)
@@ -341,8 +342,9 @@ namespace CarRentalSystem.Controllers
                         InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
                         BookingId = id,
                         CustomerId = booking.CustomerId,
+                        LoaiInvoice = InvoiceType.Rental,
                         SubTotal = booking.BasePrice,
-                        TaxRate = 10,
+                        TaxRate = TaxConfig.DefaultTaxRate,
                         DiscountAmount = booking.DiscountAmount,
                         GrandTotal = booking.TotalAmount,
                         Status = InvoiceStatus.Unpaid,
@@ -361,8 +363,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Details(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -382,8 +384,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Invoice(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -406,8 +408,9 @@ namespace CarRentalSystem.Controllers
                     InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
                     BookingId = id,
                     CustomerId = booking.CustomerId,
+                    LoaiInvoice = InvoiceType.Rental,
                     SubTotal = booking.BasePrice,
-                    TaxRate = 10,
+                    TaxRate = TaxConfig.DefaultTaxRate,
                     DiscountAmount = booking.DiscountAmount,
                     GrandTotal = booking.TotalAmount,
                     Status = InvoiceStatus.Paid,
@@ -424,16 +427,15 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult History()
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int accountId = int.Parse(accountIdStr);
             var customer = _context.Customers
                 .Include(c => c.UserProfile)
-                .FirstOrDefault(c => c.UserProfile.AccountId == accountId);
+                .FirstOrDefault(c => c.UserProfile.AccountId == accountId.Value);
 
             if (customer == null)
             {
@@ -464,20 +466,19 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult CustomerDetails(int id)
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int accountId = int.Parse(accountIdStr);
 
             var booking = _context.Bookings
                 .Include(b => b.Vehicle)
                 .ThenInclude(v => v.Category)
                 .Include(b => b.Customer)
                 .ThenInclude(c => c.UserProfile)
-                .FirstOrDefault(b => b.BookingId == id && b.Customer.UserProfile.AccountId == accountId);
+                .FirstOrDefault(b => b.BookingId == id && b.Customer.UserProfile.AccountId == accountId.Value);
 
             if (booking == null)
             {
@@ -490,16 +491,15 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult MyInvoices()
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int accountId = int.Parse(accountIdStr);
             var customer = _context.Customers
                 .Include(c => c.UserProfile)
-                .FirstOrDefault(c => c.UserProfile.AccountId == accountId);
+                .FirstOrDefault(c => c.UserProfile.AccountId == accountId.Value);
 
             if (customer == null)
             {
@@ -520,16 +520,15 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Cancel(int id)
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
                 return RedirectToAction("Login", "Account");
 
-            int accountId = int.Parse(accountIdStr);
             var booking = _context.Bookings
                 .Include(b => b.Customer).ThenInclude(c => c.UserProfile)
                 .Include(b => b.Vehicle)
                 .FirstOrDefault(b => b.BookingId == id
-                    && b.Customer.UserProfile.AccountId == accountId);
+                    && b.Customer.UserProfile.AccountId == accountId.Value);
 
             if (booking == null)
                 return RedirectToAction("History");
@@ -555,17 +554,16 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Review(int id)
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
                 return RedirectToAction("Login", "Account");
 
-            int accountId = int.Parse(accountIdStr);
             var booking = _context.Bookings
                 .Include(b => b.Vehicle)
                 .Include(b => b.Customer).ThenInclude(c => c.UserProfile)
                 .FirstOrDefault(b => b.BookingId == id
                     && b.Status == BookingStatus.Completed
-                    && b.Customer.UserProfile.AccountId == accountId);
+                    && b.Customer.UserProfile.AccountId == accountId.Value);
 
             if (booking == null)
                 return RedirectToAction("History");
@@ -584,16 +582,15 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Review(int id, int rating, string content)
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
                 return RedirectToAction("Login", "Account");
 
-            int accountId = int.Parse(accountIdStr);
             var booking = _context.Bookings
                 .Include(b => b.Customer).ThenInclude(c => c.UserProfile)
                 .FirstOrDefault(b => b.BookingId == id
                     && b.Status == BookingStatus.Completed
-                    && b.Customer.UserProfile.AccountId == accountId);
+                    && b.Customer.UserProfile.AccountId == accountId.Value);
 
             if (booking == null)
                 return RedirectToAction("History");
@@ -622,20 +619,19 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult CustomerInvoiceDetail(int id)
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int accountId = int.Parse(accountIdStr);
 
             var invoice = _context.Invoices
                 .Include(i => i.Booking)
                     .ThenInclude(b => b.Vehicle)
                 .Include(i => i.Customer)
                     .ThenInclude(c => c.UserProfile)
-                .FirstOrDefault(i => i.InvoiceId == id && i.Customer.UserProfile.AccountId == accountId);
+                .FirstOrDefault(i => i.InvoiceId == id && i.Customer.UserProfile.AccountId == accountId.Value);
 
             if (invoice == null)
             {
@@ -648,8 +644,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var accountId = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountId))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -676,8 +672,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int BookingId, DateTime PickupDateTime, DateTime ReturnDateTime)
         {
-            var accountId = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountId))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -697,11 +693,9 @@ namespace CarRentalSystem.Controllers
                 return View("CustomerEdit", booking);
             }
 
-            var diffTime = ReturnDateTime - PickupDateTime;
-            int diffDays = (int)Math.Ceiling(diffTime.TotalDays);
-            if (diffDays <= 0) diffDays = 1;
-
-            decimal basePrice = diffDays * (booking.Vehicle?.PricePerDay ?? 0);
+            var bookingBiz = new BookingBusiness();
+            int diffDays = bookingBiz.CalculateRentalDays(PickupDateTime, ReturnDateTime);
+            decimal basePrice = bookingBiz.CalculateBasePrice(diffDays, booking.Vehicle?.PricePerDay ?? 0);
 
             booking.PickupDateTime = PickupDateTime;
             booking.ReturnDateTime = ReturnDateTime;

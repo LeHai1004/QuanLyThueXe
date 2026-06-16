@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<CarRentalSystem.Models.Booking>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Trang tổng quan nhân viên";
@@ -12,7 +12,7 @@
             Trang tổng quan nhân viên
         </h1>
         <p class="text-on-surface-variant font-body-md mt-1">
-            Chào mừng, @Context.Session.GetString("FullName") • @DateTime.Now.ToString("dd MMMM, yyyy")
+            Chào mừng, @Context.Session.GetFullName() • @DateTime.Now.ToString("dd MMMM, yyyy")
         </p>
     </div>
     <div class="flex items-center gap-4">
@@ -104,7 +104,7 @@
                                     @(item.Vehicle?.VehicleName ?? "N/A")
                                 </td>
                                 <td class="px-6 py-4">
-                                    <p class="text-sm font-medium text-outline">@item.PickupDateTime.ToString("dd/MM/yyyy")</p>
+                                    <p class="text-sm font-medium text-outline">@item.PickupDateTime.ToVnDate()</p>
                                 </td>
                                 <td class="px-6 py-4 text-right font-bold text-on-surface">
                                     @CurrencyHelper.FormatVnd(item.TotalAmount)

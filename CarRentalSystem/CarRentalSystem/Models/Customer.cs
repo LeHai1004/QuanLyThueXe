@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using CarRentalSystem.Validation;
 
 namespace CarRentalSystem.Models;
 
@@ -9,6 +10,7 @@ public partial class Customer
 
     public int UserProfileId { get; set; }
 
+    [CccdValidation(ErrorMessage = "CCCD bắt buộc phải đủ 12 chữ số.")]
     public string? NationalId { get; set; }
 
     public string? NationalIdFrontImg { get; set; }

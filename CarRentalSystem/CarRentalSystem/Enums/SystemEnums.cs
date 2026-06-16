@@ -1,4 +1,4 @@
-namespace CarRentalSystem.Constants
+namespace CarRentalSystem.Enums
 {
     public static class VehicleStatus
     {
@@ -30,7 +30,7 @@ namespace CarRentalSystem.Constants
         public const string Unpaid = "Chua thanh toan";
     }
 
-    public static class RoleConstants
+    public static class RoleEnums
     {
         public const string Admin = "Admin";
         public const string Staff = "Staff";
@@ -63,5 +63,49 @@ namespace CarRentalSystem.Constants
         public const string InProgress = "Dang thuc hien";
         public const string Completed = "Hoan thanh";
         public const string Rejected = "Tu choi";
+    }
+
+    public static class PaymentStatus
+    {
+        public const string Success = "Thanh cong";
+        public const string Failed = "That bai";
+        public const string Pending = "Cho thanh toan";
+    }
+
+    // ===== CONSTANTS (Chống hard-code) =====
+
+    public static class RoleIds
+    {
+        public const int Admin = 1;
+        public const int Staff = 2;
+        public const int Customer = 3;
+    }
+
+    public static class TaxConfig
+    {
+        public const decimal DefaultTaxRate = 10m;
+        public const decimal ProfitMarginRate = 0.35m;
+    }
+
+    public static class BookingDefaults
+    {
+        public const string DefaultPickupLocation = "Tại cửa hàng";
+        public const string DefaultReturnLocation = "Tại cửa hàng";
+        public const string OnlineChannel = "Online";
+        public const string PaymentCash = "Cash";
+        public const string PaymentTransfer = "Transfer";
+    }
+
+    public static class VehicleDefaults
+    {
+        public const string DefaultImageUrl = "https://images.unsplash.com/photo-1550355291-bbee04a92027";
+        public const string DefaultCondition = "Bình thường";
+    }
+
+    public static class CustomerTierThreshold
+    {
+        public const decimal Gold = 50_000_000m;
+        public const decimal Silver = 20_000_000m;
+        public const decimal Bronze = 5_000_000m;
     }
 }

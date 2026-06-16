@@ -1,12 +1,12 @@
 @model CarRentalSystem.Models.Booking
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Chi tiết đơn đặt xe";
-    var role = HttpContextAccessor.HttpContext?.Session.GetString("RoleName");
-    Layout = role == "Admin" ? "_AdminLayout" : "_StaffLayout";
+    var role = HttpContextAccessor.HttpContext?.Session.GetRoleName();
+    Layout = role == RoleEnums.Admin ? "_AdminLayout" : "_StaffLayout";
 }
 
 <div class="p-8">
@@ -63,7 +63,7 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Số CCCD</p>
-                        <p class="font-body-lg text-lg text-slate-900 font-semibold">@(Model.Customer.NationalId ?? "Chưa cập nhật")</p>
+                        <p class="font-body-lg text-lg text-slate-900 font-semibold">@((Model.Customer.NationalId ?? "Chưa cập nhật").MaskNationalId())</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Địa điểm nhận/trả</p>
@@ -75,14 +75,14 @@
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Ngày nhận xe</p>
                             <div class="flex items-center gap-2 text-slate-900">
                                 <span class="material-symbols-outlined text-[#0051d5]">calendar_today</span>
-                                <p class="text-base font-bold">@Model.PickupDateTime.ToString("dd/MM/yyyy HH:mm")</p>
+                                <p class="text-base font-bold">@Model.PickupDateTime.ToVnFormat()</p>
                             </div>
                         </div>
                         <div class="space-y-1">
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Ngày trả xe</p>
                             <div class="flex items-center gap-2 text-slate-900">
                                 <span class="material-symbols-outlined text-[#0051d5]">event_available</span>
-                                <p class="text-base font-bold">@Model.ReturnDateTime.ToString("dd/MM/yyyy HH:mm")</p>
+                                <p class="text-base font-bold">@Model.ReturnDateTime.ToVnFormat()</p>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
+using CarRentalSystem.Enums;
 using System;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace CarRentalSystem.Business
         {
             bool isConflict = _context.Bookings.Any(b =>
                 b.VehicleId == vehicleId &&
-                b.Status != "Da huy" &&
+                b.Status != BookingStatus.Cancelled &&
                 !(b.ReturnDateTime <= pickup || b.PickupDateTime >= returnDate));
 
             return !isConflict;

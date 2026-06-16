@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 
 namespace CarRentalSystem.Controllers
 {
@@ -20,8 +21,8 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Index(string search)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -43,7 +44,7 @@ namespace CarRentalSystem.Controllers
             
             ViewBag.SearchString = search;
 
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
             {
                 ViewBag.TotalSuppliers = suppliers.Count;
                 ViewBag.ActiveSuppliers = suppliers.Count(s => s.IsActive == true);
@@ -63,8 +64,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -75,8 +76,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string supplierName, string taxCode, string phoneNumber, string email, string contactPerson, string address)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -114,8 +115,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null) return NotFound();
@@ -127,8 +128,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Supplier supplier)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             if (id != supplier.SupplierId) return NotFound();
 
@@ -172,8 +173,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff) return RedirectToAction("Login", "Account");
 
             var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null) return NotFound();

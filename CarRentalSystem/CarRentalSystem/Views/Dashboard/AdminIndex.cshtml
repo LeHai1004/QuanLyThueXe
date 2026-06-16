@@ -1,12 +1,12 @@
 @model IEnumerable<CarRentalSystem.Models.Booking>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Dashboard Admin";
     Layout = "_AdminLayout";
-    var fullName = HttpContextAccessor.HttpContext?.Session.GetString("FullName") ?? "Admin";
+    var fullName = HttpContextAccessor.HttpContext?.Session.GetFullName() ?? "Admin";
 }
 
 <div class="space-y-8 mt-4">
@@ -14,7 +14,7 @@
         <div>
             <h1 class="text-3xl font-black text-[#1E293B] tracking-tight mb-1">Trang tổng quan Quản trị</h1>
             <p class="text-sm font-medium text-slate-500">
-                Xin chào, @fullName | <span class="text-slate-700">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+                Xin chào, @fullName | <span class="text-slate-700">@DateTime.Now.ToVnDate()</span>
             </p>
         </div>
         <div class="flex gap-4">

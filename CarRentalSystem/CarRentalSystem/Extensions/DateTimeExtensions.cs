@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace CarRentalSystem.Extensions
 {
@@ -7,6 +7,16 @@ namespace CarRentalSystem.Extensions
         public static string ToVnFormat(this DateTime date)
         {
             return date.ToString("dd/MM/yyyy HH:mm");
+        }
+
+        public static string ToVnDate(this DateTime date)
+        {
+            return date.ToString("dd/MM/yyyy");
+        }
+
+        public static string ToVnDate(this DateOnly date)
+        {
+            return date.ToString("dd/MM/yyyy");
         }
     }
 }

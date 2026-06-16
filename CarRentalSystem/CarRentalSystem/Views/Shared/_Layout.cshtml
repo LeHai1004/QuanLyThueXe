@@ -73,7 +73,7 @@
                 <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
                     <span class="material-symbols-outlined">search</span>
                 </button>
-                @if (Context.Session.GetString("AccountId") != null)
+                @if (Context.Session.GetAccountId() != null)
                 {
                     <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
                         <span class="material-symbols-outlined">notifications</span>
@@ -83,11 +83,11 @@
                     <div class="relative group">
                         <button id="userMenuBtn" class="flex items-center space-x-3 p-1.5 rounded-full hover:bg-surface-container transition-colors">
                             <div class="w-9 h-9 rounded-full bg-[#0058be] flex items-center justify-center text-white font-semibold">
-                                @(Context.Session.GetString("FullName")?.Substring(0, 1).ToUpper() ?? "U")
+                                @(Context.Session.GetFullName()?.Substring(0, 1).ToUpper() ?? "U")
                             </div>
                             <div class="hidden md:flex flex-col items-start">
-                                <span class="text-sm font-semibold text-[#0b1c30] leading-tight">@Context.Session.GetString("FullName")</span>
-                                <span class="text-[10px] text-[#444651] uppercase tracking-wider font-semibold">@Context.Session.GetString("RoleName")</span>
+                                <span class="text-sm font-semibold text-[#0b1c30] leading-tight">@Context.Session.GetFullName()</span>
+                                <span class="text-[10px] text-[#444651] uppercase tracking-wider font-semibold">@Context.Session.GetRoleName()</span>
                             </div>
                             <span class="material-symbols-outlined text-[#444651] text-xl">keyboard_arrow_down</span>
                         </button>

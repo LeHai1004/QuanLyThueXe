@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 
 namespace CarRentalSystem.Controllers
 {
@@ -21,8 +22,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Index(int? vehicleId)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Staff && role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Staff && role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -45,8 +46,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Index(IFormCollection form)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Staff && role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Staff && role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -54,18 +55,18 @@ namespace CarRentalSystem.Controllers
             int vehicleId = int.Parse(form["VehicleId"]);
             int staffId;
             
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
             {
                 staffId = int.Parse(form["StaffId"]);
             }
             else
             {
-                var accountId = int.Parse(HttpContext.Session.GetString("AccountId"));
+                var accountId = HttpContext.Session.GetAccountId()!.Value;
                 var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
                 staffId = staff.StaffId;
             }
 
-            var status = role == RoleConstants.Admin ? MaintenanceStatus.Pending : MaintenanceStatus.Requested;
+            var status = role == RoleEnums.Admin ? MaintenanceStatus.Pending : MaintenanceStatus.Requested;
 
             var maintenanceLog = new MaintenanceLog
             {
@@ -85,7 +86,7 @@ namespace CarRentalSystem.Controllers
 
             _context.MaintenanceLogs.Add(maintenanceLog);
             
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
             {
                 var vehicle = _context.Vehicles.Find(vehicleId);
                 if (vehicle != null)
@@ -96,7 +97,7 @@ namespace CarRentalSystem.Controllers
 
             _context.SaveChanges();
 
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
                 TempData["SuccessMessage"] = "Phân công bảo dưỡng và cập nhật trạng thái xe thành công!";
             else
                 TempData["SuccessMessage"] = "Gửi yêu cầu bảo dưỡng thành công! Vui lòng chờ quản lý duyệt.";
@@ -107,14 +108,13 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult MyTasks()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            int accountId = int.Parse(accountIdStr);
+            var accountId = HttpContext.Session.GetAccountId();
             var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
 
             if (staff == null)
@@ -136,8 +136,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CompleteTask(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -165,8 +165,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Requests()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -186,8 +186,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ApproveRequest(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -211,8 +211,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RejectRequest(int id, string reason)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }

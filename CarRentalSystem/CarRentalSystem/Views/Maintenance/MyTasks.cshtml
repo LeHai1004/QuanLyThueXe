@@ -1,5 +1,5 @@
 @model IEnumerable<CarRentalSystem.Models.MaintenanceLog>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @{
     ViewData["Title"] = "Nhiệm vụ của tôi";
     Layout = "_StaffLayout";
@@ -75,11 +75,11 @@
                             </div>
                             <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
                                 <span class="text-slate-500 font-medium">Ngày lập phiếu:</span>
-                                <span class="font-bold text-slate-700">@task.MaintenanceDate.ToString("dd/MM/yyyy")</span>
+                                <span class="font-bold text-slate-700">@task.MaintenanceDate.ToVnDate()</span>
                             </div>
                             <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
                                 <span class="text-slate-500 font-medium">Chi phí dự kiến:</span>
-                                <span class="font-bold text-secondary">@task.Cost.ToString("N0") VNĐ</span>
+                                <span class="font-bold text-secondary">@CurrencyHelper.FormatVnd(task.Cost)</span>
                             </div>
                             <div class="text-sm">
                                 <span class="text-slate-500 font-medium block mb-1">Mô tả công việc:</span>

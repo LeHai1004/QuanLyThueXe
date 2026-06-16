@@ -3,7 +3,7 @@
 @using CarRentalSystem.Data
 @inject CarRentalContext _context
 @{
-    int pendingRequestsCount = _context.MaintenanceLogs.Count(m => m.Status == CarRentalSystem.Constants.MaintenanceStatus.Requested);
+    int pendingRequestsCount = _context.MaintenanceLogs.Count(m => m.Status == CarRentalSystem.Enums.MaintenanceStatus.Requested);
 }
 <head>
     <meta charset="utf-8" />
@@ -92,7 +92,7 @@
                 <img alt="Admin Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-secondary" src="https://ui-avatars.com/api/?name=Admin&background=316bf3&color=fff" />
                 <div class="flex flex-col overflow-hidden">
                     <span class="text-white font-semibold text-body-md truncate">
-                        @(Context.Session.GetString("FullName") ?? "Lê Hoàng Hải")
+                        @(Context.Session.GetFullName() ?? "Lê Hoàng Hải")
                     </span>
                     <span class="text-slate-400 text-[11px]">2415053122213</span>
                 </div>
@@ -162,7 +162,7 @@
             </a>
         </nav>
         <div class="mt-auto border-t border-white/5 py-4 px-4 space-y-0.5">
-            <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all duration-200" asp-controller="Account" asp-action="Settings">
+            <a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all duration-200" href="#">
                 <span class="material-symbols-outlined text-[20px]">settings</span>
                 <span class="font-body-md">Cài đặt</span>
             </a>

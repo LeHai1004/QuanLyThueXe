@@ -98,7 +98,7 @@
                                         <div>
                                             <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">
                                                 #RC-@review.Booking?.BookingId.ToString("D4") •
-                                                @review.NgayReview.ToString("dd/MM/yyyy")
+                                                @review.NgayReview.ToVnDate()
                                             </p>
                                             <h3 class="text-lg font-bold text-[#00236f]">@review.Vehicle?.VehicleName</h3>
                                             <p class="text-sm text-slate-500">BKS: @review.Vehicle?.LicensePlate</p>
@@ -136,8 +136,8 @@
                                     {
                                         <div class="flex items-center gap-2 mt-4 text-xs text-slate-400">
                                             <span class="material-symbols-outlined text-[14px]">calendar_today</span>
-                                            @review.Booking.PickupDateTime.ToString("dd/MM/yyyy") —
-                                            @review.Booking.ReturnDateTime.ToString("dd/MM/yyyy")
+                                            @review.Booking.PickupDateTime.ToVnDate() —
+                                            @review.Booking.ReturnDateTime.ToVnDate()
                                         </div>
                                     }
                                 </div>

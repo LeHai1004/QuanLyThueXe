@@ -1,5 +1,5 @@
 @model IEnumerable<CarRentalSystem.Models.Invoice>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Hóa đơn của tôi";
@@ -55,7 +55,7 @@
                                     #@item.InvoiceNumber
                                 </td>
                                 <td class="py-5 px-6 text-[#444651] font-medium text-sm">
-                                    @item.IssueDate.ToString("dd/MM/yyyy")
+                                    @item.IssueDate.ToVnDate()
                                 </td>
                                 <td class="py-5 px-6 text-[#444651] font-medium text-sm">
                                     Thuê xe @(item.Booking?.Vehicle?.VehicleName)

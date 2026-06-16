@@ -1,5 +1,5 @@
 @model IEnumerable<CarRentalSystem.Models.MaintenanceLog>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @{
     ViewData["Title"] = "Duyệt yêu cầu bảo dưỡng";
     Layout = "_AdminLayout";
@@ -54,10 +54,10 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div>@item.MaintenanceType</div>
-                                <div class="font-medium text-emerald-600">@item.Cost.ToString("N0") đ</div>
+                                <div class="font-medium text-emerald-600">@CurrencyHelper.FormatVnd(item.Cost)</div>
                             </td>
                             <td class="px-6 py-4">
-                                @item.MaintenanceDate.ToString("dd/MM/yyyy")
+                                @item.MaintenanceDate.ToVnDate()
                             </td>
                             <td class="px-6 py-4">
                                 <div class="max-w-[200px] truncate" title="@item.Description">@item.Description</div>
