@@ -1,5 +1,5 @@
-﻿@model IEnumerable<CarRentalSystem.Models.Booking>
-@using CarRentalSystem.Constants
+@model IEnumerable<CarRentalSystem.Models.Booking>
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Danh sách đơn đặt xe";
@@ -81,8 +81,8 @@
                                 <p class="text-[12px] text-outline">Biển số: @(item.Vehicle?.LicensePlate ?? "N/A")</p>
                             </td>
                             <td class="py-4 px-6">
-                                <p class="text-[13px] text-on-surface">@item.PickupDateTime.ToString("dd/MM/yyyy")</p>
-                                <p class="text-[13px] text-on-surface-variant">đến @item.ReturnDateTime.ToString("dd/MM/yyyy")</p>
+                                <p class="text-[13px] text-on-surface">@item.PickupDateTime.ToVnDate()</p>
+                                <p class="text-[13px] text-on-surface-variant">đến @item.ReturnDateTime.ToVnDate()</p>
                             </td>
                             <td class="py-4 px-6 font-bold text-secondary text-right">@CurrencyHelper.FormatVnd(item.TotalAmount)</td>
                             <td class="py-4 px-6 text-center">
@@ -109,7 +109,7 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <a href="/Booking/StaffDetails/@item.BookingId" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Xem chi tiết">
+                                    <a href="/Booking/Details/@item.BookingId" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Xem chi tiết">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </a>
 

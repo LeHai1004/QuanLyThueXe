@@ -150,7 +150,7 @@
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="font-bold text-[#1E293B]">@fullName</span>
-                                        <span class="text-[12px] text-slate-500">Tham gia: @(item.UserProfile?.CreatedAt.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                                        <span class="text-[12px] text-slate-500">Tham gia: @(item.UserProfile?.CreatedAt.ToVnDate() ?? "N/A")</span>
                                     </div>
                                 </div>
                             </td>

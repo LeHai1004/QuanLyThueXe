@@ -1,5 +1,5 @@
 @model IEnumerable<CarRentalSystem.Models.Invoice>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Hóa đơn của tôi";
@@ -55,7 +55,7 @@
                                     #@item.InvoiceNumber
                                 </td>
                                 <td class="py-5 px-6 text-[#444651] font-medium text-sm">
-                                    @item.IssueDate.ToString("dd/MM/yyyy")
+                                    @item.IssueDate.ToVnDate()
                                 </td>
                                 <td class="py-5 px-6 text-[#444651] font-medium text-sm">
                                     Thuê xe @(item.Booking?.Vehicle?.VehicleName)
@@ -66,11 +66,11 @@
                                 <td class="py-5 px-6 text-center">
                                     @if (item.Status == InvoiceStatus.Paid)
                                     {
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-[#dce9ff] text-[#00236f] font-medium">Đã thanh toán</span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium"><span class="material-symbols-outlined text-[14px] mr-1">check_circle</span>Đã thanh toán</span>
                                     }
                                     else
                                     {
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-[#ffdad6] text-[#93000a] font-medium">Chưa thanh toán</span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200 font-medium"><span class="material-symbols-outlined text-[14px] mr-1">schedule</span>Chưa thanh toán</span>
                                     }
                                 </td>
                                 <td class="py-5 px-6 text-right">

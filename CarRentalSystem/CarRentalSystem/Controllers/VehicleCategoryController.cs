@@ -1,6 +1,7 @@
 ﻿using CarRentalSystem.Data;
 using CarRentalSystem.Models;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -21,8 +22,8 @@ namespace CarRentalSystem.Controllers
 
         public async Task<IActionResult> Index(string search, int page = 1)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -55,8 +56,8 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Create()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin) return RedirectToAction("Login", "Account");
 
             return View();
         }
@@ -77,8 +78,8 @@ namespace CarRentalSystem.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin) return RedirectToAction("Login", "Account");
 
             if (id == null) return NotFound();
 
@@ -104,8 +105,8 @@ namespace CarRentalSystem.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin) return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin) return RedirectToAction("Login", "Account");
 
             if (id == null) return NotFound();
 

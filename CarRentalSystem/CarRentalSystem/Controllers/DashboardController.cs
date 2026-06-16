@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
-using CarRentalSystem.Constants; // Gọi bộ hằng số chống sai chính tả
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions; // Gọi bộ hằng số chống sai chính tả
 using CarRentalSystem.Business;  // Gọi bộ não xử lý tính toán
 
 namespace CarRentalSystem.Controllers
@@ -21,13 +22,13 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Index()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin && role != RoleConstants.Staff)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin && role != RoleEnums.Staff)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            // Đã thay thế toàn bộ chữ thuần bằng Enum/Constants
+            // Đã thay thế toàn bộ chữ thuần bằng Enum/Enums
             ViewBag.TotalOrders = _context.Bookings.Count();
             ViewBag.RentedCars = _context.Bookings.Count(b => b.Status == BookingStatus.Active);
             ViewBag.AvailableCars = _context.Vehicles.Count(v => v.Status == VehicleStatus.Available);
@@ -44,7 +45,7 @@ namespace CarRentalSystem.Controllers
                 .Take(5)
                 .ToList();
 
-            if (role == RoleConstants.Admin)
+            if (role == RoleEnums.Admin)
             {
                 return View("AdminIndex", recentOrders);
             }
@@ -54,18 +55,18 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Report()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != "Admin") return RedirectToAction("Login", "Account");
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin) return RedirectToAction("Login", "Account");
 
             // 1. Khởi tạo bộ não Business Logic
             var dashboardBiz = new DashboardBusiness();
 
-            // 2. Gom trạng thái hóa đơn bằng Constants
+            // 2. Gom trạng thái hóa đơn bằng Enums
             var totalRevenue = _context.Invoices
                 .Where(i => i.Status == InvoiceStatus.Paid)
                 .Sum(i => (decimal?)i.GrandTotal) ?? 0;
 
-            var netProfit = totalRevenue * 0.35m;
+            var netProfit = totalRevenue * TaxConfig.ProfitMarginRate;
 
             var totalBookings = _context.Bookings.Count();
 
@@ -123,8 +124,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult ExportReport()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin) return Unauthorized();
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin) return Unauthorized();
 
             var bookings = _context.Bookings
                 .Include(b => b.Customer)

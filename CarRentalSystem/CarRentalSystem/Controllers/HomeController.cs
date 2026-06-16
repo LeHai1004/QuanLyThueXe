@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 
 namespace CarRentalSystem.Controllers
 {

@@ -1,6 +1,7 @@
 using CarRentalSystem.Data;
 using CarRentalSystem.Models;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
@@ -21,10 +22,10 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            if (HttpContext.Session.GetString("AccountId") != null)
+            if (HttpContext.Session.GetAccountId() != null)
             {
-                var role = HttpContext.Session.GetString("RoleName");
-                if (role == RoleConstants.Admin || role == RoleConstants.Staff)
+                var role = HttpContext.Session.GetRoleName();
+                if (role == RoleEnums.Admin || role == RoleEnums.Staff)
                     return RedirectToAction("Index", "Dashboard");
                 return RedirectToAction("Index", "Home");
             }
@@ -63,7 +64,7 @@ namespace CarRentalSystem.Controllers
             HttpContext.Session.SetString("Email", account.Email);
             HttpContext.Session.SetString("FullName", account.UserProfile?.FullName ?? "Người dùng");
 
-            if (account.Role.TenRole == RoleConstants.Admin || account.Role.TenRole == RoleConstants.Staff)
+            if (account.Role.TenRole == RoleEnums.Admin || account.Role.TenRole == RoleEnums.Staff)
                 return RedirectToAction("Index", "Dashboard");
 
             return RedirectToAction("Index", "Home");
@@ -95,7 +96,7 @@ namespace CarRentalSystem.Controllers
             {
                 Email = email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-                RoleId = 3,
+                RoleId = RoleIds.Customer,
                 IsActive = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
@@ -136,15 +137,14 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Profile()
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
                 return RedirectToAction("Login");
 
-            int accountId = int.Parse(accountIdStr);
             var customer = _db.Customers
                 .Include(c => c.UserProfile)
                     .ThenInclude(u => u.Account)
-                .FirstOrDefault(c => c.UserProfile.AccountId == accountId);
+                .FirstOrDefault(c => c.UserProfile.AccountId == accountId.Value);
 
             if (customer == null)
                 return RedirectToAction("Login");
@@ -157,14 +157,13 @@ namespace CarRentalSystem.Controllers
         public IActionResult UpdateProfile(string FullName, string PhoneNumber, string? DateOfBirth,
                                            string? NationalId, string? LicenseNumber, string? StreetAddress)
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
                 return RedirectToAction("Login");
 
-            int accountId = int.Parse(accountIdStr);
             var customer = _db.Customers
                 .Include(c => c.UserProfile)
-                .FirstOrDefault(c => c.UserProfile.AccountId == accountId);
+                .FirstOrDefault(c => c.UserProfile.AccountId == accountId.Value);
 
             if (customer == null)
                 return RedirectToAction("Login");
@@ -192,14 +191,13 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult MyReviews()
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountId = HttpContext.Session.GetAccountId();
+            if (accountId == null)
                 return RedirectToAction("Login");
 
-            int accountId = int.Parse(accountIdStr);
             var customer = _db.Customers
                 .Include(c => c.UserProfile)
-                .FirstOrDefault(c => c.UserProfile.AccountId == accountId);
+                .FirstOrDefault(c => c.UserProfile.AccountId == accountId.Value);
 
             if (customer == null)
                 return RedirectToAction("Login");
@@ -217,7 +215,7 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult DoiMatKhau()
         {
-            if (HttpContext.Session.GetString("AccountId") == null)
+            if (HttpContext.Session.GetAccountId() == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -228,8 +226,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DoiMatKhau(string oldPassword, string newPassword, string confirmPassword)
         {
-            var accountIdStr = HttpContext.Session.GetString("AccountId");
-            if (string.IsNullOrEmpty(accountIdStr))
+            var accountIdStr = HttpContext.Session.GetAccountId();
+            if (accountIdStr == null)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -240,7 +238,7 @@ namespace CarRentalSystem.Controllers
                 return View();
             }
 
-            int accountId = int.Parse(accountIdStr);
+            int accountId = accountIdStr.Value;
             var account = await _db.Accounts.FirstOrDefaultAsync(a => a.AccountId == accountId);
 
             if (account == null || !BCrypt.Net.BCrypt.Verify(oldPassword, account.PasswordHash))

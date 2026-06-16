@@ -53,7 +53,7 @@
             </div>
             <p class="text-on-surface-variant text-body-md font-medium uppercase tracking-wider text-[11px]">Tổng doanh thu</p>
             <h3 class="text-2xl font-bold text-[#0F172A] mt-1">
-                @ViewBag.TotalRevenue.ToString("N0") <span class="text-sm font-normal text-on-surface-variant">VNĐ</span>
+                @CurrencyHelper.FormatVnd(Convert.ToDecimal(ViewBag.TotalRevenue ?? 0))
             </h3>
         </div>
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
@@ -64,7 +64,7 @@
             </div>
             <p class="text-on-surface-variant text-body-md font-medium uppercase tracking-wider text-[11px]">Lợi nhuận ròng</p>
             <h3 class="text-2xl font-bold text-[#0F172A] mt-1">
-                @ViewBag.NetProfit.ToString("N0") <span class="text-sm font-normal text-on-surface-variant">VNĐ</span>
+                @CurrencyHelper.FormatVnd(Convert.ToDecimal(ViewBag.NetProfit ?? 0))
             </h3>
         </div>
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
@@ -175,7 +175,7 @@
                             </td>
                             <td class="px-8 py-5 text-on-surface-variant text-sm">@item.Address</td>
                             <td class="px-8 py-5 text-center font-medium">@item.BookingCount</td>
-                            <td class="px-8 py-5 text-right font-bold text-[#0F172A]">@item.Revenue.ToString("N0")</td>
+                            <td class="px-8 py-5 text-right font-bold text-[#0F172A]">@CurrencyHelper.FormatVnd(item.Revenue)</td>
                             <td class="px-8 py-5 text-right">
                                 @if (item.Growth > 0)
                                 {

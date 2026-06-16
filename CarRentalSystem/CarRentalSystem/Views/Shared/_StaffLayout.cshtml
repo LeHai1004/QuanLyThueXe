@@ -107,8 +107,8 @@
             <div class="flex items-center gap-3 p-3 bg-white/10 rounded-xl">
                 <img alt="Staff Avatar" class="w-10 h-10 rounded-full object-cover border border-white/20" src="https://ui-avatars.com/api/?name=Staff&background=316bf3&color=fff" />
                 <div class="overflow-hidden">
-                    <p class="text-body-md font-semibold truncate">@(Context.Session.GetString("FullName") ?? "Nhân viên")</p>
-                    <p class="text-[11px] text-white/60 uppercase tracking-wider truncate">@(Context.Session.GetString("RoleName") ?? "Nhân viên vận hành")</p>
+                    <p class="text-body-md font-semibold truncate">@(Context.Session.GetFullName() ?? "Nhân viên")</p>
+                    <p class="text-[11px] text-white/60 uppercase tracking-wider truncate">@(Context.Session.GetRoleName() ?? "Nhân viên vận hành")</p>
                 </div>
             </div>
         </div>
@@ -149,7 +149,7 @@
             </a>
         </nav>
         <div class="px-4 py-4 space-y-1 border-t border-white/10 mt-auto">
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all" asp-controller="Account" asp-action="Settings">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all" href="#">
                 <span class="material-symbols-outlined">settings</span>
                 <span class="font-body-md">Cài đặt</span>
             </a>
@@ -166,21 +166,21 @@
             <div>
                 <h1 class="font-h1 text-h1 text-primary">@ViewData["Title"]</h1>
                 <p class="text-on-surface-variant font-body-md mt-1">
-                    Chào mừng, @(Context.Session.GetString("FullName") ?? "bạn") • @DateTime.Now.ToString("dd/MM/yyyy")
+                    Chào mừng, @(Context.Session.GetFullName() ?? "bạn") • @DateTime.Now.ToVnDate()
                 </p>
             </div>
             <div class="flex items-center gap-4">
                 @await RenderSectionAsync("HeaderSearch", required: false)
                 @{
                     int pendingCount = 0;
-                    var accountIdStr = Context.Session.GetString("AccountId");
+                    var accountIdStr = Context.Session.GetAccountId()?.ToString();
                     if (!string.IsNullOrEmpty(accountIdStr))
                     {
                         int accountId = int.Parse(accountIdStr);
                         var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
                         if (staff != null)
                         {
-                            pendingCount = _context.MaintenanceLogs.Count(m => m.StaffId == staff.StaffId && m.Status == CarRentalSystem.Constants.MaintenanceStatus.Pending);
+                            pendingCount = _context.MaintenanceLogs.Count(m => m.StaffId == staff.StaffId && m.Status == CarRentalSystem.Enums.MaintenanceStatus.Pending);
                         }
                     }
                 }

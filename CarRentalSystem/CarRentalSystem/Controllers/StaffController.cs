@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using CarRentalSystem.Constants;
+using CarRentalSystem.Enums;
+using CarRentalSystem.Extensions;
 
 namespace CarRentalSystem.Controllers
 {
@@ -19,8 +20,8 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Index(string search, string department)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -60,8 +61,8 @@ namespace CarRentalSystem.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -72,8 +73,8 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string fullName, string email, string phoneNumber, string password, string confirmPassword, string position, string department, string branch)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -93,8 +94,8 @@ namespace CarRentalSystem.Controllers
             var newAccount = new Account
             {
                 Email = email,
-                PasswordHash = password,
-                RoleId = 2, // 2 is Staff
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                RoleId = RoleIds.Staff,
                 IsActive = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
@@ -131,8 +132,8 @@ namespace CarRentalSystem.Controllers
 
         public IActionResult Details(int id)
         {
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != RoleConstants.Admin)
+            var role = HttpContext.Session.GetRoleName();
+            if (role != RoleEnums.Admin)
             {
                 return RedirectToAction("Login", "Account");
             }

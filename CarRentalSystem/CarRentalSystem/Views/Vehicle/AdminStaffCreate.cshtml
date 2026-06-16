@@ -1,14 +1,14 @@
 @model CarRentalSystem.Models.Vehicle
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Thêm xe mới vào đội xe";
 
     // Lấy Role từ Session
-    var role = HttpContextAccessor.HttpContext?.Session.GetString("RoleName");
+    var role = HttpContextAccessor.HttpContext?.Session.GetRoleName();
 
     // Chọn Layout dựa trên Role
-    Layout = role == RoleConstants.Admin ? "_AdminLayout" : "_StaffLayout";
+    Layout = role == RoleEnums.Admin ? "_AdminLayout" : "_StaffLayout";
 
     var categories = ViewBag.Categories as IEnumerable<CarRentalSystem.Models.VehicleCategory>;
 }

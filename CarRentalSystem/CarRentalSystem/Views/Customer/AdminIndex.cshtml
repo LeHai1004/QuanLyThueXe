@@ -1,5 +1,5 @@
 @model IEnumerable<CarRentalSystem.Models.Customer>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Quản lý Khách hàng";
@@ -91,7 +91,7 @@
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-sm font-bold text-[#1E293B]">@(item.UserProfile?.FullName ?? "Khách ẩn danh")</span>
-                                        <span class="text-[12px] text-slate-500 font-medium">Tham gia: @(item.UserProfile?.CreatedAt.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                                        <span class="text-[12px] text-slate-500 font-medium">Tham gia: @(item.UserProfile?.CreatedAt.ToVnDate() ?? "N/A")</span>
                                     </div>
                                 </div>
                             </td>

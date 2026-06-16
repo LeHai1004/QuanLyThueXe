@@ -1,5 +1,5 @@
 @model IEnumerable<CarRentalSystem.Models.ImportReceipt>
-@using CarRentalSystem.Constants
+@using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @{
     ViewData["Title"] = "Phê duyệt phiếu nhập xe";
@@ -71,7 +71,7 @@
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 font-bold text-primary">@item.SoImportReceipt</td>
                             <td class="px-6 py-4 font-medium text-slate-700">@(item.Supplier?.SupplierName ?? "Chưa rõ")</td>
-                            <td class="px-6 py-4 text-sm text-slate-500">@item.ImportDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">@item.ImportDate.ToVnFormat()</td>
                             <td class="px-6 py-4 font-bold text-slate-900">@CurrencyHelper.FormatVnd(item.TotalAmount)</td>
                             <td class="px-6 py-4">
                                 @if (item.Status == ImportReceiptStatus.Pending)

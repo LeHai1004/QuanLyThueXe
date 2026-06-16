@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CarRentalSystem.Models;
+using CarRentalSystem.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarRentalSystem.Data;
@@ -109,7 +110,7 @@ public partial class CarRentalContext : DbContext
             entity.Property(e => e.ReturnLocation).HasMaxLength(300);
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
-                .HasDefaultValue("Cho xac nhan");
+                .HasDefaultValue(BookingStatus.Pending);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -173,7 +174,7 @@ public partial class CarRentalContext : DbContext
             entity.Property(e => e.SoImportReceipt).HasMaxLength(20);
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
-                .HasDefaultValue("Cho duyet");
+                .HasDefaultValue(ImportReceiptStatus.Pending);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.ApprovedByStaff).WithMany(p => p.ImportReceiptApprovedByStaffs)
@@ -240,7 +241,7 @@ public partial class CarRentalContext : DbContext
             entity.Property(e => e.PaidDate).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
-                .HasDefaultValue("Chua thanh toan");
+                .HasDefaultValue(InvoiceStatus.Unpaid);
             entity.Property(e => e.SubTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TaxAmount)
                 .HasComputedColumnSql("(round(([SubTotal]*[TaxRate])/(100),(0)))", true)
@@ -297,7 +298,7 @@ public partial class CarRentalContext : DbContext
             entity.Property(e => e.MaintenanceType).HasMaxLength(100);
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
-                .HasDefaultValue("Hoan thanh");
+                .HasDefaultValue(MaintenanceStatus.Completed);
 
             entity.HasOne(d => d.Staff).WithMany(p => p.MaintenanceLogs)
                 .HasForeignKey(d => d.StaffId)
@@ -323,7 +324,7 @@ public partial class CarRentalContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .HasDefaultValue("Thanh cong");
+                .HasDefaultValue(PaymentStatus.Success);
             entity.Property(e => e.TransactionCode).HasMaxLength(100);
 
             entity.HasOne(d => d.Invoice).WithMany(p => p.Payments)
@@ -463,7 +464,7 @@ public partial class CarRentalContext : DbContext
             entity.Property(e => e.Seats).HasDefaultValue(5);
             entity.Property(e => e.Status)
                 .HasMaxLength(30)
-                .HasDefaultValue("San sang");
+                .HasDefaultValue(VehicleStatus.Available);
             entity.Property(e => e.Transmission).HasMaxLength(30);
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
