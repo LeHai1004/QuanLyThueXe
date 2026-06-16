@@ -33,7 +33,7 @@ namespace CarRentalSystem.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
-                string searchNum = search.Replace("NV-", "").Replace("nv-", "");
+                string searchNum = search.Replace(CodePrefix.Staff, "").Replace(CodePrefix.Staff.ToLower(), "");
                 bool isIdSearch = int.TryParse(searchNum, out int parsedId);
 
                 query = query.Where(s => s.UserProfile.FullName.Contains(search) 
@@ -116,7 +116,7 @@ namespace CarRentalSystem.Controllers
             var newStaff = new Staff
             {
                 UserProfileId = newProfile.UserProfileId,
-                StaffCode = "NV-" + DateTime.Now.ToString("yyMMddHHmmss"),
+                StaffCode = CodePrefix.Staff + DateTime.Now.ToString("yyMMddHHmmss"),
                 Position = position,
                 Department = department,
                 Branch = branch,

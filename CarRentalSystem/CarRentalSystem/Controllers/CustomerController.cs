@@ -29,25 +29,25 @@ namespace CarRentalSystem.Controllers
                 .Include(c => c.Bookings)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(status) && status != "Tất cả")
+            if (!string.IsNullOrEmpty(status) && status != AccountStatusLabel.All)
             {
-                if (status == "Hoạt động")
+                if (status == AccountStatusLabel.Active)
                     query = query.Where(c => c.UserProfile.Account.IsActive == true);
-                else if (status == "Bị khóa")
+                else if (status == AccountStatusLabel.Locked)
                     query = query.Where(c => c.UserProfile.Account.IsActive == false);
             }
 
             var customers = query.OrderByDescending(c => c.CustomerId).ToList();
 
-            if (!string.IsNullOrEmpty(tier) && tier != "Tất cả")
+            if (!string.IsNullOrEmpty(tier) && tier != CustomerTierLabel.All)
             {
                 customers = customers.Where(item => 
                 {
                     decimal totalSpent = item.Bookings?.Where(b => b.Status == BookingStatus.Completed).Sum(b => (decimal?)b.TotalAmount) ?? 0;
-                    if (tier == "VIP Gold") return totalSpent >= CustomerTierThreshold.Gold;
-                    if (tier == "VIP Silver") return totalSpent >= CustomerTierThreshold.Silver && totalSpent < CustomerTierThreshold.Gold;
-                    if (tier == "VIP Bronze") return totalSpent >= CustomerTierThreshold.Bronze && totalSpent < CustomerTierThreshold.Silver;
-                    if (tier == "Member") return totalSpent < CustomerTierThreshold.Bronze;
+                    if (tier == CustomerTierLabel.Gold) return totalSpent >= CustomerTierThreshold.Gold;
+                    if (tier == CustomerTierLabel.Silver) return totalSpent >= CustomerTierThreshold.Silver && totalSpent < CustomerTierThreshold.Gold;
+                    if (tier == CustomerTierLabel.Bronze) return totalSpent >= CustomerTierThreshold.Bronze && totalSpent < CustomerTierThreshold.Silver;
+                    if (tier == CustomerTierLabel.Member) return totalSpent < CustomerTierThreshold.Bronze;
                     return true;
                 }).ToList();
             }

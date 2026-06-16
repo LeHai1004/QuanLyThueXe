@@ -31,7 +31,7 @@ namespace CarRentalSystem.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
-                string searchNum = search.Replace("NCC-", "").Replace("ncc-", "");
+                string searchNum = search.Replace(CodePrefix.Supplier, "").Replace(CodePrefix.Supplier.ToLower(), "");
                 bool isIdSearch = int.TryParse(searchNum, out int parsedId);
 
                 query = query.Where(s => s.SupplierName.Contains(search) 

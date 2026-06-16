@@ -37,12 +37,6 @@ namespace CarRentalSystem.Enums
         public const string Customer = "Customer";
     }
 
-    public static class PaymentMethod
-    {
-        public const string Cash = "Tien mat";
-        public const string Transfer = "Chuyen khoan";
-    }
-
     public static class MaintenanceType
     {
         public const string Periodic = "Dinh ky";
@@ -53,8 +47,6 @@ namespace CarRentalSystem.Enums
     public static class InvoiceType
     {
         public const string Rental = "Thue xe";
-        public const string Deposit = "Dat coc";
-        public const string Fine = "Phat";
     }
     public static class MaintenanceStatus
     {
@@ -85,6 +77,7 @@ namespace CarRentalSystem.Enums
     {
         public const decimal DefaultTaxRate = 10m;
         public const decimal ProfitMarginRate = 0.35m;
+        public const decimal DepositRate = 0.1m;
     }
 
     public static class BookingDefaults
@@ -107,5 +100,27 @@ namespace CarRentalSystem.Enums
         public const decimal Gold = 50_000_000m;
         public const decimal Silver = 20_000_000m;
         public const decimal Bronze = 5_000_000m;
+    }
+
+    public static class CodePrefix
+    {
+        public const string Staff = "NV-";
+        public const string Supplier = "NCC-";
+    }
+
+    public static class AccountStatusLabel
+    {
+        public const string Active = "Hoạt động";
+        public const string Locked = "Bị khóa";
+        public const string All = "Tất cả";
+    }
+
+    public static class CustomerTierLabel
+    {
+        public const string Gold = "VIP Gold";
+        public const string Silver = "VIP Silver";
+        public const string Bronze = "VIP Bronze";
+        public const string Member = "Member";
+        public const string All = "Tất cả";
     }
 }

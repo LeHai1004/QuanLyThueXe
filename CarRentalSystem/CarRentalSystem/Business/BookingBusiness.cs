@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using CarRentalSystem.Enums;
 
 namespace CarRentalSystem.Business
 {
@@ -17,7 +18,7 @@ namespace CarRentalSystem.Business
 
         public decimal CalculateDeposit(decimal basePrice)
         {
-            return basePrice * 0.1m;
+            return basePrice * TaxConfig.DepositRate;
         }
 
         public decimal CalculateTotalAmount(decimal basePrice, decimal discount)
