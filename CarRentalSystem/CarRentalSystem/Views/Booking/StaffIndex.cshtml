@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CarRentalSystem.Models.Booking>
+@model IEnumerable<CarRentalSystem.Models.Booking>
 @using CarRentalSystem.Enums
 @using CarRentalSystem.Helpers
 @{
@@ -109,7 +109,7 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <a href="/Booking/StaffDetails/@item.BookingId" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Xem chi tiết">
+                                    <a href="/Booking/Details/@item.BookingId" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Xem chi tiết">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </a>
 

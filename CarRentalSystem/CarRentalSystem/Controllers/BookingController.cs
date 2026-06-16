@@ -156,7 +156,7 @@ namespace CarRentalSystem.Controllers
 
             if (method == BookingDefaults.PaymentCash)
             {
-                int bookingId = ProcessBookingToDB();
+                int bookingId = ProcessBookingToDB(InvoiceStatus.Unpaid);
                 if (bookingId > 0)
                 {
                     return RedirectToAction("Success", new { id = bookingId });
@@ -186,7 +186,7 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult QRCodeConfirm()
         {
-            int bookingId = ProcessBookingToDB();
+            int bookingId = ProcessBookingToDB(InvoiceStatus.Paid);
             if (bookingId > 0)
             {
                 return RedirectToAction("Success", new { id = bookingId });
@@ -194,7 +194,7 @@ namespace CarRentalSystem.Controllers
             return RedirectToAction("CustomerList", "Vehicle");
         }
 
-        private int ProcessBookingToDB()
+        private int ProcessBookingToDB(string invoiceStatus)
         {
             var accountId = HttpContext.Session.GetAccountId()!.Value;
             var customer = _context.Customers.Include(c => c.UserProfile).FirstOrDefault(c => c.UserProfile.AccountId == accountId);
@@ -226,6 +226,22 @@ namespace CarRentalSystem.Controllers
             };
 
             _context.Bookings.Add(booking);
+            _context.SaveChanges();
+
+            var invoice = new Invoice
+            {
+                InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
+                BookingId = booking.BookingId,
+                CustomerId = customer.CustomerId,
+                LoaiInvoice = InvoiceType.Rental,
+                SubTotal = total,
+                TaxRate = TaxConfig.DefaultTaxRate,
+                DiscountAmount = 0,
+                GrandTotal = total,
+                Status = invoiceStatus,
+                IssueDate = DateTime.Now
+            };
+            _context.Invoices.Add(invoice);
             _context.SaveChanges();
 
             HttpContext.Session.Remove("TempVehicleId");
@@ -542,6 +558,12 @@ namespace CarRentalSystem.Controllers
                 {
                     booking.Vehicle.Status = VehicleStatus.Available;
                     booking.Vehicle.UpdatedAt = DateTime.Now;
+                }
+
+                var invoice = _context.Invoices.FirstOrDefault(i => i.BookingId == id);
+                if (invoice != null)
+                {
+                    _context.Invoices.Remove(invoice);
                 }
 
                 _context.SaveChanges();

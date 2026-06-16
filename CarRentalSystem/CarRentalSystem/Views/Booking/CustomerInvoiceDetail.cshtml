@@ -28,11 +28,15 @@
             <div class="text-right">
                 @if (Model.Status == InvoiceStatus.Paid)
                 {
-                    <span class="inline-block bg-[#0058be] text-white px-4 py-2 rounded-full font-bold text-[14px] shadow-sm uppercase tracking-wider">Đã Thanh Toán</span>
+                    <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 px-5 py-2 rounded-full font-bold text-[14px] shadow-sm uppercase tracking-wider whitespace-nowrap">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span> Đã Thanh Toán
+                    </span>
                 }
                 else
                 {
-                    <span class="inline-block bg-[#ba1a1a] text-white px-4 py-2 rounded-full font-bold text-[14px] shadow-sm uppercase tracking-wider">Chưa Thanh Toán</span>
+                    <span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 px-5 py-2 rounded-full font-bold text-[14px] shadow-sm uppercase tracking-wider whitespace-nowrap">
+                        <span class="material-symbols-outlined text-[18px]">schedule</span> Chưa Thanh Toán
+                    </span>
                 }
             </div>
         </div>
