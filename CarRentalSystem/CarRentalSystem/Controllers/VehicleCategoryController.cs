@@ -1,4 +1,4 @@
-﻿using CarRentalSystem.Data;
+using CarRentalSystem.Data;
 using CarRentalSystem.Models;
 using CarRentalSystem.Enums;
 using CarRentalSystem.Extensions;
@@ -95,7 +95,15 @@ namespace CarRentalSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.VehicleCategories.Update(model);
+                var existingCategory = await _db.VehicleCategories.FindAsync(model.CategoryId);
+                if (existingCategory == null)
+                {
+                    return NotFound();
+                }
+
+                existingCategory.CategoryName = model.CategoryName;
+                existingCategory.Description = model.Description;
+
                 await _db.SaveChangesAsync();
                 TempData["Success"] = "Cập nhật loại xe thành công!";
                 return RedirectToAction("Index");
@@ -123,9 +131,18 @@ namespace CarRentalSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var item = await _db.VehicleCategories.FindAsync(id);
+            var item = await _db.VehicleCategories
+                .Include(c => c.Vehicles)
+                .FirstOrDefaultAsync(m => m.CategoryId == id);
+
             if (item != null)
             {
+                if (item.Vehicles != null && item.Vehicles.Any())
+                {
+                    TempData["Error"] = "Không thể xóa loại xe này vì vẫn còn xe thuộc loại này!";
+                    return RedirectToAction("Index");
+                }
+
                 _db.VehicleCategories.Remove(item);
                 await _db.SaveChangesAsync();
                 TempData["Success"] = "Đã xóa danh mục xe thành công!";

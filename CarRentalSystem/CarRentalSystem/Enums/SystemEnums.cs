@@ -106,6 +106,7 @@ namespace CarRentalSystem.Enums
     {
         public const string Staff = "NV-";
         public const string Supplier = "NCC-";
+        public const string Booking = "RC-";
     }
 
     public static class AccountStatusLabel

@@ -62,7 +62,11 @@ namespace CarRentalSystem.Controllers
             else
             {
                 var accountId = HttpContext.Session.GetAccountId()!.Value;
-                var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
+                var staff = _context.Staff.Include(s => s.UserProfile).FirstOrDefault(s => s.UserProfile.AccountId == accountId);
+                if (staff == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
                 staffId = staff.StaffId;
             }
 
@@ -115,7 +119,7 @@ namespace CarRentalSystem.Controllers
             }
 
             var accountId = HttpContext.Session.GetAccountId();
-            var staff = _context.Staff.FirstOrDefault(s => s.UserProfile.AccountId == accountId);
+            var staff = _context.Staff.Include(s => s.UserProfile).FirstOrDefault(s => s.UserProfile.AccountId == accountId);
 
             if (staff == null)
             {

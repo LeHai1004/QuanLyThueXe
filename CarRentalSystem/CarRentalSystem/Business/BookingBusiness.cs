@@ -23,7 +23,8 @@ namespace CarRentalSystem.Business
 
         public decimal CalculateTotalAmount(decimal basePrice, decimal discount)
         {
-            decimal total = basePrice - discount;
+            decimal deposit = CalculateDeposit(basePrice);
+            decimal total = basePrice + deposit - discount;
             return total < 0 ? 0 : total;
         }
     }

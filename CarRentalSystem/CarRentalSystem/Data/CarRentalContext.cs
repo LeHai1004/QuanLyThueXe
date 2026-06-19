@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CarRentalSystem.Models;
 using CarRentalSystem.Enums;
@@ -236,7 +236,7 @@ public partial class CarRentalContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.LoaiInvoice)
                 .HasMaxLength(30)
-                .HasDefaultValue("Thue xe");
+                .HasDefaultValue(InvoiceType.Rental);
             entity.Property(e => e.Note).HasMaxLength(500);
             entity.Property(e => e.PaidDate).HasColumnType("datetime");
             entity.Property(e => e.Status)

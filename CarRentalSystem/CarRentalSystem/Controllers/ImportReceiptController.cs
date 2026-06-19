@@ -144,46 +144,57 @@ namespace CarRentalSystem.Controllers
                     Seats = string.IsNullOrEmpty(form["Seats"]) ? 4 : int.Parse(form["Seats"]),
                     Transmission = form["Transmission"].ToString() ?? "Tự động",
                     FuelType = form["FuelType"].ToString() ?? "Xăng",
-                    PricePerDay = string.IsNullOrEmpty(form["TotalAmount"]) ? 0 : decimal.Parse(form["TotalAmount"]),
+                    PricePerDay = 0, // Giá cho thuê sẽ được cập nhật sau bởi quản lý
                     Status = VehicleStatus.Inactive, // Xe mới nhập, chờ duyệt
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
 
-                _context.Vehicles.Add(vehicle);
-                _context.SaveChanges();
-
-                // 4. Tạo Import Receipt (Phiếu nhập)
-                var totalAmount = string.IsNullOrEmpty(form["TotalAmount"]) ? 0 : decimal.Parse(form["TotalAmount"]);
-
-                var receipt = new ImportReceipt
+                using var transaction = _context.Database.BeginTransaction();
+                try
                 {
-                    SoImportReceipt = CodeGeneratorHelper.GenerateReceiptCode(),
-                    SupplierId = int.Parse(form["SupplierId"]),
-                    StaffId = staff.StaffId,
-                    ImportDate = DateTime.Now,
-                    TotalAmount = totalAmount,
-                    Status = ImportReceiptStatus.Pending,
-                    CreatedAt = DateTime.Now
-                };
+                    _context.Vehicles.Add(vehicle);
+                    _context.SaveChanges();
 
-                _context.ImportReceipts.Add(receipt);
-                _context.SaveChanges();
+                    // 4. Tạo Import Receipt (Phiếu nhập)
+                    var totalAmount = string.IsNullOrEmpty(form["TotalAmount"]) ? 0 : decimal.Parse(form["TotalAmount"]);
 
-                // 5. Tạo Import Receipt Detail (Chi tiết nhập)
-                var detail = new ImportReceiptDetail
+                    var receipt = new ImportReceipt
+                    {
+                        SoImportReceipt = CodeGeneratorHelper.GenerateReceiptCode(),
+                        SupplierId = int.Parse(form["SupplierId"]),
+                        StaffId = staff.StaffId,
+                        ImportDate = DateTime.Now,
+                        TotalAmount = totalAmount,
+                        Status = ImportReceiptStatus.Pending,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.ImportReceipts.Add(receipt);
+                    _context.SaveChanges();
+
+                    // 5. Tạo Import Receipt Detail (Chi tiết nhập)
+                    var detail = new ImportReceiptDetail
+                    {
+                        ImportReceiptId = receipt.ImportReceiptId,
+                        VehicleId = vehicle.VehicleId,
+                        Quantity = 1,                           // BỔ SUNG: Nhập 1 chiếc xe
+                        UnitPrice = totalAmount,
+                        LineTotal = totalAmount,                // BỔ SUNG: Tổng tiền dòng này
+                        CurrentKm = 0,                          // BỔ SUNG: Xe mới nhập Km = 0
+                        VehicleCondition = VehicleDefaults.DefaultCondition        // BỔ SUNG: Tình trạng xe
+                    };
+
+                    _context.ImportReceiptDetails.Add(detail);
+                    _context.SaveChanges();
+
+                    transaction.Commit();
+                }
+                catch (Exception)
                 {
-                    ImportReceiptId = receipt.ImportReceiptId,
-                    VehicleId = vehicle.VehicleId,
-                    Quantity = 1,                           // BỔ SUNG: Nhập 1 chiếc xe
-                    UnitPrice = totalAmount,
-                    LineTotal = totalAmount,                // BỔ SUNG: Tổng tiền dòng này
-                    CurrentKm = 0,                          // BỔ SUNG: Xe mới nhập Km = 0
-                    VehicleCondition = VehicleDefaults.DefaultCondition        // BỔ SUNG: Tình trạng xe
-                };
-
-                _context.ImportReceiptDetails.Add(detail);
-                _context.SaveChanges();
+                    transaction.Rollback();
+                    throw; // Rethrow để catch block bên dưới bắt và hiển thị lỗi
+                }
 
                 TempData["SuccessMessage"] = "Tạo phiếu nhập kho thành công! Chờ Admin phê duyệt.";
                 return RedirectToAction("Index");
@@ -210,6 +221,7 @@ namespace CarRentalSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Approve(int id)
         {
             var role = HttpContext.Session.GetRoleName();
@@ -241,6 +253,7 @@ namespace CarRentalSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Reject(int id)
         {
             var role = HttpContext.Session.GetRoleName();

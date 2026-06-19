@@ -139,12 +139,9 @@
                                     <a href="/Supplier/Edit/@item.SupplierId" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa">
                                         <span class="material-symbols-outlined text-[20px]">edit</span>
                                     </a>
-                                    <form method="post" action="/Supplier/Delete/@item.SupplierId" onsubmit="return confirm('Bạn có chắc chắn muốn ngừng hợp tác với nhà cung cấp này không?');" class="inline-block m-0">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Xóa">
-                                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                                        </button>
-                                    </form>
+                                    <button type="button" onclick="openDeleteModal('@item.SupplierId')" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Xóa">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -168,3 +165,65 @@
         </div>
     </section>
 </div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 z-[100] hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6 transform transition-all duration-300 scale-95 opacity-0" id="deleteModalContent">
+        <div class="flex items-start gap-4 mb-5">
+            <div class="p-3 bg-rose-100 text-rose-600 rounded-full flex-shrink-0">
+                <span class="material-symbols-outlined text-2xl">warning</span>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">Xác nhận ngừng hợp tác</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">Bạn có chắc chắn muốn ngừng hợp tác với nhà cung cấp này không? Hành động này không thể hoàn tác.</p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-lg transition-colors">
+                Hủy
+            </button>
+            <form id="deleteForm" method="post" class="m-0">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm rounded-lg shadow-md shadow-rose-500/20 transition-colors">
+                    Đồng ý
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openDeleteModal(supplierId) {
+            const modal = document.getElementById('deleteModal');
+            const modalContent = document.getElementById('deleteModalContent');
+            const deleteForm = document.getElementById('deleteForm');
+            
+            // Update form action with specific supplier ID
+            deleteForm.action = '/Supplier/Delete/' + supplierId;
+            
+            // Show modal backdrop
+            modal.classList.remove('hidden');
+            
+            // Small delay to allow display:block to apply before animating opacity/scale
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            const modalContent = document.getElementById('deleteModalContent');
+            
+            // Animate out
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            // Hide after animation finishes
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+}

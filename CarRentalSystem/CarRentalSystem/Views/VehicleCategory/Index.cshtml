@@ -32,6 +32,14 @@
     </div>
 }
 
+@if (TempData["Error"] != null)
+{
+    <div id="toast-error" class="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 bg-white border border-red-200 rounded-xl shadow-xl text-sm text-red-700 font-bold animate-in slide-in-from-right-10">
+        <span class="material-symbols-outlined text-red-500">error</span>
+        @TempData["Error"]
+    </div>
+}
+
 <div class="mb-8 flex justify-between items-center mt-4">
     <div>
         <h2 class="text-2xl font-extrabold text-[#1E293B]">Danh mục Phân loại Xe</h2>
@@ -80,13 +88,13 @@
                     <td class="px-8 py-6 text-center">
                         @if (item.IsActive)
                         {
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-bold text-[12px]">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-bold text-[12px] whitespace-nowrap">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Hoạt động
                             </span>
                         }
                         else
                         {
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-500 font-bold text-[12px]">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-500 font-bold text-[12px] whitespace-nowrap">
                                 <span class="w-2 h-2 rounded-full bg-slate-400"></span> Đã ẩn
                             </span>
                         }
@@ -122,7 +130,7 @@
         Hiển thị @startItem - @endItem trong tổng số @totalCount loại xe
     </p>
     <div class="flex items-center gap-2">
-        <a href="?page=@(currentPage > 1 ? currentPage - 1 : 1)&search=@search"
+        <a asp-action="Index" asp-route-page="@(currentPage > 1 ? currentPage - 1 : 1)" asp-route-search="@search"
            class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold @(currentPage <= 1 ? "text-slate-300 pointer-events-none" : "text-slate-600 hover:bg-slate-50") transition-all">
             Trước
         </a>
@@ -137,13 +145,13 @@
             }
             else
             {
-                <a href="?page=@i&search=@search" class="w-11 h-11 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+                <a asp-action="Index" asp-route-page="@i" asp-route-search="@search" class="w-11 h-11 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
                     @i
                 </a>
             }
         }
 
-        <a href="?page=@(currentPage < totalPages ? currentPage + 1 : totalPages)&search=@search"
+        <a asp-action="Index" asp-route-page="@(currentPage < totalPages ? currentPage + 1 : totalPages)" asp-route-search="@search"
            class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold @(currentPage >= totalPages ? "text-slate-300 pointer-events-none" : "text-slate-600 hover:bg-slate-50") transition-all">
             Tiếp
         </a>
@@ -166,7 +174,7 @@
                     <span class="material-symbols-outlined text-2xl">close</span>
                 </button>
             </div>
-            <form action="/VehicleCategory/Create" method="post" class="px-10 py-8 space-y-6">
+            <form asp-controller="VehicleCategory" asp-action="Create" method="post" class="px-10 py-8 space-y-6">
                 @Html.AntiForgeryToken()
                 <div class="space-y-2">
                     <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-widest">Tên loại xe <span class="text-red-500">*</span></label>
@@ -221,7 +229,7 @@
                     <span class="material-symbols-outlined text-2xl">close</span>
                 </button>
             </div>
-            <form action="/VehicleCategory/Edit" method="post" class="px-10 py-8 space-y-6">
+            <form asp-controller="VehicleCategory" asp-action="Edit" method="post" class="px-10 py-8 space-y-6">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="CategoryId" id="editCategoryId" />
                 <div class="space-y-2">
@@ -267,7 +275,7 @@
             </div>
             <div class="px-10 py-8 bg-slate-50/50 flex items-center justify-center gap-4">
                 <button type="button" onclick="closeDeleteModal()" class="px-8 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 bg-white hover:bg-slate-100 transition-all shadow-sm">Hủy bỏ</button>
-                <form action="/VehicleCategory/Delete" method="post" class="m-0">
+                <form asp-controller="VehicleCategory" asp-action="Delete" method="post" class="m-0">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" id="deleteId" />
                     <button type="submit" class="px-8 py-3 bg-secondary text-white rounded-xl font-bold text-sm shadow-lg shadow-secondary/30 hover:bg-primary transition-all duration-300 active:scale-95 flex items-center gap-2">
@@ -324,6 +332,13 @@
                 t.style.transition = 'opacity 0.5s';
                 t.style.opacity = '0';
                 setTimeout(() => t.remove(), 500);
+            }
+            
+            const e = document.getElementById('toast-error');
+            if(e) {
+                e.style.transition = 'opacity 0.5s';
+                e.style.opacity = '0';
+                setTimeout(() => e.remove(), 500);
             }
         }, 3000);
     </script>

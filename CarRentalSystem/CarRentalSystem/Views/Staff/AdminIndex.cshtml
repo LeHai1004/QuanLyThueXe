@@ -164,10 +164,20 @@
                                 <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[12px] font-bold border border-slate-200">@(item.Position ?? "Nhân viên") - @(item.Department ?? "Chưa phân bổ")</span>
                             </td>
                             <td class="px-6 py-5 text-center">
-                                <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap">Đang làm việc</span>
+                                @if (item.IsActive)
+                                {
+                                    <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap">Đang làm việc</span>
+                                }
+                                else
+                                {
+                                    <span class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap">Đã nghỉ việc</span>
+                                }
                             </td>
                             <td class="px-6 py-5 text-right">
                                 <div class="flex justify-end gap-2">
+                                    <a href="/Staff/Edit/@item.StaffId" class="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors inline-block" title="Chỉnh sửa">
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    </a>
                                     <a href="/Staff/Details/@item.StaffId" class="p-2 text-slate-400 hover:text-[#316bf3] hover:bg-blue-50 rounded-lg transition-colors inline-block" title="Chi tiết">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </a>

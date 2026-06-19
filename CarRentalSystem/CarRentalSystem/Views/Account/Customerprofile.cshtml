@@ -81,6 +81,18 @@
             </div>
         }
 
+        @if (TempData["LicenseError"] != null)
+        {
+            <div class="mb-6 px-5 py-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded-xl shadow-sm">
+                <div class="flex items-center gap-3 font-bold text-base mb-1">
+                    <span class="material-symbols-outlined text-red-500">warning</span>
+                    Cần bổ sung thông tin bằng lái xe!
+                </div>
+                <p class="text-sm font-medium text-red-700 ml-9">@TempData["LicenseError"]</p>
+                <p class="text-sm text-red-600 ml-9 mt-1">Vui lòng điền vào ô <strong>"Số bằng lái xe"</strong> bên dưới và nhấn <strong>"Lưu thay đổi"</strong> rồi quay lại đặt xe.</p>
+            </div>
+        }
+
         <div class="bg-white rounded-2xl shadow-[0_4px_20px_rgba(30,58,138,0.07)] border border-slate-100 p-8">
             <h1 class="text-2xl font-bold text-[#00236f] mb-8">Thông tin cá nhân</h1>
 
@@ -135,9 +147,17 @@
                     </div>
 
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Số bằng lái xe</label>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Số bằng lái xe
+                            @if (TempData["LicenseError"] != null)
+                            {
+                                <span class="text-red-500 ml-1">* Bắt buộc để đặt xe</span>
+                            }
+                        </label>
                         <input type="text" name="LicenseNumber" value="@Model.LicenseNumber"
-                               class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all" />
+                               id="licenseNumberInput"
+                               placeholder="Nhập số bằng lái xe của bạn"
+                               class="px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#00236f]/20 focus:border-[#00236f] transition-all @(TempData.Peek("LicenseError") != null ? "border-red-400 bg-red-50" : "border-slate-200")" />
                     </div>
 
                     <div class="flex flex-col gap-1.5 md:col-span-2">

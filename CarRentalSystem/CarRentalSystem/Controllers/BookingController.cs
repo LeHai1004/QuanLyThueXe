@@ -36,6 +36,18 @@ namespace CarRentalSystem.Controllers
                 return RedirectToAction("CustomerList", "Vehicle");
             }
 
+            // Kiểm tra khách hàng đã cập nhật bằng lái xe chưa
+            var accountId = HttpContext.Session.GetAccountId()!.Value;
+            var customer = _context.Customers
+                .Include(c => c.UserProfile)
+                .FirstOrDefault(c => c.UserProfile.AccountId == accountId);
+
+            if (customer == null || string.IsNullOrWhiteSpace(customer.LicenseNumber))
+            {
+                TempData["LicenseError"] = "Bạn cần cập nhật Số bằng lái xe trong hồ sơ cá nhân trước khi đặt xe!";
+                return RedirectToAction("Profile", "Account");
+            }
+
             return View("CustomerCreate", vehicle);
         }
 
@@ -57,7 +69,11 @@ namespace CarRentalSystem.Controllers
             // Xử lý Tìm kiếm (Theo mã đơn hoặc Tên khách hàng)
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(b => b.BookingId.ToString().Contains(search)
+                string searchNum = search.Replace(CodePrefix.Booking, "", StringComparison.OrdinalIgnoreCase).Replace("#", "");
+                bool isIdSearch = int.TryParse(searchNum, out int parsedId);
+
+                query = query.Where(b => (isIdSearch && b.BookingId == parsedId)
+                                      || b.BookingId.ToString().Contains(searchNum)
                                       || b.Customer.UserProfile.FullName.Contains(search));
                 ViewBag.SearchString = search;
             }
@@ -124,11 +140,13 @@ namespace CarRentalSystem.Controllers
 
             var bookingBiz = new BookingBusiness();
             int totalDays = bookingBiz.CalculateRentalDays(pickupDateTime, returnDateTime);
-            decimal totalAmount = bookingBiz.CalculateBasePrice(totalDays, vehicle.PricePerDay);
+            decimal basePrice = bookingBiz.CalculateBasePrice(totalDays, vehicle.PricePerDay);
+            decimal totalAmount = bookingBiz.CalculateTotalAmount(basePrice, 0);
 
             HttpContext.Session.SetString("TempVehicleId", vehicleId.ToString());
             HttpContext.Session.SetString("TempPickup", pickupDateTime.ToString("yyyy-MM-ddTHH:mm"));
             HttpContext.Session.SetString("TempReturn", returnDateTime.ToString("yyyy-MM-ddTHH:mm"));
+            HttpContext.Session.SetString("TempBasePrice", basePrice.ToString());
             HttpContext.Session.SetString("TempTotal", totalAmount.ToString());
 
             return RedirectToAction("Payment");
@@ -207,55 +225,73 @@ namespace CarRentalSystem.Controllers
             int vehicleId = int.Parse(HttpContext.Session.GetString("TempVehicleId")!);
             DateTime pickup = DateTime.Parse(HttpContext.Session.GetString("TempPickup")!);
             DateTime returnDt = DateTime.Parse(HttpContext.Session.GetString("TempReturn")!);
+            decimal basePrice = decimal.Parse(HttpContext.Session.GetString("TempBasePrice") ?? HttpContext.Session.GetString("TempTotal")!);
             decimal total = decimal.Parse(HttpContext.Session.GetString("TempTotal")!);
 
-            var booking = new Booking
+            using var transaction = _context.Database.BeginTransaction();
+            try
             {
-                CustomerId = customer.CustomerId,
-                VehicleId = vehicleId,
-                PickupLocation = BookingDefaults.DefaultPickupLocation,
-                ReturnLocation = BookingDefaults.DefaultReturnLocation,
-                PickupDateTime = pickup,
-                ReturnDateTime = returnDt,
-                BasePrice = total,
-                TotalAmount = total,
-                Status = BookingStatus.Pending,
-                BookingChannel = BookingDefaults.OnlineChannel,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
+                var booking = new Booking
+                {
+                    CustomerId = customer.CustomerId,
+                    VehicleId = vehicleId,
+                    PickupLocation = BookingDefaults.DefaultPickupLocation,
+                    ReturnLocation = BookingDefaults.DefaultReturnLocation,
+                    PickupDateTime = pickup,
+                    ReturnDateTime = returnDt,
+                    BasePrice = basePrice,
+                    TotalAmount = total,
+                    Status = BookingStatus.Pending,
+                    BookingChannel = BookingDefaults.OnlineChannel,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
 
-            _context.Bookings.Add(booking);
-            _context.SaveChanges();
+                _context.Bookings.Add(booking);
+                _context.SaveChanges();
 
-            var invoice = new Invoice
+                decimal taxAmount = total * (TaxConfig.DefaultTaxRate / 100m);
+                decimal grandTotal = total + taxAmount;
+
+                var invoice = new Invoice
+                {
+                    InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
+                    BookingId = booking.BookingId,
+                    CustomerId = customer.CustomerId,
+                    LoaiInvoice = InvoiceType.Rental,
+                    SubTotal = basePrice,
+                    TaxRate = TaxConfig.DefaultTaxRate,
+                    DiscountAmount = 0,
+                    GrandTotal = grandTotal,
+                    Status = invoiceStatus,
+                    IssueDate = DateTime.Now
+                };
+                _context.Invoices.Add(invoice);
+                _context.SaveChanges();
+
+                transaction.Commit();
+
+                HttpContext.Session.Remove("TempVehicleId");
+                HttpContext.Session.Remove("TempPickup");
+                HttpContext.Session.Remove("TempReturn");
+                HttpContext.Session.Remove("TempTotal");
+
+                return booking.BookingId;
+            }
+            catch (Exception)
             {
-                InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
-                BookingId = booking.BookingId,
-                CustomerId = customer.CustomerId,
-                LoaiInvoice = InvoiceType.Rental,
-                SubTotal = total,
-                TaxRate = TaxConfig.DefaultTaxRate,
-                DiscountAmount = 0,
-                GrandTotal = total,
-                Status = invoiceStatus,
-                IssueDate = DateTime.Now
-            };
-            _context.Invoices.Add(invoice);
-            _context.SaveChanges();
-
-            HttpContext.Session.Remove("TempVehicleId");
-            HttpContext.Session.Remove("TempPickup");
-            HttpContext.Session.Remove("TempReturn");
-            HttpContext.Session.Remove("TempTotal");
-
-            return booking.BookingId;
+                transaction.Rollback();
+                return 0;
+            }
         }
 
         [HttpGet]
         public IActionResult Success(int id)
         {
-            var booking = _context.Bookings.Include(b => b.Vehicle).FirstOrDefault(b => b.BookingId == id);
+            var booking = _context.Bookings
+                .Include(b => b.Vehicle)
+                .Include(b => b.Invoice)
+                .FirstOrDefault(b => b.BookingId == id);
             if (booking == null)
             {
                 return RedirectToAction("CustomerList", "Vehicle");
@@ -353,6 +389,9 @@ namespace CarRentalSystem.Controllers
                 var existingInvoice = await _context.Invoices.FirstOrDefaultAsync(i => i.BookingId == id);
                 if (existingInvoice == null)
                 {
+                    decimal taxAmount = booking.BasePrice * (TaxConfig.DefaultTaxRate / 100m);
+                    decimal grandTotal = booking.BasePrice - booking.DiscountAmount + taxAmount;
+
                     var invoice = new Invoice
                     {
                         InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
@@ -362,7 +401,7 @@ namespace CarRentalSystem.Controllers
                         SubTotal = booking.BasePrice,
                         TaxRate = TaxConfig.DefaultTaxRate,
                         DiscountAmount = booking.DiscountAmount,
-                        GrandTotal = booking.TotalAmount,
+                        GrandTotal = grandTotal,
                         Status = InvoiceStatus.Unpaid,
                         IssueDate = DateTime.Now
                     };
@@ -419,6 +458,9 @@ namespace CarRentalSystem.Controllers
             var invoice = _context.Invoices.FirstOrDefault(i => i.BookingId == id);
             if (invoice == null)
             {
+                decimal taxAmount = booking.BasePrice * (TaxConfig.DefaultTaxRate / 100m);
+                decimal grandTotal = booking.BasePrice - booking.DiscountAmount + taxAmount;
+
                 invoice = new Invoice
                 {
                     InvoiceNumber = CodeGeneratorHelper.GenerateInvoiceCode(),
@@ -428,7 +470,7 @@ namespace CarRentalSystem.Controllers
                     SubTotal = booking.BasePrice,
                     TaxRate = TaxConfig.DefaultTaxRate,
                     DiscountAmount = booking.DiscountAmount,
-                    GrandTotal = booking.TotalAmount,
+                    GrandTotal = grandTotal,
                     Status = InvoiceStatus.Paid,
                     IssueDate = DateTime.Now
                 };
@@ -718,12 +760,22 @@ namespace CarRentalSystem.Controllers
             var bookingBiz = new BookingBusiness();
             int diffDays = bookingBiz.CalculateRentalDays(PickupDateTime, ReturnDateTime);
             decimal basePrice = bookingBiz.CalculateBasePrice(diffDays, booking.Vehicle?.PricePerDay ?? 0);
+            decimal totalAmount = bookingBiz.CalculateTotalAmount(basePrice, 0);
 
             booking.PickupDateTime = PickupDateTime;
             booking.ReturnDateTime = ReturnDateTime;
             booking.BasePrice = basePrice;
-            booking.TotalAmount = basePrice;
+            booking.TotalAmount = totalAmount;
             booking.UpdatedAt = DateTime.Now;
+
+            // Update associated invoice to keep them in sync
+            var existingInvoice = await _context.Invoices.FirstOrDefaultAsync(i => i.BookingId == BookingId);
+            if (existingInvoice != null && existingInvoice.Status == InvoiceStatus.Unpaid)
+            {
+                decimal taxAmount = basePrice * (TaxConfig.DefaultTaxRate / 100m);
+                existingInvoice.SubTotal = basePrice;
+                existingInvoice.GrandTotal = basePrice - existingInvoice.DiscountAmount + taxAmount;
+            }
 
             await _context.SaveChangesAsync();
 

@@ -92,36 +92,48 @@ namespace CarRentalSystem.Controllers
                 return View("Login");
             }
 
-            var newAccount = new Account
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
             {
-                Email = email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-                RoleId = RoleIds.Customer,
-                IsActive = true,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
-            _db.Accounts.Add(newAccount);
-            await _db.SaveChangesAsync();
+                var newAccount = new Account
+                {
+                    Email = email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                    RoleId = RoleIds.Customer,
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                _db.Accounts.Add(newAccount);
+                await _db.SaveChangesAsync();
 
-            var newProfile = new UserProfile
-            {
-                AccountId = newAccount.AccountId,
-                FullName = fullName,
-                PhoneNumber = phoneNumber,
-                CreatedAt = DateTime.Now
-            };
-            _db.UserProfiles.Add(newProfile);
-            await _db.SaveChangesAsync();
+                var newProfile = new UserProfile
+                {
+                    AccountId = newAccount.AccountId,
+                    FullName = fullName,
+                    PhoneNumber = phoneNumber,
+                    CreatedAt = DateTime.Now
+                };
+                _db.UserProfiles.Add(newProfile);
+                await _db.SaveChangesAsync();
 
-            var newCustomer = new Customer
+                var newCustomer = new Customer
+                {
+                    UserProfileId = newProfile.UserProfileId,
+                    NationalId = nationalId,
+                    CreatedAt = DateTime.Now
+                };
+                _db.Customers.Add(newCustomer);
+                await _db.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
             {
-                UserProfileId = newProfile.UserProfileId,
-                NationalId = nationalId,
-                CreatedAt = DateTime.Now
-            };
-            _db.Customers.Add(newCustomer);
-            await _db.SaveChangesAsync();
+                await transaction.RollbackAsync();
+                ViewBag.RegisterError = "Lỗi hệ thống khi đăng ký. Vui lòng thử lại.";
+                return View("Login");
+            }
 
             TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
             return RedirectToAction("Login");
